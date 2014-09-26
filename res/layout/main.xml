@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:baselineAligned="false"
+    android:orientation="horizontal" >
+
+    <FrameLayout
+        android:id="@+id/videoview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+    <TableLayout
+        android:id="@+id/table_sensorIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/videoview" >
+
+        <TableRow
+            android:id="@+id/row_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/mybutton"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/record_button_text"
+                android:textSize="12sp" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/toggle_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <ToggleButton
+                android:id="@+id/toggle_warning_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:onClick="onToggleClicked"
+                android:textOff="@string/show_sensor_button_text"
+                android:textOn="@string/hide_sensor_button_text"
+                android:textSize="12sp" />
+
+        </TableRow>
+
+<!--         <TableRow -->
+<!--             android:layout_width="fill_parent" -->
+<!--             android:layout_height="wrap_content" > -->
+
+<!--             <Button -->
+<!--                 android:id="@+id/button_view_graph" -->
+<!--                 android:layout_width="fill_parent" -->
+<!--                 android:layout_height="wrap_content" -->
+<!--                 android:onClick="onGraphButtonClicked" -->
+<!--                 android:text="@string/view_graph_button_text" -->
+<!--                 android:textSize="12sp" /> -->
+<!--         </TableRow> -->
+
+        <TableRow
+            android:id="@+id/row_sensor_data"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <fragment
+                android:id="@+id/sensorListFragment"
+                android:name="no_de.inf5090.hqvideocapture.userInterface.SensorListFragment"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                tools:layout="@layout/sensor_data_fragment" />
+        </TableRow>
+    </TableLayout>
+
+</RelativeLayout>

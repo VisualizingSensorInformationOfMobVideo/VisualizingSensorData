@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <string name="app_name">HQVideoCapture</string>
+    <string name="action_settings">Settings</string>
+    <string name="record_button_text">Record</string>
+    <string name="view_graph_button_text">Sensor Readings</string>
+    <string name="title_activity_graph_draw">Sensor Readings</string>
+    <string name="hide_sensor_button_text">Hide Warnings</string>
+    <string name="show_sensor_button_text">Show Warnings</string>
+    <string name="graph_rotation_text">Vertical rotation</string>
+    <string name="graph_tilt_text">Horizontal tilt</string>
+    <string name="graph_shake_text">Device shaking</string>
+    <string name="graph_speed_text">Walking speed</string>
+    
+</resources>
