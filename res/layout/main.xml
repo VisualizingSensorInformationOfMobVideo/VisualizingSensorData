@@ -67,7 +67,7 @@
 
             <fragment
                 android:id="@+id/sensorListFragment"
-                android:name="no_de.inf5090.hqvideocapture.userInterface.SensorListFragment"
+                android:name="no_de.inf5090.visualizingsensordata.userInterface.SensorListFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 tools:layout="@layout/sensor_data_fragment" />

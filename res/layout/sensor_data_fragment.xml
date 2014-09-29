@@ -40,7 +40,7 @@
     
 	<fragment
 	    android:id="@+id/graphFragment"
-	    android:name="no_de.inf5090.hqvideocapture.userInterface.SensorDataGraphFragment"
+	    android:name="no_de.inf5090.visualizingsensordata.userInterface.SensorDataGraphFragment"
 	    android:layout_width="200dp"
 	    android:layout_height="fill_parent"
 	    android:layout_marginTop="2dp"
