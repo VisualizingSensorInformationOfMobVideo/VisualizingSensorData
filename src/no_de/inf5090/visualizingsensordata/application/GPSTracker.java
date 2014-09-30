@@ -1,8 +1,8 @@
-package no_de.inf5090.hqvideocapture.application;
+package no_de.inf5090.visualizingsensordata.application;
 
 import java.util.ArrayList;
 
-import no_de.inf5090.hqvideocapture.userInterface.VideoCapture;
+import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 
 import android.app.AlertDialog;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package no_de.inf5090.hqvideocapture.persistency;
+package no_de.inf5090.visualizingsensordata.persistency;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import no_de.inf5090.hqvideocapture.userInterface.VideoCapture;
+import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 
 import org.w3c.dom.Document;
 import android.location.Location;

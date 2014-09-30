@@ -1,4 +1,4 @@
-package no_de.inf5090.hqvideocapture.persistency;
+package no_de.inf5090.visualizingsensordata.persistency;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,8 +27,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import no_de.inf5090.hqvideocapture.application.Utils;
-import no_de.inf5090.hqvideocapture.domain.SensorData;
+import no_de.inf5090.visualizingsensordata.application.Utils;
+import no_de.inf5090.visualizingsensordata.domain.SensorData;
 
 /**
  * This class logs all changes in sensors. When writeXML is executed, the readings will be written to file in xml format
@@ -78,7 +78,7 @@ public class SensorWriter implements Observer {
 			
 			// App name
 			Element appNameElement = doc.createElement("AppName");
-			appNameElement.appendChild(doc.createTextNode("HighQualityVideoCapture"));
+			appNameElement.appendChild(doc.createTextNode("VisualizingSensorData"));
 			rootElement.appendChild(appNameElement);
 
 			Date date = new Date();

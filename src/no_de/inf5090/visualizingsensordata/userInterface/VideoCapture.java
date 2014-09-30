@@ -1,14 +1,14 @@
-package no_de.inf5090.hqvideocapture.userInterface;
+package no_de.inf5090.visualizingsensordata.userInterface;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import no_de.inf5090.hqvideocapture.R;
-import no_de.inf5090.hqvideocapture.application.GPSTracker;
-import no_de.inf5090.hqvideocapture.application.Utils;
-import no_de.inf5090.hqvideocapture.persistency.GPXWriter;
+import no_de.inf5090.visualizingsensordata.R;
+import no_de.inf5090.visualizingsensordata.application.GPSTracker;
+import no_de.inf5090.visualizingsensordata.application.Utils;
+import no_de.inf5090.visualizingsensordata.persistency.GPXWriter;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;

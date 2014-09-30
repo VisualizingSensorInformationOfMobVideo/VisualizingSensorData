@@ -1,4 +1,4 @@
-package no_de.inf5090.hqvideocapture.domain;
+package no_de.inf5090.visualizingsensordata.domain;
 
 import java.util.Observable;
 

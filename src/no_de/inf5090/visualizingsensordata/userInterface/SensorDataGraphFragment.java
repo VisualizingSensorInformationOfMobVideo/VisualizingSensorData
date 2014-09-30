@@ -1,4 +1,4 @@
-package no_de.inf5090.hqvideocapture.userInterface;
+package no_de.inf5090.visualizingsensordata.userInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +12,13 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-import no_de.inf5090.hqvideocapture.R;
-import no_de.inf5090.hqvideocapture.application.Utils;
-import no_de.inf5090.hqvideocapture.domain.AccelerationSensorObserver;
-import no_de.inf5090.hqvideocapture.domain.RotationSensorObserver;
-import no_de.inf5090.hqvideocapture.domain.SensorData;
-import no_de.inf5090.hqvideocapture.domain.SpeedSensorObserver;
-import no_de.inf5090.hqvideocapture.domain.TiltSensorObserver;
+import no_de.inf5090.visualizingsensordata.R;
+import no_de.inf5090.visualizingsensordata.application.Utils;
+import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.RotationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.SensorData;
+import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.TiltSensorObserver;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.graphics.Color;

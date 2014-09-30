@@ -1,23 +1,24 @@
-package no_de.inf5090.hqvideocapture.domain;
+package no_de.inf5090.visualizingsensordata.domain;
 
-import java.util.Date;
 import java.util.Observable;
+
 import java.util.Observer;
 
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
-/**
- * This class keeps track of the direction the camera is aimed in
- * @author aage
- *
+/*
+ * This class keeps track of changes in the orientation of the phone, acts as an orientation sensor.
+ * When changes are made to the orientation, any observers of this object will be notified
  */
-public class DirectionSensorObserver extends Observable implements Observer {
+public class OrientationSensorObserver extends Observable implements Observer {
 
 	SensorManager sensorManager;
 	SensorObservable observableAccelerometer;
 	SensorObservable observableMagneticField;
 	
+	private float angX;
+	private float angY;
 	private float angZ;
 	
 	public enum Orientation {
@@ -33,7 +34,7 @@ public class DirectionSensorObserver extends Observable implements Observer {
 	 * @param sensorManager: Instance of SensorManager. Needed to get access to sensors. 
 	 * Note: need to call acquire resources to start listening for sensor changes!
 	 */
-	public DirectionSensorObserver(SensorManager sensorManager) {
+	public OrientationSensorObserver(SensorManager sensorManager) {
 		// TODO Auto-generated constructor stub
 		observableAccelerometer = new SensorObservable();
 		observableAccelerometer.addObserver(this);
@@ -61,24 +62,28 @@ public class DirectionSensorObserver extends Observable implements Observer {
 		
 		// Unable to calc rotation matrix - always fails in debug
 		if(!SensorManager.getRotationMatrix(R, I, observableAccelerometer.values, observableMagneticField.values)) {
+			/*
+			angX = 0.5f;
+			angY = -0.5f;
+			inclination = 1f;
+			setChanged();
+			notifyObservers();
+			*/
 			return;
 		}
 		
 		// Calculate orientation of phone
 		float[] orientation = SensorManager.getOrientation(R, values);
 		angZ = orientation[0];
+		angX = orientation[1];
+		angY = orientation[2];		
 
 		// Calculate inclination of phone
 		inclination = SensorManager.getInclination(I);
 		
 		// Inform observers:
 		setChanged();
-		try {
-			notifyObservers(new SensorData(this, (float)normalizeRadianAngle(getYawn()), new Date()));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		notifyObservers();
 	}
 	
 	/*
@@ -114,7 +119,21 @@ public class DirectionSensorObserver extends Observable implements Observer {
 			notifyObservers();			
 		}
 	}
-		
+	
+	/*
+	 * Gets the roll angle in radians of the device
+	 */
+	public double getRoll() {
+		return angY - (orientation == Orientation.LANDSCAPE ? Math.PI/2 : 0);
+	}
+	
+	/*
+	 * Gets the pitch angle in radians of the device
+	 */
+	public double getPitch() {
+		return angX + (orientation == Orientation.LANDSCAPE ? 0 : Math.PI/2);
+	}
+	
 	/*
 	 * Gets the yawn (or azimuth) angle in radians of the device
 	 */
@@ -133,5 +152,4 @@ public class DirectionSensorObserver extends Observable implements Observer {
 			throw new Exception("Angle cannot be greater than pi");
 		return Math.abs(angle / (Math.PI));
 	}
-
 }

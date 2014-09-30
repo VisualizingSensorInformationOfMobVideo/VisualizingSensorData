@@ -1,11 +1,11 @@
-package no_de.inf5090.hqvideocapture.persistency.test;
+package no_de.inf5090.visualizingsensordata.persistency.test;
 
 import java.io.File;
 import java.util.Date;
 
 
-import no_de.inf5090.hqvideocapture.domain.SensorData;
-import no_de.inf5090.hqvideocapture.persistency.SensorWriter;
+import no_de.inf5090.visualizingsensordata.domain.SensorData;
+import no_de.inf5090.visualizingsensordata.persistency.SensorWriter;
 import junit.framework.TestCase;
 
 public class SensorWriterTest extends TestCase {

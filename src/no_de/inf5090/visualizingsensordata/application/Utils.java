@@ -1,10 +1,10 @@
-package no_de.inf5090.hqvideocapture.application;
+package no_de.inf5090.visualizingsensordata.application;
 
 import java.io.File;
 import java.util.Date;
 import java.util.List;
 
-import no_de.inf5090.hqvideocapture.domain.SensorData;
+import no_de.inf5090.visualizingsensordata.domain.SensorData;
 
 public class Utils {
 	public static int puEncodingFormat = 0;
