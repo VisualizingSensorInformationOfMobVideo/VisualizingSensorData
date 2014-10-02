@@ -11,10 +11,13 @@ import java.util.Queue;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.SensorData;
 import no_de.inf5090.visualizingsensordata.domain.SnapshotData;
+import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 
 import android.graphics.Bitmap.CompressFormat;
+import android.os.AsyncTask;
+import android.util.Log;
 
-public class SnapshotWriter {
+public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 	
 	Queue<SnapshotData> snapshotData;
 	
@@ -44,6 +47,23 @@ public class SnapshotWriter {
 		}
 		catch (FileNotFoundException  e) {
 		}
+	}
+
+	@Override
+	protected Void doInBackground(byte[]... data) {
+		try {
+			String fPath = VideoCapture.appDir.getPath() + "/" + System.currentTimeMillis() + ".jpg";
+			FileOutputStream fos = new FileOutputStream(fPath);
+			fos.write(data[0]);
+			fos.flush();
+			fos.close();
+			
+			Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 
 }
