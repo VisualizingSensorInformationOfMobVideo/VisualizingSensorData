@@ -74,7 +74,7 @@ public class VideoCapture extends Activity {
 		
 		// init app Dir
 		String root = Environment.getExternalStorageDirectory().toString();
-		appDir  = new File(root + "/HQCV");    
+		appDir  = new File(root + "/VSD");    
         appDir.mkdirs();
     	    	
     	gpsTracker = new GPSTracker(context);
