@@ -9,6 +9,7 @@ import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.GPSTracker;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.persistency.GPXWriter;
+import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -22,6 +23,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -29,6 +31,9 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.ShutterCallback;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
@@ -43,6 +48,8 @@ public class VideoCapture extends Activity {
 	Button myButton;
 	SurfaceHolder surfaceHolder;
 	boolean recording;
+	Thread t = null;
+	private volatile boolean takingSnapshot; // Used by snapshot feature
 	
 	// singleton
 	private static VideoCapture self;
@@ -98,6 +105,7 @@ public class VideoCapture extends Activity {
 		@SuppressLint("NewApi")
 		public void onClick(View v) {
 			if (recording) {
+				stopSnapshot();
 				
 				// Write XML
 				GPXWriter writer = new GPXWriter();
@@ -140,10 +148,26 @@ public class VideoCapture extends Activity {
 		        FragmentManager fragmentManager = getFragmentManager();
 		        SensorListFragment sensorDataFragment = (SensorListFragment)fragmentManager.findFragmentById(R.id.sensorListFragment);
 		        sensorDataFragment.startPersistingSensorData();
+		        
+		        startSnapshot();
+		        Thread t = new Thread(new Runnable() { 
+		        	public void run() {
+		        		final long time = 1000;
+		        		while(takingSnapshot) {
+		        			myCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
+		        			try {
+								Thread.sleep(time);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+		        		}
+		        	}
+		        });
+		        t.start();
 			}
 		}
 	};
-
+	
 	private Camera getCameraInstance() {
 		// TODO Auto-generated method stub
 		Camera c = null;
@@ -333,4 +357,29 @@ public class VideoCapture extends Activity {
 	public static void setSelf(VideoCapture self) {
 		VideoCapture.self = self;
 	}
+	
+
+	private void stopSnapshot() { takingSnapshot = false; }
+	private void startSnapshot() { takingSnapshot = true; }
+
+	ShutterCallback shutterCallback = new ShutterCallback() {
+		public void onShutter() {
+			Log.d("snap", "onShutter");
+		}
+	};
+	
+	PictureCallback rawCallback = new PictureCallback() {
+		public void onPictureTaken(byte[] data, Camera camera) {
+			Log.d("snap", "onPictureTaken - raw");
+		}
+	};
+	
+	PictureCallback jpegCallback = new PictureCallback() {
+		public void onPictureTaken(byte[] data, Camera camera) {
+			new SnapshotWriter().execute(data);
+			Log.d("snap", "onPictureTaken - jpeg");
+		}
+	};
+	
+	
 }
