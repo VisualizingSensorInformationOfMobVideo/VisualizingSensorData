@@ -50,7 +50,7 @@ public class GPXWriter {
 
 	            Element gpxElement = document.createElement("gpx");
 	            gpxElement.setAttribute("version", "1.1");
-	            gpxElement.setAttribute("creator", "HQVCApp");
+	            gpxElement.setAttribute("creator", "VSDApp");
 	            gpxElement.setAttribute("xlmns", "http://www.topografix.com/GPX/1/1");
 	            gpxElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 	            document.appendChild(gpxElement);
