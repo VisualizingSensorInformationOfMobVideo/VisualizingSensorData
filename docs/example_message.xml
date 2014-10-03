@@ -1,0 +1,30 @@
+<?xml version="1.0" charset="utf-8"?>
+<LogFile>
+	<ID>21df2ac2</ID>
+	<DateTime>2014-10-03T11:07:57.0010000-02:00</DateTime>
+	<LogItem>
+		<Name>Orientation</Name>
+		<DateTime>2014-10-03T11:07:56.1000000-02:00</DateTime>
+		<Azimuth>1.1452174</Azimuth>
+		<Pitch>0.1107518</Pitch>
+		<Roll>0.7141051</Roll>
+	</LogItem>
+	<LogItem>
+		<Name>Acceleration</Name>
+		<DateTime>2014-10-03T11:07:46.1350000-02:00</DateTime>
+		<Force>2.1048181</Force>
+	</LogItem>
+	<LogItem>
+		<Name>Orientation</Name>
+		<DateTime>2014-10-03T11:07:56.2800000-02:00</DateTime>
+		<Azimuth>1.1452174</Azimuth>
+		<Pitch>0.1107518</Pitch>
+		<Roll>0.7141051</Roll>
+	</LogItem>
+	<LogItem>
+		<Name>Location</Name>
+		<DateTime>2014-10-03T11:07:56.5480000-02:00</DateTime>
+		<Longitude>10.75224539</Longitude>
+		<Latitude>59.91386880</Latitude>
+	</LogItem>
+</LogFile>
