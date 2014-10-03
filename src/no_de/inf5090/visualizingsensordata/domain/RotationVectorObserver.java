@@ -80,7 +80,7 @@ public class RotationVectorObserver extends Observable implements Observer {
 			}
 		} else {
 			// transform rotation vector to rotation matrix
-			SensorManager.getRotationMatrixFromVector(mRotationMatrix, ((SensorObservable)observable).lastEvent.values);
+			SensorManager.getRotationMatrixFromVector(mRotationMatrix, mObservableSensor1.values);
 		}
 		
 		// transform coordinate system
