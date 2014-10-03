@@ -124,7 +124,7 @@ public class VideoCapture extends Activity {
 		        FragmentManager fragmentManager = getFragmentManager();
 		        SensorListFragment sensorDataFragment = (SensorListFragment)fragmentManager.findFragmentById(R.id.sensorListFragment);
 		        sensorDataFragment.stopPersistingSensorData(currentFileName);
-				
+			myCamera.startPreview();
 			} else {
 				
 				// Mark last recording start
@@ -384,6 +384,11 @@ public class VideoCapture extends Activity {
 	
 	PictureCallback jpegCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera) {
+			if (!takingSnapshot) {
+				// The user has stopped recording
+				return; 
+			}
+
 			new SnapshotWriter().execute(data);
 			Log.d("snap", "onPictureTaken - jpeg");
 
@@ -398,8 +403,6 @@ public class VideoCapture extends Activity {
 
 	                @Override
 	                public void run() {
-	                    // TODO Auto-generated method stub
-	                    super.run();
 	                    try {
 	                        sleep(delay);
 	                        myCamera.takePicture(null, null, jpegCallback); 
