@@ -6,10 +6,9 @@ import java.util.List;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.RotationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
 import no_de.inf5090.visualizingsensordata.domain.SensorData;
 import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.TiltSensorObserver;
 import android.os.Build;
 import android.os.Bundle;
 import android.annotation.TargetApi;
@@ -43,18 +42,19 @@ public class GraphDrawActivity extends Activity {
 		
 		// Draw graphs
 		
-		List<SensorData> rotateDatas = new ArrayList<SensorData>();
-		List<SensorData> tiltDatas = new ArrayList<SensorData>();
+		//List<SensorData> rotateDatas = new ArrayList<SensorData>();
+		//List<SensorData> tiltDatas = new ArrayList<SensorData>();
 		List<SensorData> shakeDatas = new ArrayList<SensorData>();
 		List<SensorData> speedDatas = new ArrayList<SensorData>();
 		
 		// Sort all readings
 		for (SensorData sensorData : Utils.sensorDatas) {
-			if(sensorData.getSensor() instanceof RotationSensorObserver)
+			/*if(sensorData.getSensor() instanceof RotationVectorObserver)
 				rotateDatas.add(sensorData);
 			else if(sensorData.getSensor() instanceof TiltSensorObserver)
 				tiltDatas.add(sensorData);
-			else if(sensorData.getSensor() instanceof AccelerationSensorObserver)
+			else */
+			if(sensorData.getSensor() instanceof AccelerationSensorObserver)
 				shakeDatas.add(sensorData);
 			else if(sensorData.getSensor() instanceof SpeedSensorObserver)
 				speedDatas.add(sensorData);
@@ -62,8 +62,8 @@ public class GraphDrawActivity extends Activity {
 
         FragmentManager fragmentManager = getFragmentManager();
         SensorDataGraphFragment sensorGraphFragment = (SensorDataGraphFragment)fragmentManager.findFragmentById(R.id.rotateGraphFragment);
-        sensorGraphFragment.addSensorDataList(rotateDatas, getResources().getString(R.string.graph_rotation_text), Color.MAGENTA);
-        sensorGraphFragment.addSensorDataList(tiltDatas, getResources().getString(R.string.graph_tilt_text), Color.GREEN);
+        //sensorGraphFragment.addSensorDataList(rotateDatas, getResources().getString(R.string.graph_rotation_text), Color.MAGENTA);
+        //sensorGraphFragment.addSensorDataList(tiltDatas, getResources().getString(R.string.graph_tilt_text), Color.GREEN);
         sensorGraphFragment.addSensorDataList(shakeDatas, getResources().getString(R.string.graph_shake_text), Color.WHITE);
         sensorGraphFragment.addSensorDataList(speedDatas, getResources().getString(R.string.graph_speed_text), Color.RED);
 
