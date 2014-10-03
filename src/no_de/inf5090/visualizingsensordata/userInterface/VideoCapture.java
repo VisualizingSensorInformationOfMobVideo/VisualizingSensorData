@@ -50,6 +50,9 @@ public class VideoCapture extends Activity {
 	boolean recording;
 	Thread t = null;
 	private volatile boolean takingSnapshot; // Used by snapshot feature
+	private static int snapshotCounter = 0; // Used by snapshot feature
+	private int numOfSnapshots = 5;
+	private static int delay =  2000;
 	
 	// singleton
 	private static VideoCapture self;
@@ -76,8 +79,8 @@ public class VideoCapture extends Activity {
 
 		myButton = (Button) findViewById(R.id.mybutton);
 		myButton.setOnClickListener(myButtonOnClickListener);
-		myButton.setEnabled(false);
-		//myButton.setEnabled(true);
+		//myButton.setEnabled(false);
+		myButton.setEnabled(true);
 		
 		// init app Dir
 		String root = Environment.getExternalStorageDirectory().toString();
@@ -150,7 +153,10 @@ public class VideoCapture extends Activity {
 		        sensorDataFragment.startPersistingSensorData();
 		        
 		        startSnapshot();
-		        Thread t = new Thread(new Runnable() { 
+		        //myCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
+		        myCamera.takePicture(null, null, jpegCallback);
+		        
+		       /*Thread t = new Thread(new Runnable() { 
 		        	public void run() {
 		        		final long time = 1000;
 		        		while(takingSnapshot) {
@@ -161,9 +167,11 @@ public class VideoCapture extends Activity {
 								e.printStackTrace();
 							}
 		        		}
+		        		
+		        		
 		        	}
 		        });
-		        t.start();
+		        t.start();*/
 			}
 		}
 	};
@@ -221,8 +229,7 @@ public class VideoCapture extends Activity {
 	 * @see android.app.Activity#onResume()
 	 */
 	protected void onResume() {
-		super.onResume();
-		
+		super.onResume();		
 		//TODO: Resume Camera/Media recorder.
 		gpsTracker.startUsingGPS();
 		
@@ -304,7 +311,8 @@ public class VideoCapture extends Activity {
 
 			// start preview with new settings
 			try {
-				mCamera.setPreviewDisplay(mHolder);
+				//mCamera.setPreviewDisplay(mHolder);
+				mCamera.setPreviewDisplay(holder);
 				mCamera.startPreview();
 
 			} catch (Exception e) {
@@ -378,7 +386,35 @@ public class VideoCapture extends Activity {
 		public void onPictureTaken(byte[] data, Camera camera) {
 			new SnapshotWriter().execute(data);
 			Log.d("snap", "onPictureTaken - jpeg");
+
+			myCamera.startPreview(); // to avoid preview freezing after taking a pic
+			snapshotCounter++;
+			/*if (snapshotCounter < numOfSnapshots) {
+				//myCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
+				myCamera.takePicture(null, null, jpegCallback);
+			}*/
+			if (snapshotCounter <= numOfSnapshots) {
+	            Thread thread = new Thread() {
+
+	                @Override
+	                public void run() {
+	                    // TODO Auto-generated method stub
+	                    super.run();
+	                    try {
+	                        sleep(delay);
+	                        myCamera.takePicture(null, null, jpegCallback); 
+	                    }
+	                    catch (InterruptedException e) {
+	                        e.printStackTrace();
+	                    }
+	                }
+	            };
+
+	            thread.start();
+	        }
+
 		}
+		
 	};
 	
 	
