@@ -14,7 +14,8 @@ public class RotationVectorObserver extends Observable implements Observer {
 	private static final String TAG = "RotationVectorObserver";
 	
 	SensorManager sensorManager;
-	SensorObservable mObservableSensor;
+	SensorObservable mObservableSensor1; // for rotationvector-sensor or accelerometer in fallback
+	SensorObservable mObservableSensor2; // for magneticfield-sensor in fallback
 	
 	private float mAzimuth; // rotation around the Z axis
 	private float mPitch;   // rotation around the X axis
@@ -22,6 +23,8 @@ public class RotationVectorObserver extends Observable implements Observer {
 	
 	private final float[] mRotationMatrix = new float[16];
 	private final static float FILTER_SMOOTHING = 0.7f;
+	
+	private boolean mIsFallback = false;
 	
 	/**
      * Time of last update
@@ -38,9 +41,17 @@ public class RotationVectorObserver extends Observable implements Observer {
 	 * Note: need to call acquire resources to start listening for sensor changes!
 	 */
 	public RotationVectorObserver(SensorManager sensorManager) {
-		mObservableSensor = new SensorObservable();
-		mObservableSensor.addObserver(this);
+		mObservableSensor1 = new SensorObservable();
+		mObservableSensor1.addObserver(this);
 		
+		// check if we don't have ROTATION_VECTOR-sensor available
+		if (sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == null) {
+			Log.d(TAG, "Fallback to accelerometer and magnetic field sensors");
+			mObservableSensor2 = new SensorObservable();
+			mObservableSensor2.addObserver(this);
+			mIsFallback = true;
+		}
+
 		this.sensorManager = sensorManager;
 	}
 	
@@ -57,8 +68,20 @@ public class RotationVectorObserver extends Observable implements Observer {
 		}
 		mLastTime = now;
 		
-		// transform rotation vector to rotation matrix
-		SensorManager.getRotationMatrixFromVector(mRotationMatrix, ((SensorObservable)observable).lastEvent.values);
+		// fallback?
+		if (mIsFallback) {
+			// require data from both sensors
+			if (mObservableSensor1.values == null || mObservableSensor2.values == null) return;
+			
+			// get rotation matrix from sensors
+			if (!SensorManager.getRotationMatrix(mRotationMatrix, null, mObservableSensor1.values, mObservableSensor2.values)) {
+				Log.e(TAG, "getRotationMatrix failed");
+				return;
+			}
+		} else {
+			// transform rotation vector to rotation matrix
+			SensorManager.getRotationMatrixFromVector(mRotationMatrix, ((SensorObservable)observable).lastEvent.values);
+		}
 		
 		// transform coordinate system
 		SensorManager.remapCoordinateSystem(mRotationMatrix, SensorManager.AXIS_X, SensorManager.AXIS_Z, mRotationMatrix);
@@ -86,14 +109,20 @@ public class RotationVectorObserver extends Observable implements Observer {
 	 * Note: must call acquireResources() to enable survailing of orientation 
 	 */
 	public void freeResources() {
-		sensorManager.unregisterListener(mObservableSensor);
+		sensorManager.unregisterListener(mObservableSensor1);
+		if (mIsFallback) sensorManager.unregisterListener(mObservableSensor2);
 	}
 	
 	/*
 	 * Call this to start listening for changes in orientation
 	 */
 	public void acquireResources() {
-		sensorManager.registerListener(mObservableSensor,  sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_NORMAL);
+		if (mIsFallback) {
+			sensorManager.registerListener(mObservableSensor1, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+			sensorManager.registerListener(mObservableSensor2, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
+		} else {
+			sensorManager.registerListener(mObservableSensor1,  sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_NORMAL);
+		}
 	}
 	
 	/*

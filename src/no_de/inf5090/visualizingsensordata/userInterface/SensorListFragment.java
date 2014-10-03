@@ -5,9 +5,8 @@ import java.util.Observer;
 
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.RotationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
 import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.TiltSensorObserver;
 import no_de.inf5090.visualizingsensordata.persistency.SensorWriter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -35,8 +34,7 @@ public class SensorListFragment extends Fragment implements Observer {
 	// Sensor instances
 	private SpeedSensorObserver speedSensor;
 	private AccelerationSensorObserver accelerationSensor;
-	private RotationSensorObserver rotationSensor;
-	private TiltSensorObserver tiltSensor;
+	private RotationVectorObserver orientationSensor;
 	
 	// Persistence instance
 	private SensorWriter sensorWriter;
@@ -45,9 +43,9 @@ public class SensorListFragment extends Fragment implements Observer {
 
 	// List of view id's
 	private enum ID {
-		SENSORROTATE,
-		SENSORTILT,
-		SENSORINCLINATION,
+		SENSORAZIMUTH,
+		SENSORPITCH,
+		SENSORROLL,
 		SENSORSHAKE,
 		SENSORSPEED;
 	}
@@ -56,9 +54,6 @@ public class SensorListFragment extends Fragment implements Observer {
 	private Toast shakeWarning;
 	private Toast orientationWarning;
 	private Toast speedWarning;
-	
-	private boolean rotationError = false;
-	private boolean tiltError = false;
 	
     @SuppressLint("ShowToast")
 	@Override
@@ -78,22 +73,16 @@ public class SensorListFragment extends Fragment implements Observer {
     	speedSensor = new SpeedSensorObserver(inflater.getContext());
     	speedSensor.addObserver(this);
     	speedSensor.addObserver(graphFragment);
-    	
-    	// initiating tilt sensor
-    	tiltSensor = new TiltSensorObserver((SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE));
-    	tiltSensor.addObserver(this);
-    	tiltSensor.addObserver(graphFragment);
 
-    	// Initiating rotation sensor
-    	rotationSensor = new RotationSensorObserver((SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE));
-    	rotationSensor.addObserver(this);
-    	rotationSensor.addObserver(graphFragment);
+    	// Initiating orientation sensor
+    	orientationSensor = new RotationVectorObserver((SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE));
+    	orientationSensor.addObserver(this);
+    	orientationSensor.addObserver(graphFragment);
     	
     	// Initiate row to handle my runtime added control
     	setUpAccelerationSensor();
     	setUpSpeedSensor();
-    	setUpTiltSensor();
-    	setUpRotationSensor();
+    	setUpOrientationSensor();
     	
     	// Initiate SensorWriter
     	sensorWriter = new SensorWriter();
@@ -111,8 +100,7 @@ public class SensorListFragment extends Fragment implements Observer {
 		super.onResume();
 		accelerationSensor.onResume();
 		speedSensor.startUsingGPS();
-		tiltSensor.acquireResources();
-		rotationSensor.acquireResources();
+		orientationSensor.acquireResources();
 
 	}
 
@@ -121,8 +109,7 @@ public class SensorListFragment extends Fragment implements Observer {
 		super.onPause();
 		accelerationSensor.onPause();
 		speedSensor.stopUsingGPS();
-		tiltSensor.freeResources();
-		rotationSensor.freeResources();
+		orientationSensor.freeResources();
 	}
     
     /**
@@ -131,8 +118,7 @@ public class SensorListFragment extends Fragment implements Observer {
     public void startPersistingSensorData() {
     	accelerationSensor.addObserver(sensorWriter);
     	speedSensor.addObserver(sensorWriter);
-    	tiltSensor.addObserver(sensorWriter);
-    	rotationSensor.addObserver(sensorWriter);
+    	//orientationSensor.addObserver(sensorWriter);
     }
     
     /**
@@ -142,8 +128,7 @@ public class SensorListFragment extends Fragment implements Observer {
     public void stopPersistingSensorData(String correspondingFileName) {
     	accelerationSensor.deleteObserver(sensorWriter);
     	speedSensor.deleteObserver(sensorWriter);
-    	tiltSensor.deleteObserver(sensorWriter);
-    	rotationSensor.deleteObserver(sensorWriter);
+    	//orientationSensor.deleteObserver(sensorWriter);
     	sensorWriter.writeXML(VideoCapture.appDir.getPath()+"/"+correspondingFileName+"-sensor.xml");
     }
     
@@ -153,10 +138,8 @@ public class SensorListFragment extends Fragment implements Observer {
 			handleShakeEvent();
 		} else if(observable.equals(speedSensor)) {
 			handleSpeedEvent();
-		} else if(observable.equals(tiltSensor)) {
-			handleTiltSensorObserverChanged();
-		} else if(observable.equals(rotationSensor)) {
-			handleRotationSensorObserverChanged();
+		} else if (observable.equals(orientationSensor)) {
+			handleOrientionVectorObserverChanged();
 		}
 	}
 
@@ -177,22 +160,28 @@ public class SensorListFragment extends Fragment implements Observer {
     	progress_speed.setProgress(0);
 	}
 
-    private void setUpTiltSensor() {
-    	// bind progress bar to orientation sensor
-    	ProgressBar progress_tilt = (ProgressBar)fragmentView.findViewById(R.id.tiltBar);
-    	progress_tilt.setId(ID.SENSORTILT.ordinal());
-    	progress_tilt.setMax(20);
-    	progress_tilt.setProgress(0);
+    private void setUpOrientationSensor() {
+    	ProgressBar bar;
+    	
+		// azimuth
+    	bar = (ProgressBar)fragmentView.findViewById(R.id.azimuthBar);
+    	bar.setId(ID.SENSORAZIMUTH.ordinal());
+    	bar.setMax(100);
+    	bar.setProgress(0);
+    	
+    	// pitch
+    	bar = (ProgressBar)fragmentView.findViewById(R.id.pitchBar);
+    	bar.setId(ID.SENSORPITCH.ordinal());
+    	bar.setMax(100);
+    	bar.setProgress(0);
+    	
+    	// roll
+    	bar = (ProgressBar)fragmentView.findViewById(R.id.rollBar);
+    	bar.setId(ID.SENSORROLL.ordinal());
+    	bar.setMax(100);
+    	bar.setProgress(0);
 	}
-
-    private void setUpRotationSensor() {
-    	// Add progress bar for rotate
-    	ProgressBar progress_rotate = (ProgressBar)fragmentView.findViewById(R.id.rotationBar);
-    	progress_rotate.setId(ID.SENSORROTATE.ordinal());
-    	progress_rotate.setMax(20);
-    	progress_rotate.setProgress(0);
-	}
-
+	
 	
 	/**
 	 * This method handles shake events and updates the progress bar to show if shaking is too bad.
@@ -202,7 +191,7 @@ public class SensorListFragment extends Fragment implements Observer {
 		ProgressBar progress_shake = (ProgressBar) fragmentView.findViewById(ID.SENSORSHAKE.ordinal());
 		
 		try {
-			shakeValue = (int) (Math.abs(accelerationSensor.getShake()) * 100);
+			shakeValue = (int) (Math.abs(accelerationSensor.getShake()/10) * 100);
 		} catch (Exception e) {
 			e.printStackTrace();
 			shakeValue = 0;
@@ -220,54 +209,31 @@ public class SensorListFragment extends Fragment implements Observer {
 	/*
 	 * Visually presents the orientation of the device
 	 */
-	private void handleTiltSensorObserverChanged() {
-		ProgressBar progress_tilt = (ProgressBar)fragmentView.findViewById(ID.SENSORTILT.ordinal());
-		int tiltValue;
-		try {
-			tiltValue = (int)((TiltSensorObserver.normalizeRadianAngle(tiltSensor.getPitch()) * 100));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			tiltValue = 0;
+	private void handleOrientionVectorObserverChanged() {
+		ProgressBar bar;
+		int val;
+		
+		// azimuth
+		bar = (ProgressBar)fragmentView.findViewById(ID.SENSORAZIMUTH.ordinal());
+		val = (int) ((orientationSensor.getAzimuth() + Math.PI) / Math.PI / 2 * 100);
+		bar.setProgress(val);
+		
+		// pitch
+		bar = (ProgressBar)fragmentView.findViewById(ID.SENSORPITCH.ordinal());
+		val = (int) (Math.abs(orientationSensor.getPitch()) / Math.PI * 200);
+		bar.setProgress(val);
+		bar.setBackgroundColor(val < 10 ? Color.GREEN : Color.RED);
+		if (val >= 10) {
+			if (this.fragmentView.isShown()) orientationWarning.show();
 		}
-		progress_tilt.setProgress(tiltValue);
-		if (tiltValue < 10) {
-			progress_tilt.setBackgroundColor(Color.GREEN);
-			tiltError = false;
-		} else {
-			if(tiltError) {
-				progress_tilt.setBackgroundColor(Color.RED);
-				if (this.fragmentView.isShown()) orientationWarning.show();
-			}
-			
-			tiltError = true;
-		}
-	}
-
-	/*
-	 * Visually presents the orientation of the device
-	 */
-	private void handleRotationSensorObserverChanged() {
-		ProgressBar progress_rotate = (ProgressBar)fragmentView.findViewById(ID.SENSORROTATE.ordinal());
-		int rotateValue;
-		try {
-			rotateValue = (int)((RotationSensorObserver.normalizeRadianAngle(rotationSensor.getRoll()) * 100));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			rotateValue = 0;
-		}
-		progress_rotate.setProgress(rotateValue);
-		if (rotateValue < 10) {
-			progress_rotate.setBackgroundColor(Color.GREEN);
-			rotationError = false;
-
-		} else { 
-			if(rotationError) {
-				progress_rotate.setBackgroundColor(Color.RED);
-				if (this.fragmentView.isShown()) orientationWarning.show();
-			}
-			rotationError = true;
+		
+		// roll
+		bar = (ProgressBar)fragmentView.findViewById(ID.SENSORROLL.ordinal());
+		val = (int) (Math.abs(orientationSensor.getRoll()) / Math.PI * 100);
+		bar.setProgress(val);
+		bar.setBackgroundColor(val < 10 ? Color.GREEN : Color.RED);
+		if (val >= 10) {
+			if (this.fragmentView.isShown()) orientationWarning.show();
 		}
 	}
 
