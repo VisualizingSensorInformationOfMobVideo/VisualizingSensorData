@@ -10,6 +10,7 @@ import no_de.inf5090.visualizingsensordata.application.GPSTracker;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.persistency.GPXWriter;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
+import no_de.inf5090.visualizingsensordata.transmission.SnapshotTransmission;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -51,8 +52,10 @@ public class VideoCapture extends Activity {
 	Thread t = null;
 	private volatile boolean takingSnapshot; // Used by snapshot feature
 	private static int snapshotCounter = 0; // Used by snapshot feature
-	private int numOfSnapshots = 5;
+	private int numOfSnapshots = 2;
 	private static int delay =  2000;
+	private SnapshotTransmission snapshotTransmission;
+	public static boolean sendingSnapshot;
 	
 	// singleton
 	private static VideoCapture self;
@@ -109,6 +112,7 @@ public class VideoCapture extends Activity {
 		public void onClick(View v) {
 			if (recording) {
 				stopSnapshot();
+				stopSendingSnapshot();
 				
 				// Write XML
 				GPXWriter writer = new GPXWriter();
@@ -124,8 +128,13 @@ public class VideoCapture extends Activity {
 		        FragmentManager fragmentManager = getFragmentManager();
 		        SensorListFragment sensorDataFragment = (SensorListFragment)fragmentManager.findFragmentById(R.id.sensorListFragment);
 		        sensorDataFragment.stopPersistingSensorData(currentFileName);
-			myCamera.startPreview();
+			    myCamera.startPreview();
 			} else {
+				
+				// create a new connection to the server
+				// TODO create a variable with webserver url
+				snapshotTransmission = new SnapshotTransmission("http://example.com"); 
+				
 				
 				// Mark last recording start
 				Utils.lastRecordingStar = new Date();
@@ -155,6 +164,8 @@ public class VideoCapture extends Activity {
 		        startSnapshot();
 		        //myCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
 		        myCamera.takePicture(null, null, jpegCallback);
+		        
+		        startSendingSnapshot();
 		        
 		       /*Thread t = new Thread(new Runnable() { 
 		        	public void run() {
@@ -231,8 +242,7 @@ public class VideoCapture extends Activity {
 	protected void onResume() {
 		super.onResume();		
 		//TODO: Resume Camera/Media recorder.
-		gpsTracker.startUsingGPS();
-		
+		gpsTracker.startUsingGPS();		
 	}
 	
 	@Override
@@ -369,6 +379,8 @@ public class VideoCapture extends Activity {
 
 	private void stopSnapshot() { takingSnapshot = false; }
 	private void startSnapshot() { takingSnapshot = true; }
+	private void stopSendingSnapshot() { sendingSnapshot = false; }
+	private void startSendingSnapshot() { sendingSnapshot = true; }
 
 	ShutterCallback shutterCallback = new ShutterCallback() {
 		public void onShutter() {
@@ -384,23 +396,23 @@ public class VideoCapture extends Activity {
 	
 	PictureCallback jpegCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera) {
+			
 			if (!takingSnapshot) {
 				// The user has stopped recording
 				return; 
 			}
-
-			new SnapshotWriter().execute(data);
-			Log.d("snap", "onPictureTaken - jpeg");
-
+			
 			myCamera.startPreview(); // to avoid preview freezing after taking a pic
+			
+			new SnapshotWriter().execute(data);
+			Log.d("snap", "onPictureTaken - jpeg");	
+			snapshotTransmission.send_snapshot();
+			if (sendingSnapshot) {
+				snapshotTransmission.send_snapshot();
+		    }
 			snapshotCounter++;
-			/*if (snapshotCounter < numOfSnapshots) {
-				//myCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
-				myCamera.takePicture(null, null, jpegCallback);
-			}*/
 			if (snapshotCounter <= numOfSnapshots) {
 	            Thread thread = new Thread() {
-
 	                @Override
 	                public void run() {
 	                    try {
@@ -412,12 +424,10 @@ public class VideoCapture extends Activity {
 	                    }
 	                }
 	            };
-
 	            thread.start();
 	        }
-
+			else return;
 		}
-		
 	};
 	
 	

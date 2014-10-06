@@ -20,7 +20,7 @@ import android.util.Log;
 public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 	
 	//Queue<SnapshotData> snapshotData;
-	public static Queue<String > snapshotData = new LinkedList<String>();
+	public static Queue<String> snapshotData = new LinkedList<String>();
 	/**
 	 * Constructor: initiates snapshotwriter
 	 */
@@ -58,7 +58,7 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 			fos.flush();
 			fos.close();
 			
-			snapshotData.add(fPath);
+			snapshotData.add(fPath); // add full path of the just taken snaphot to the queue
 			
 			Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
 		} catch (Exception e) {
