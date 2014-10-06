@@ -19,13 +19,13 @@ import android.util.Log;
 
 public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 	
-	Queue<SnapshotData> snapshotData;
-	
+	//Queue<SnapshotData> snapshotData;
+	public static Queue<String > snapshotData = new LinkedList<String>();
 	/**
 	 * Constructor: initiates snapshotwriter
 	 */
 	public SnapshotWriter() {
-		snapshotData = new LinkedList<SnapshotData>();		
+		//snapshotData = new LinkedList<SnapshotData>();	
 	}
 	
 	public void writeBitmap(String path, SnapshotData snapshotData) {
@@ -51,12 +51,14 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 
 	@Override
 	protected Void doInBackground(byte[]... data) {
-		try {
+		try {	
 			String fPath = VideoCapture.appDir.getPath() + "/" + System.currentTimeMillis() + ".jpg";
 			FileOutputStream fos = new FileOutputStream(fPath);
 			fos.write(data[0]);
 			fos.flush();
 			fos.close();
+			
+			snapshotData.add(fPath);
 			
 			Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
 		} catch (Exception e) {
