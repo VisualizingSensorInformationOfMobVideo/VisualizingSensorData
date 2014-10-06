@@ -9,8 +9,11 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 
@@ -19,9 +22,11 @@ public class SnapshotTransmission {
 	URL url;
 	HttpURLConnection urlConnection = null;
 	
-	boolean check_connection() {
-		//TODO
-		return true;
+	boolean check_connection(Context context) {
+		ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);	
+		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+		return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
 	}
 	
 	public SnapshotTransmission(String url_name) {
