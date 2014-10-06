@@ -1,11 +1,14 @@
 package no_de.inf5090.visualizingsensordata.domain;
 
-import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.Observer;
 
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import no_de.inf5090.visualizingsensordata.application.Utils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * This class gets sensor readings from the accelerometer and calculates the change
@@ -13,12 +16,17 @@ import android.hardware.SensorManager;
  * detect shaking without being too influenced by gravity and the normal movement of the
  * person holding the phone.
  */
-public class AccelerationSensorObserver extends Observable implements Observer {
+public class AccelerationSensorObserver extends LogicalSensorObservable implements Observer {
 	private final SensorManager mSensorManager;
-	private final SensorObservable mObservableAccelerometer;
+	private final RawSensorObservable mObservableAccelerometer;
     private float mShake = 0.0f;                                 // Acceleration (without gravity, after filter).
     private float mAcceleration = SensorManager.GRAVITY_EARTH;   // The previous acceleration value (with gravity).
-    
+
+    /**
+     * The unique ID for this sensor observer
+     */
+    public final static int ID = 101;
+
     /**
      * Time of last shake update
      */
@@ -39,7 +47,7 @@ public class AccelerationSensorObserver extends Observable implements Observer {
      */ 
     public AccelerationSensorObserver(SensorManager sensorManager) {
         mSensorManager = sensorManager;
-        mObservableAccelerometer = new SensorObservable();
+        mObservableAccelerometer = new RawSensorObservable();
 		mObservableAccelerometer.addObserver(this);
     }
     
@@ -66,23 +74,18 @@ public class AccelerationSensorObserver extends Observable implements Observer {
 		mShake = mShake * (1-FILTER_SMOOTHING) + delta * FILTER_SMOOTHING;
 		
 		setChanged();
-		notifyObservers(new SensorData(this, getShake(), new Date()));
+		notifyObservers(new LogicalSensorData(this));
 	}
 	
-    /**
-     * Registers the sensor listener when the app is resumed to continue getting sensor data.
-     */ 
-	public void onResume() {
+    @Override
+    public void onResume() {
 		mSensorManager.registerListener(mObservableAccelerometer, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
 	}
-	
-    /**
-     * Releases the sensor listener when the app is paused to save power.
-     */ 
-	public void onPause() {
-		mSensorManager.unregisterListener(mObservableAccelerometer);
 
-	}
+    @Override
+    public void onPause() {
+		mSensorManager.unregisterListener(mObservableAccelerometer);
+    }
 	
     /**
      * Returns the shaking value (filtered acceleration delta).
@@ -90,4 +93,51 @@ public class AccelerationSensorObserver extends Observable implements Observer {
 	public float getShake() {
 		return mShake;
 	}
+
+    @Override
+    public int getSensorID() {
+        return ID;
+    }
+
+    /**
+     * Sensor observer data
+     */
+    public class LogicalSensorData extends AbstractLogicalSensorData {
+        private float acceleration;
+
+        public LogicalSensorData(AccelerationSensorObserver sensor) {
+            super(sensor);
+            this.acceleration = sensor.getShake();
+        }
+
+        @Override
+        public Element getXml() {
+            Document doc = Utils.getDocumentInstance();
+            Element item = getBaseXml();
+
+            // actual sensor data
+            Element elm = doc.createElement("Force");
+            elm.appendChild(doc.createTextNode(Float.toString(getAcceleration())));
+            item.appendChild(elm);
+
+            return item;
+        }
+
+        /**
+         * Returns the current value
+         */
+        public float getAcceleration() {
+            return acceleration;
+        }
+
+        @Override
+        public int getSensorID() {
+            return ID;
+        }
+
+        @Override
+        public String getSensorName() {
+            return "Acceleration";
+        }
+    }
 }

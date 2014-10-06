@@ -28,24 +28,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import no_de.inf5090.visualizingsensordata.application.Utils;
-import no_de.inf5090.visualizingsensordata.domain.SensorData;
+import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
 
 /**
  * This class logs all changes in sensors. When writeXML is executed, the readings will be written to file in xml format
  * 
- * @author aage
+ * @author aage et al.
  *
  */
 public class SensorWriter implements Observer {
 
-	List<SensorData> sensorData;
+	List<AbstractLogicalSensorData> sensorData;
+
+    private boolean mIsRecording = false;
 	
 	/**
 	 * Constructor: initiates sensorwriter
 	 */
 	public SensorWriter() {
-		sensorData = new ArrayList<SensorData>();
-		Utils.sensorDatas = new ArrayList<SensorData>();
+		sensorData = new ArrayList<AbstractLogicalSensorData>();
 	}
 	
 	/**
@@ -53,85 +54,78 @@ public class SensorWriter implements Observer {
 	 * Changes are collected
 	 */
 	public void update(Observable observable, Object data) {
-		if(data instanceof SensorData) {
-			sensorData.add((SensorData) data);
-			Utils.sensorDatas.add((SensorData) data);
-		}
+        if (!(data instanceof AbstractLogicalSensorData) || !mIsRecording) return;
+
+        sensorData.add((AbstractLogicalSensorData) data);
+        // FIXME: is this needed?? Utils.sensorDatas.add((SensorData) data);
 	}
-	
-	/**
-	 * Stores all logged readings on a file in xml format
-	 * @param correspondingFileName: name of file to store readings in
-	 */
-	public void writeXML(String fpath) {
+
+    /**
+     * Start recording for logical sensor updates. The sensors have to be injected in main controller.
+     */
+    public void startRecording() {
+        mIsRecording = true;
+    }
+
+    /**
+     * Stop recording for logical sensor updates
+     */
+    public void stopRecording() {
+        mIsRecording = false;
+    }
+
+    /**
+     * Convert data into XML-objects
+     */
+    protected Document generateXmlDom() {
+       	Element elm;
+        Document doc = Utils.getDocumentInstance();
+        Element rootElement = doc.createElement("LogFile");
+        doc.appendChild(rootElement);
+
+        // app name
+        elm = doc.createElement("AppName");
+        elm.appendChild(doc.createTextNode("VisualizingSensorData"));
+        rootElement.appendChild(elm);
+
+        // datetime
+        elm = doc.createElement("DateTime");
+        elm.appendChild(doc.createTextNode(Utils.getDateString(new Date())));
+        rootElement.appendChild(elm);
+
+        // sensor data
+        for (AbstractLogicalSensorData logItem : sensorData) {
+            rootElement.appendChild(logItem.getXml());
+        }
+
+        return doc;
+	}
+
+    /**
+     * Empty data set
+     */
+    public void emptyData() {
+        sensorData = new ArrayList<AbstractLogicalSensorData>();
+    }
+
+    /**
+     * Generate XML-file and empty data set
+     */
+    public void writeXml(String fpath) {
+        Document doc = generateXmlDom();
+        emptyData();
 
         File file = new File (fpath);
-        if (file.exists ()) file.delete (); 
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder = dbf.newDocumentBuilder();
-			
-			// Root elements
-			Document doc = docBuilder.newDocument();
-			Element rootElement = doc.createElement("LogFile");
-			doc.appendChild(rootElement);
-			
-			// App name
-			Element appNameElement = doc.createElement("AppName");
-			appNameElement.appendChild(doc.createTextNode("VisualizingSensorData"));
-			rootElement.appendChild(appNameElement);
+        if (file.exists ()) file.delete();
 
-			Date date = new Date();
-			// Time stamp
-			Element timestapmElement = doc.createElement("Timestamp");
-			timestapmElement.appendChild(doc.createTextNode(new SimpleDateFormat("yyyyMMddHHmmss.SSSS", java.util.Locale.getDefault()).format(date)));
-			rootElement.appendChild(timestapmElement);
-			
-			//date
-			Element appDateElement = doc.createElement("Date");
-			appDateElement.appendChild(doc.createTextNode(new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(date)));
-			rootElement.appendChild(appDateElement);
-			
-			//time
-			Element appTimeElement = doc.createElement("Time");
-			appTimeElement.appendChild(doc.createTextNode(new SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.getDefault()).format(date)));
-			rootElement.appendChild(appTimeElement);
-			
-			for (SensorData logItem : sensorData) {
-				// Receipts elements
-				Element itemElement = doc.createElement("LogItem");
-				rootElement.appendChild(itemElement);
-				
-				// Sensor type
-				Element classElement = doc.createElement("SensorType");
-				if(logItem.getSensor()!=null) {
-					classElement.appendChild(doc.createTextNode(logItem.getSensor().getClass().getName()));
-				}
-				itemElement.appendChild(classElement);
-				
-				// Date for reading
-				Element dateElement = doc.createElement("Date");					
-				dateElement.appendChild(doc.createTextNode(new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(logItem.getTimestamp())));
-				itemElement.appendChild(dateElement);
-				
-				// Time for reading
-				Element timeElement = doc.createElement("Time");					
-				timeElement.appendChild(doc.createTextNode(new SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.getDefault()).format(logItem.getTimestamp())));
-				itemElement.appendChild(timeElement);
-				
-				// Reading
-				Element readingElement = doc.createElement("Entry");
-				readingElement.appendChild(doc.createTextNode(Float.toString(logItem.getValue())));
-				itemElement.appendChild(readingElement);
-			}
-			
-			// Write to xml file
-			DOMSource source = new DOMSource(doc);
-			StreamResult streamResult = new StreamResult(fpath);
-			
-			// Set up transformer
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
+        try {
+            // Write to xml file
+            DOMSource source = new DOMSource(doc);
+            StreamResult streamResult = new StreamResult(fpath);
+
+            // Set up transformer
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
             Properties outFormat = new Properties();
             outFormat.setProperty(OutputKeys.INDENT, "yes");
             outFormat.setProperty(OutputKeys.METHOD, "xml");
@@ -139,15 +133,11 @@ public class SensorWriter implements Observer {
             outFormat.setProperty(OutputKeys.VERSION, "1.0");
             outFormat.setProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.setOutputProperties(outFormat);
-			transformer.transform(source, streamResult);
-							
-			// File saved!
-
-        } catch (ParserConfigurationException e) {
+            transformer.transform(source, streamResult);
         } catch (TransformerConfigurationException e) {
         } catch (TransformerException e) {
         }
-	}
+    }
 
 	// Used for testing only
 	@SuppressWarnings("unused")

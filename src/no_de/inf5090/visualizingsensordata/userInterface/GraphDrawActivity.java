@@ -7,7 +7,6 @@ import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
-import no_de.inf5090.visualizingsensordata.domain.SensorData;
 import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,13 +36,13 @@ public class GraphDrawActivity extends Activity {
 	private void drawGraphs() {
 		
 		// Check for null
-		if(Utils.sensorDatas == null)
+		/*if(Utils.sensorDatas == null)
 			return;
 		
 		// Draw graphs
 		
-		//List<SensorData> rotateDatas = new ArrayList<SensorData>();
-		//List<SensorData> tiltDatas = new ArrayList<SensorData>();
+		//List<LogicalSensorData> rotateDatas = new ArrayList<LogicalSensorData>();
+		//List<LogicalSensorData> tiltDatas = new ArrayList<LogicalSensorData>();
 		List<SensorData> shakeDatas = new ArrayList<SensorData>();
 		List<SensorData> speedDatas = new ArrayList<SensorData>();
 		
@@ -53,7 +52,7 @@ public class GraphDrawActivity extends Activity {
 				rotateDatas.add(sensorData);
 			else if(sensorData.getSensor() instanceof TiltSensorObserver)
 				tiltDatas.add(sensorData);
-			else */
+			else *-/
 			if(sensorData.getSensor() instanceof AccelerationSensorObserver)
 				shakeDatas.add(sensorData);
 			else if(sensorData.getSensor() instanceof SpeedSensorObserver)
@@ -65,7 +64,7 @@ public class GraphDrawActivity extends Activity {
         //sensorGraphFragment.addSensorDataList(rotateDatas, getResources().getString(R.string.graph_rotation_text), Color.MAGENTA);
         //sensorGraphFragment.addSensorDataList(tiltDatas, getResources().getString(R.string.graph_tilt_text), Color.GREEN);
         sensorGraphFragment.addSensorDataList(shakeDatas, getResources().getString(R.string.graph_shake_text), Color.WHITE);
-        sensorGraphFragment.addSensorDataList(speedDatas, getResources().getString(R.string.graph_speed_text), Color.RED);
+        sensorGraphFragment.addSensorDataList(speedDatas, getResources().getString(R.string.graph_speed_text), Color.RED);*/
 
 	}
 }
