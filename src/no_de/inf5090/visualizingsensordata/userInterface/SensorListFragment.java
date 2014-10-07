@@ -8,21 +8,14 @@ import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
 import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
-import no_de.inf5090.visualizingsensordata.persistency.SensorWriter;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.graphics.Color;
-import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 /**
  * This fragment implements a list of sensor inputs. All sensor readings will be visually displayed.

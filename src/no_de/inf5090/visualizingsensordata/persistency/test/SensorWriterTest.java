@@ -1,20 +1,19 @@
 package no_de.inf5090.visualizingsensordata.persistency.test;
 
 import java.io.File;
-import java.util.Date;
 
 
-import no_de.inf5090.visualizingsensordata.persistency.SensorWriter;
+import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 import junit.framework.TestCase;
 
 public class SensorWriterTest extends TestCase {
 
 	static String FPATH = "test-sensor.xml";//"VideoCapture.appDir.getPath()+"/"+"test"+"-sensor.xml";
-	SensorWriter writer;
+	LocalStorageWriter writer;
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		writer = new SensorWriter();
+		// TODO writer = new LocalStorageWriter();
 	}
 
 	protected void tearDown() throws Exception {

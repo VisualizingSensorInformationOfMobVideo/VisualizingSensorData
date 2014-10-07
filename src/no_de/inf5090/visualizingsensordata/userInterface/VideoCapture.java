@@ -12,13 +12,11 @@ import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
-import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
 import no_de.inf5090.visualizingsensordata.persistency.GPXWriter;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
@@ -34,14 +32,14 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import no_de.inf5090.visualizingsensordata.persistency.SensorWriter;
+import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
 public class VideoCapture extends Activity {
 
     // Persistence instance
-    private SensorWriter sensorWriter;
+    private LocalStorageWriter localStorageWriter;
 
     private Camera myCamera;
 	private MyCameraSurfaceView myCameraSurfaceView;
@@ -356,21 +354,21 @@ public class VideoCapture extends Activity {
      */
     public void startPersistingSensorData() {
         // initiate SensorWriter
-        if (sensorWriter == null) {
-            sensorWriter = new SensorWriter();
-            sensorController.connectSensors(sensorWriter);
+        if (localStorageWriter == null) {
+            localStorageWriter = new LocalStorageWriter();
         }
 
-        sensorWriter.startRecording();
+        sensorController.connectSensors(localStorageWriter);
+        localStorageWriter.startRecording();
     }
 
     /**
      * Stops and persists recording of sensor data
      */
     public void stopPersistingSensorData(String correspondingFileName) {
-        sensorController.disconnectSensors(sensorWriter);
-        sensorWriter.stopRecording();
-        sensorWriter.writeXml(appDir.getPath()+"/"+correspondingFileName+"-sensor.xml");
+        sensorController.disconnectSensors(localStorageWriter);
+        localStorageWriter.stopRecording();
+        localStorageWriter.writeXml(appDir.getPath()+"/"+correspondingFileName+"-sensor.xml");
     }
 
     /**
