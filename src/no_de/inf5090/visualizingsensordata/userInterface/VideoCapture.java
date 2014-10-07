@@ -3,17 +3,20 @@ package no_de.inf5090.visualizingsensordata.userInterface;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
+import android.hardware.SensorManager;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.GPSTracker;
 import no_de.inf5090.visualizingsensordata.application.Utils;
+import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
+import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
 import no_de.inf5090.visualizingsensordata.persistency.GPXWriter;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
@@ -29,12 +32,16 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
 public class VideoCapture extends Activity {
 
-	private Camera myCamera;
+    // Persistence instance
+    private LocalStorageWriter localStorageWriter;
+
+    private Camera myCamera;
 	private MyCameraSurfaceView myCameraSurfaceView;
 	private MediaRecorder mediaRecorder;
 	private Context context;
@@ -43,8 +50,13 @@ public class VideoCapture extends Activity {
 	Button myButton;
 	SurfaceHolder surfaceHolder;
 	boolean recording;
-	
-	// singleton
+
+    /**
+     * The sensor controller
+     */
+    private SensorController sensorController;
+
+    // singleton
 	private static VideoCapture self;
 	
 	public static File appDir; // Application directory
@@ -53,7 +65,11 @@ public class VideoCapture extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContext(this);
+
+        // set as singleton
+        setSelf(this);
+
+        setContext(this);
 		recording = false;
 		setContentView(R.layout.main);
 
@@ -67,7 +83,11 @@ public class VideoCapture extends Activity {
 		FrameLayout myCameraPreview = (FrameLayout) findViewById(R.id.videoview);
 		myCameraPreview.addView(myCameraSurfaceView);
 
-		myButton = (Button) findViewById(R.id.mybutton);
+        // set up sensors
+        sensorController = new SensorController();
+        sensorController.initSensors();
+
+        myButton = (Button) findViewById(R.id.mybutton);
 		myButton.setOnClickListener(myButtonOnClickListener);
 		myButton.setEnabled(false);
 		//myButton.setEnabled(true);
@@ -78,12 +98,9 @@ public class VideoCapture extends Activity {
         appDir.mkdirs();
     	    	
     	gpsTracker = new GPSTracker(context);
-    	
-    	// set as singleton
-    	setSelf(this);
 	}
-	
-	public void enableButton(){
+
+    public void enableButton(){
 		myButton.setEnabled(true);
 	}
 	
@@ -110,9 +127,7 @@ public class VideoCapture extends Activity {
 				myButton.setText("Record");
 				
 				// Stop recording sensor data
-		        FragmentManager fragmentManager = getFragmentManager();
-		        SensorListFragment sensorDataFragment = (SensorListFragment)fragmentManager.findFragmentById(R.id.sensorListFragment);
-		        sensorDataFragment.stopPersistingSensorData(currentFileName);
+		        stopPersistingSensorData(currentFileName);
 				
 			} else {
 				
@@ -137,9 +152,7 @@ public class VideoCapture extends Activity {
 				myButton.setText("Stop");
 
 				// Start recording sensor data
-		        FragmentManager fragmentManager = getFragmentManager();
-		        SensorListFragment sensorDataFragment = (SensorListFragment)fragmentManager.findFragmentById(R.id.sensorListFragment);
-		        sensorDataFragment.startPersistingSensorData();
+		        startPersistingSensorData();
 			}
 		}
 	};
@@ -200,7 +213,8 @@ public class VideoCapture extends Activity {
 		super.onResume();
 		
 		//TODO: Resume Camera/Media recorder.
-		gpsTracker.startUsingGPS();
+
+        sensorController.resumeSensors();
 		
 	}
 	
@@ -213,7 +227,8 @@ public class VideoCapture extends Activity {
 		super.onPause();
 		//releaseMediaRecorder(); // if you are using MediaRecorder, release it
 		//releaseCamera(); // release the camera immediately on pause event
-		gpsTracker.stopUsingGPS();
+
+        sensorController.pauseSensors();
 	}
 
 	private void releaseMediaRecorder() {
@@ -330,7 +345,103 @@ public class VideoCapture extends Activity {
 		return self;
 	}
 
-	public static void setSelf(VideoCapture self) {
+    public static void setSelf(VideoCapture self) {
 		VideoCapture.self = self;
 	}
+
+    /**
+     * Starts recording of sensor data
+     */
+    public void startPersistingSensorData() {
+        // initiate SensorWriter
+        if (localStorageWriter == null) {
+            localStorageWriter = new LocalStorageWriter();
+        }
+
+        sensorController.connectSensors(localStorageWriter);
+        localStorageWriter.startRecording();
+    }
+
+    /**
+     * Stops and persists recording of sensor data
+     */
+    public void stopPersistingSensorData(String correspondingFileName) {
+        sensorController.disconnectSensors(localStorageWriter);
+        localStorageWriter.stopRecording();
+        localStorageWriter.writeXml(appDir.getPath()+"/"+correspondingFileName+"-sensor.xml");
+    }
+
+    /**
+     * Let other parts of the application listen to logical sensors
+     */
+    public void connectSensors(Observer observer) {
+        sensorController.connectSensors(observer);
+    }
+
+    /**
+     * Our own sensor controller/manager
+     */
+    protected class SensorController {
+        /** Sensor list */
+        private ArrayList<LogicalSensorObservable> sensors = new ArrayList<LogicalSensorObservable>();
+
+        /**
+         * Initialize sensors
+         */
+        protected void initSensors() {
+            LogicalSensorObservable sensor;
+            SensorManager manager = (SensorManager) VideoCapture.getSelf().getSystemService(Activity.SENSOR_SERVICE);
+
+            // acceleration sensor
+            sensor = (LogicalSensorObservable) new AccelerationSensorObserver(manager);
+            sensors.add(sensor);
+
+            // orientation sensor
+            sensor = (LogicalSensorObservable) new RotationVectorObserver(manager);
+            sensors.add(sensor);
+
+            // movement sensor
+            //sensor = (LogicalSensorObservable) new SpeedSensorObserver(VideoCapture.getSelf().getContext());
+            //sensors.add(sensor);
+
+            // start listening to sensors
+            resumeSensors();
+        }
+
+        /**
+         * Connect sensors to observers
+         */
+        protected void connectSensors(Observer observer) {
+            for (LogicalSensorObservable sensor: sensors) {
+                sensor.addObserver(observer);
+            }
+        }
+
+        /**
+         * Disconnect sensors from observers
+         */
+        protected void disconnectSensors(Observer observer) {
+            for (LogicalSensorObservable sensor: sensors) {
+                sensor.deleteObserver(observer);
+            }
+        }
+
+        /**
+         * Pause sensors (e.g. the application is paused)
+         */
+        protected void pauseSensors() {
+            for (LogicalSensorObservable sensor: sensors) {
+                sensor.onPause();
+            }
+        }
+
+        /**
+         * Pause sensors (e.g. the application is paused)
+         */
+        protected void resumeSensors() {
+            for (LogicalSensorObservable sensor: sensors) {
+                sensor.onResume();
+            }
+        }
+    }
 }

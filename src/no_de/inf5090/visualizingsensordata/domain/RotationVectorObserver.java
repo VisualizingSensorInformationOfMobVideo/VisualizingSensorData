@@ -6,16 +6,19 @@ import java.util.Observer;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.util.Log;
+import no_de.inf5090.visualizingsensordata.application.Utils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /*
  * Listen to the ROTATION_VECTOR-sensor for providing orientation data
  */
-public class RotationVectorObserver extends Observable implements Observer {
+public class RotationVectorObserver extends LogicalSensorObservable implements Observer {
 	private static final String TAG = "RotationVectorObserver";
 	
 	SensorManager sensorManager;
-	SensorObservable mObservableSensor1; // for rotationvector-sensor or accelerometer in fallback
-	SensorObservable mObservableSensor2; // for magneticfield-sensor in fallback
+	RawSensorObservable mObservableSensor1; // for rotationvector-sensor or accelerometer in fallback
+	RawSensorObservable mObservableSensor2; // for magneticfield-sensor in fallback
 	
 	private float mAzimuth; // rotation around the Z axis
 	private float mPitch;   // rotation around the X axis
@@ -25,8 +28,13 @@ public class RotationVectorObserver extends Observable implements Observer {
 	private final static float FILTER_SMOOTHING = 0.7f;
 	
 	private boolean mIsFallback = false;
-	
-	/**
+
+    /**
+     * The unique ID for this sensor observer
+     */
+    public final static int ID = 102;
+
+    /**
      * Time of last update
      */
     private long mLastTime = System.currentTimeMillis();
@@ -36,18 +44,18 @@ public class RotationVectorObserver extends Observable implements Observer {
      */
     private static final long MINIMUM_DELAY = 150;
     
-    /*
+    /**
 	 * @param sensorManager: Instance of SensorManager. Needed to get access to sensors. 
 	 * Note: need to call acquire resources to start listening for sensor changes!
 	 */
 	public RotationVectorObserver(SensorManager sensorManager) {
-		mObservableSensor1 = new SensorObservable();
+		mObservableSensor1 = new RawSensorObservable();
 		mObservableSensor1.addObserver(this);
 		
 		// check if we don't have ROTATION_VECTOR-sensor available
 		if (sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == null) {
 			Log.d(TAG, "Fallback to accelerometer and magnetic field sensors");
-			mObservableSensor2 = new SensorObservable();
+			mObservableSensor2 = new RawSensorObservable();
 			mObservableSensor2.addObserver(this);
 			mIsFallback = true;
 		}
@@ -55,7 +63,7 @@ public class RotationVectorObserver extends Observable implements Observer {
 		this.sensorManager = sensorManager;
 	}
 	
-	/*
+	/**
 	 * Handle update from observable
 	 */
 	public void update(Observable observable, Object data) {
@@ -101,48 +109,116 @@ public class RotationVectorObserver extends Observable implements Observer {
 		
 		// inform observers
 		setChanged();
-		notifyObservers(new SensorData(this, new float[]{mAzimuth, mPitch, mRoll}));
+		notifyObservers(new LogicalSensorData(this));
 	}
+
+    @Override
+    public void onPause() {
+        sensorManager.unregisterListener(mObservableSensor1);
+        if (mIsFallback) sensorManager.unregisterListener(mObservableSensor2);
+    }
+
+    @Override
+    public void onResume() {
+        if (mIsFallback) {
+            sensorManager.registerListener(mObservableSensor1, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(mObservableSensor2, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
+        } else {
+            sensorManager.registerListener(mObservableSensor1,  sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
 	
-	/*
-	 * Call this function to release resources (when going to pause mode in activity)
-	 * Note: must call acquireResources() to enable survailing of orientation 
-	 */
-	public void freeResources() {
-		sensorManager.unregisterListener(mObservableSensor1);
-		if (mIsFallback) sensorManager.unregisterListener(mObservableSensor2);
-	}
-	
-	/*
-	 * Call this to start listening for changes in orientation
-	 */
-	public void acquireResources() {
-		if (mIsFallback) {
-			sensorManager.registerListener(mObservableSensor1, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-			sensorManager.registerListener(mObservableSensor2, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
-		} else {
-			sensorManager.registerListener(mObservableSensor1,  sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_NORMAL);
-		}
-	}
-	
-	/*
+	/**
 	 * Gets azimuth (in radians, [-PI,PI])
 	 */
 	public double getAzimuth() {
 		return mAzimuth;
 	}
 	
-	/*
+	/**
 	 * Gets pitch (in radians, [-PI/2,PI/2])
 	 */
 	public double getPitch() {
 		return mPitch;
 	}
 	
-	/*
+	/**
 	 * Gets roll (in radians, [-PI,PI], 0 is landscape like the view itself)
 	 */
 	public double getRoll() {
 		return mRoll;
 	}
+
+    @Override
+    public int getSensorID() {
+        return ID;
+    }
+
+    /**
+     * Sensor observer data
+     */
+    public class LogicalSensorData extends AbstractLogicalSensorData {
+        private double mAzimuth;
+        private double mPitch;
+        private double mRoll;
+
+        public LogicalSensorData(RotationVectorObserver sensor) {
+            super(sensor);
+            this.mAzimuth = sensor.getAzimuth();
+            this.mPitch = sensor.getPitch();
+            this.mRoll = sensor.getRoll();
+        }
+
+        @Override
+        public Element getXml() {
+            Document doc = Utils.getDocumentInstance();
+            Element item = getBaseXml(), elm;
+
+            // actual sensor data
+            elm = doc.createElement("Azimuth");
+            elm.appendChild(doc.createTextNode(Double.toString(getAzimuth())));
+            item.appendChild(elm);
+
+            elm = doc.createElement("Pitch");
+            elm.appendChild(doc.createTextNode(Double.toString(getPitch())));
+            item.appendChild(elm);
+
+            elm = doc.createElement("Roll");
+            elm.appendChild(doc.createTextNode(Double.toString(getRoll())));
+            item.appendChild(elm);
+
+            return item;
+        }
+
+        @Override
+        public int getSensorID() {
+            return ID;
+        }
+
+        @Override
+        public String getSensorName() {
+            return "Rotation";
+        }
+
+        /**
+         * Gets azimuth (in radians, [-PI,PI])
+         */
+        public double getAzimuth() {
+            return mAzimuth;
+        }
+
+        /**
+         * Gets pitch (in radians, [-PI/2,PI/2])
+         */
+        public double getPitch() {
+            return mPitch;
+        }
+
+        /**
+         * Gets roll (in radians, [-PI,PI], 0 is landscape like the view itself)
+         */
+        public double getRoll() {
+            return mRoll;
+        }
+    }
 }

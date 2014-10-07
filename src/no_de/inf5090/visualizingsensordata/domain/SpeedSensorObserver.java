@@ -11,12 +11,15 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import no_de.inf5090.visualizingsensordata.application.Utils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @author Jens Naber
  * Analyzes the GPS data to find out if the user is walking to fast to film a good video
  */
-public class SpeedSensorObserver extends Observable implements LocationListener{
+public class SpeedSensorObserver extends LogicalSensorObservable implements LocationListener{
 	private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 0.5f; // meters
 	private static final long MIN_TIME_BW_UPDATES = 100; // milliseconds
 	private static final int ACCURACY_THRESHOLD = 30; // meter
@@ -31,6 +34,11 @@ public class SpeedSensorObserver extends Observable implements LocationListener{
 	boolean lastSpeedZero = false;
 	boolean usesGPS = false;
 	double normalizedSpeed = -2;
+
+    /**
+     * The unique ID for this sensor observer
+     */
+    public final static int ID = 103;
 	
 	Context context;
 	/**
@@ -40,27 +48,7 @@ public class SpeedSensorObserver extends Observable implements LocationListener{
 	public SpeedSensorObserver(Context c){
 		context = c;
 		locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);		
-		startUsingGPS();
-	}
-	
-	/**
-	 * registers as an LocationListener, if it not already happend
-	 */
-	public void startUsingGPS() {
-		if(!usesGPS) {
-		locationManager.requestLocationUpdates(getBestProvider(), MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-		usesGPS = true;
-		}
-	}
-	
-	/**
-	 * removes the LocationListener, if we are registered as one
-	 */
-	public void stopUsingGPS(){
-		if(locationManager != null && usesGPS){
-			locationManager.removeUpdates(this);
-			usesGPS = false;
-		}		
+		//startUsingGPS();
 	}
 	
 	/**
@@ -138,7 +126,7 @@ public class SpeedSensorObserver extends Observable implements LocationListener{
 		}
 		
 		setChanged();
-		notifyObservers(new SensorData(this, (float)getSpeed(), new Date()));
+		notifyObservers(new LogicalSensorData(this));
 	}
 
 	public void onProviderDisabled(String provider) {
@@ -165,4 +153,67 @@ public class SpeedSensorObserver extends Observable implements LocationListener{
 	public double getSpeed() {
 		return normalizedSpeed;
 	}
+
+    @Override
+    public void onPause() {
+        if(locationManager != null && usesGPS){
+            locationManager.removeUpdates(this);
+            usesGPS = false;
+        }
+    }
+
+    @Override
+    public void onResume() {
+        if(!usesGPS) {
+            locationManager.requestLocationUpdates(getBestProvider(), MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+            usesGPS = true;
+        }
+    }
+
+    @Override
+    public int getSensorID() {
+        return ID;
+    }
+
+    /**
+     * Sensor observer data
+     */
+    public class LogicalSensorData extends AbstractLogicalSensorData {
+        private double speed;
+
+        public LogicalSensorData(SpeedSensorObserver sensor) {
+            super(sensor);
+            this.speed = sensor.getSpeed();
+        }
+
+        @Override
+        public Element getXml() {
+            Document doc = Utils.getDocumentInstance();
+            Element item = getBaseXml(), elm;
+
+            // actual sensor data
+            elm = doc.createElement("Speed");
+            elm.appendChild(doc.createTextNode(Double.toString(getSpeed())));
+            item.appendChild(elm);
+
+            return item;
+        }
+
+        /**
+         * Returns the current value
+         */
+        public double getSpeed() {
+            return speed;
+        }
+
+        @Override
+        public int getSensorID() {
+            return ID;
+        }
+
+        @Override
+        public String getSensorName() {
+            return "Speed";
+        }
+    }
 }

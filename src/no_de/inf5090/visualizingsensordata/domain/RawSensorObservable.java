@@ -9,7 +9,7 @@ import android.hardware.SensorEventListener;
 /*
  * This type handles input from a sensor. Once values are changed, any registered listeners (Observers) will be notified
  */
-public class SensorObservable extends Observable implements SensorEventListener {
+public class RawSensorObservable extends Observable implements SensorEventListener {
 
 	public float[] values;
 	
