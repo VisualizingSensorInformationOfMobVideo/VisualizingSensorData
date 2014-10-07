@@ -60,10 +60,7 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // connect to sensors
-        VideoCapture.getSelf().connectSensors(this);
-    	
-    	initGraph();
+        initGraph();
 
     	// Double axis title size
     	mRenderer.setYAxisMax(0.5);
@@ -80,6 +77,14 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     	// Get fragment
     	fragmentView = inflater.inflate(R.layout.graph_sensor_data_fragment, container, false);
     	return fragmentView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle saved) {
+        super.onActivityCreated(saved);
+
+        // connect to sensors
+        VideoCapture.getSelf().connectSensors(this);
     }
     
     /**

@@ -67,7 +67,11 @@ public class VideoCapture extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContext(this);
+
+        // set as singleton
+        setSelf(this);
+
+        setContext(this);
 		recording = false;
 		setContentView(R.layout.main);
 
@@ -96,9 +100,6 @@ public class VideoCapture extends Activity {
         appDir.mkdirs();
     	    	
     	gpsTracker = new GPSTracker(context);
-    	
-    	// set as singleton
-    	setSelf(this);
 	}
 
     public void enableButton(){
@@ -404,6 +405,9 @@ public class VideoCapture extends Activity {
             // movement sensor
             //sensor = (LogicalSensorObservable) new SpeedSensorObserver(VideoCapture.getSelf().getContext());
             //sensors.add(sensor);
+
+            // start listening to sensors
+            resumeSensors();
         }
 
         /**
@@ -438,7 +442,7 @@ public class VideoCapture extends Activity {
          */
         protected void resumeSensors() {
             for (LogicalSensorObservable sensor: sensors) {
-                sensor.onPause();
+                sensor.onResume();
             }
         }
     }

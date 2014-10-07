@@ -41,9 +41,6 @@ public class SensorListFragment extends Fragment implements Observer {
     //@SuppressLint("ShowToast")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // connect to sensors so we can draw sensor data
-        VideoCapture.getSelf().connectSensors(this);
-
         // get fragment
     	fragmentView = inflater.inflate(R.layout.sensor_data_fragment, container, false);
 
@@ -59,6 +56,14 @@ public class SensorListFragment extends Fragment implements Observer {
         speedWarning = Toast.makeText(getActivity(), "Walk slower!", Toast.LENGTH_SHORT);*/
 
         return fragmentView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle saved) {
+        super.onActivityCreated(saved);
+
+        // connect to sensors so we can draw sensor data
+        VideoCapture.getSelf().connectSensors(this);
     }
 
     /**
