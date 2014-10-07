@@ -47,19 +47,6 @@
 
         </TableRow>
 
-<!--         <TableRow -->
-<!--             android:layout_width="fill_parent" -->
-<!--             android:layout_height="wrap_content" > -->
-
-<!--             <Button -->
-<!--                 android:id="@+id/button_view_graph" -->
-<!--                 android:layout_width="fill_parent" -->
-<!--                 android:layout_height="wrap_content" -->
-<!--                 android:onClick="onGraphButtonClicked" -->
-<!--                 android:text="@string/view_graph_button_text" -->
-<!--                 android:textSize="12sp" /> -->
-<!--         </TableRow> -->
-
         <TableRow
             android:id="@+id/row_sensor_data"
             android:layout_width="fill_parent"

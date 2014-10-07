@@ -1,7 +1,5 @@
 package no_de.inf5090.visualizingsensordata.userInterface;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -42,7 +40,6 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     private GraphicalView mChart;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
-    //private List<List<SensorData>> sensorDataLists = new ArrayList<List<SensorData>>();
     
 	private XYSeries mAzimuthSeries = new XYSeries("Azimuth");
 	private XYSeriesRenderer mAzimuthRenderer = new XYSeriesRenderer();
@@ -87,14 +84,6 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
         VideoCapture.getSelf().connectSensors(this);
     }
     
-    /**
-     * Plots data to SensorDataGraphFragment
-     * @param sensorDataList: List of sensor data to plot
-     */
-    /*public void setSensorDataList(List<SensorData> sensorDataList) {
-    	sensorDataLists.add(sensorDataList);
-    }*/
-    
     private void initGraph() {
     	
     	// Set graph color
@@ -117,37 +106,6 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     	mRenderer.addSeriesRenderer(mSpeedRenderer);
     }
 
-    /**
-     * Adds a line plot to the graph
-     * @param sensorDataList	Data to generate line plot from
-     * @param linePlotName		Name of line plot
-     * @param color				Color of line plot
-     */
-    /*public void addSensorDataList(List<SensorData> sensorDataList, String linePlotName, int color) {
-    	    	
-    	// Collect all readings
-    	sensorDataLists.add(sensorDataList);
-    	
-    	// Prepare graph
-    	XYSeries mCurrentSeries = new XYSeries(linePlotName);
-    	XYSeriesRenderer mCurrentRenderer = new XYSeriesRenderer();
-    	
-    	mCurrentRenderer.setColor(color);
-    	// Add graph
-        mDataset.addSeries(mCurrentSeries);
-        mRenderer.addSeriesRenderer(mCurrentRenderer);
-
-        // Populate graph
-    	for (SensorData sensorData : sensorDataList) {
-    		mCurrentSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), sensorData.getValue());
-    	}
-    	
-    	// Double axis title size
-    	mRenderer.setYAxisMax(1);
-    	mRenderer.setYAxisMin(-1);
-
-    }*/
-    
     public void onResume() {
         super.onResume();
         LinearLayout layout = (LinearLayout) fragmentView.findViewById(R.id.chart);

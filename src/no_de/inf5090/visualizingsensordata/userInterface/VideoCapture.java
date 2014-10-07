@@ -117,12 +117,6 @@ public class VideoCapture extends Activity {
 		myButton.setEnabled(true);
 	}
 	
-	// Start activity
-	public void onGraphButtonClicked(View v){
-    	Intent intent = new Intent(this, GraphDrawActivity.class);
-    	startActivity(intent);		
-	}
-
 	@SuppressLint("NewApi")
 	Button.OnClickListener myButtonOnClickListener = new Button.OnClickListener() {
 		@SuppressLint("NewApi")

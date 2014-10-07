@@ -39,8 +39,6 @@ public class Utils {
 		}
 	}
 	
-	// Very simple way of transferring sensor data to the graph view activity
-	//public static List<SensorData> sensorDatas;
 	public static Date lastRecordingStar = new Date();
 
     /**
