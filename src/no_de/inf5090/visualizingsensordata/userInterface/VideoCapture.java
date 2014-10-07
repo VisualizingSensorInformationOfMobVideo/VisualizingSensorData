@@ -162,29 +162,11 @@ public class VideoCapture extends Activity {
                 myCamera.takePicture(null, null, jpegCallback);
 
                 startSendingSnapshot();
-
-		       /*Thread t = new Thread(new Runnable() {
-		        	public void run() {
-		        		final long time = 1000;
-		        		while(takingSnapshot) {
-		        			myCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
-		        			try {
-								Thread.sleep(time);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-		        		}
-
-
-		        	}
-		        });
-		        t.start();*/
 			}
 		}
 	};
 	
 	private Camera getCameraInstance() {
-		// TODO Auto-generated method stub
 		Camera c = null;
 		try {
 			c = Camera.open(); // attempt to get a Camera instance
