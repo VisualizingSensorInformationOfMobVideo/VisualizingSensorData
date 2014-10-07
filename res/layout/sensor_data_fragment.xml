@@ -7,7 +7,7 @@
     android:orientation="vertical" >
 
     <ProgressBar
-        android:id="@+id/rotationBar"
+        android:id="@+id/azimuthBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"
         android:layout_marginTop="1dp"
@@ -15,7 +15,15 @@
         android:layout_height="18dp" />
 
     <ProgressBar
-        android:id="@+id/tiltBar"
+        android:id="@+id/pitchBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
+        android:layout_width="fill_parent"
+        android:layout_height="18dp" />
+    
+    <ProgressBar
+        android:id="@+id/rollBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_marginTop="1dp"
         android:layout_marginBottom="1dp"

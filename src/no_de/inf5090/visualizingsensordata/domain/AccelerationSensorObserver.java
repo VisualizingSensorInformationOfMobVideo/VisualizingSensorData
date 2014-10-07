@@ -1,12 +1,14 @@
 package no_de.inf5090.visualizingsensordata.domain;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.Observer;
 
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import no_de.inf5090.visualizingsensordata.application.Utils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * This class gets sensor readings from the accelerometer and calculates the change
@@ -14,68 +16,76 @@ import android.hardware.SensorManager;
  * detect shaking without being too influenced by gravity and the normal movement of the
  * person holding the phone.
  */
-public class AccelerationSensorObserver extends Observable implements Observer {
+public class AccelerationSensorObserver extends LogicalSensorObservable implements Observer {
 	private final SensorManager mSensorManager;
-	private final SensorObservable observableAccelerometer;
-    private float mShake;					// Acceleration (without gravity, after filter).
-    private float mPreviousAcceleration;	// The previous acceleration value (with gravity).
-    private float mCurrentAcceleration;		// Current acceleration (with gravity).
-    private Date lastTime;					// Time of last shake update.
+	private final RawSensorObservable mObservableAccelerometer;
+    private float mShake = 0.0f;                                 // Acceleration (without gravity, after filter).
+    private float mAcceleration = SensorManager.GRAVITY_EARTH;   // The previous acceleration value (with gravity).
+
+    /**
+     * The unique ID for this sensor observer
+     */
+    public final static int ID = 101;
+
+    /**
+     * Time of last shake update
+     */
+    private long lastTime = System.currentTimeMillis();
+    
+    /**
+     * Minimum delay between updates in milliseconds
+     */
+    private static final long MINIMUM_DELAY = 150;
+    
+    /**
+     * Smoothening-constant for the low-pass filter
+     */
+    private static final float FILTER_SMOOTHING = .9f;
     
     /**
      * Constructor method that initializes values.
      */ 
     public AccelerationSensorObserver(SensorManager sensorManager) {
         mSensorManager = sensorManager;
-        mShake = 0.00f;
-        lastTime = new Date();
-        mPreviousAcceleration = SensorManager.GRAVITY_EARTH;
-        mCurrentAcceleration = SensorManager.GRAVITY_EARTH;
-    	observableAccelerometer = new SensorObservable();
-		observableAccelerometer.addObserver(this);
+        mObservableAccelerometer = new RawSensorObservable();
+		mObservableAccelerometer.addObserver(this);
     }
     
     /**
      * This method is executed on every sensor event update, but only does work if there's been some time since the last update.
      */ 
 	public void update(Observable observable, Object data) {
-		float x,y,z;	// Sensor values.	
-		float mDelta;	// The change in acceleration.
+		// make sure the sensor don't flood; time since last update should be above threshold
+		long now = System.currentTimeMillis();
+		long elapsed = now - lastTime;
+		lastTime = now;
+		if (elapsed < MINIMUM_DELAY) return;
 		
-		Calendar lastUpdateTime = Calendar.getInstance();
-		Calendar currentTime = Calendar.getInstance();
-		lastUpdateTime.setTime(lastTime);
-		currentTime.setTime(new Date());
+		float x = mObservableAccelerometer.values[0];
+		float y = mObservableAccelerometer.values[1];
+		float z = mObservableAccelerometer.values[2];
 		
-		if ((currentTime.getTimeInMillis() - lastUpdateTime.getTimeInMillis()) > 800) {
-			
-			x = observableAccelerometer.values[0];
-			y = observableAccelerometer.values[1];
-			z = observableAccelerometer.values[2];
-			
-			mPreviousAcceleration = mCurrentAcceleration;
-			mCurrentAcceleration = (float) Math.sqrt((x * x) + (y * y) + (z * z));	// Find "magnitude" vector of current acceleration.
-			mDelta = mCurrentAcceleration - mPreviousAcceleration;					// Get difference in acceleration, removing gravity.
-			mShake = ((mShake * 0.9f + mDelta)/10);									// Apply low-pass filter to further reduce noise.
-			setChanged();															// Notify observers of changes.
-			notifyObservers(new SensorData(this, getShake(), new Date()));
-		}
+		float newAcceleration = (float) Math.sqrt((x * x) + (y * y) + (z * z));   // Find "magnitude" vector of current acceleration.
+		float delta = newAcceleration - mAcceleration;                             // Get difference in acceleration, removing gravity.
+		mAcceleration = newAcceleration;
+		
+		// low-pass filter
+		// TODO: is this filter really necessary when having time delay?
+		mShake = mShake * (1-FILTER_SMOOTHING) + delta * FILTER_SMOOTHING;
+		
+		setChanged();
+		notifyObservers(new LogicalSensorData(this));
 	}
 	
-    /**
-     * Registers the sensor listener when the app is resumed to continue getting sensor data.
-     */ 
-	public void onResume() {
-		mSensorManager.registerListener(observableAccelerometer, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+    @Override
+    public void onResume() {
+		mSensorManager.registerListener(mObservableAccelerometer, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
 	}
-	
-    /**
-     * Releases the sensor listener when the app is paused to save power.
-     */ 
-	public void onPause() {
-		mSensorManager.unregisterListener(observableAccelerometer);
 
-	}
+    @Override
+    public void onPause() {
+		mSensorManager.unregisterListener(mObservableAccelerometer);
+    }
 	
     /**
      * Returns the shaking value (filtered acceleration delta).
@@ -83,4 +93,51 @@ public class AccelerationSensorObserver extends Observable implements Observer {
 	public float getShake() {
 		return mShake;
 	}
+
+    @Override
+    public int getSensorID() {
+        return ID;
+    }
+
+    /**
+     * Sensor observer data
+     */
+    public class LogicalSensorData extends AbstractLogicalSensorData {
+        private float acceleration;
+
+        public LogicalSensorData(AccelerationSensorObserver sensor) {
+            super(sensor);
+            this.acceleration = sensor.getShake();
+        }
+
+        @Override
+        public Element getXml() {
+            Document doc = Utils.getDocumentInstance();
+            Element item = getBaseXml();
+
+            // actual sensor data
+            Element elm = doc.createElement("Force");
+            elm.appendChild(doc.createTextNode(Float.toString(getAcceleration())));
+            item.appendChild(elm);
+
+            return item;
+        }
+
+        /**
+         * Returns the current value
+         */
+        public float getAcceleration() {
+            return acceleration;
+        }
+
+        @Override
+        public int getSensorID() {
+            return ID;
+        }
+
+        @Override
+        public String getSensorName() {
+            return "Acceleration";
+        }
+    }
 }

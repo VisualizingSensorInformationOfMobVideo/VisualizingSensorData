@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -15,10 +16,8 @@ import org.achartengine.renderer.XYSeriesRenderer;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.RotationSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.SensorData;
+import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
 import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.TiltSensorObserver;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.graphics.Color;
@@ -43,12 +42,15 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     private GraphicalView mChart;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
-    private List<List<SensorData>> sensorDataLists = new ArrayList<List<SensorData>>();
+    //private List<List<SensorData>> sensorDataLists = new ArrayList<List<SensorData>>();
     
-	private XYSeries mRotateSeries = new XYSeries("Tilt");
-	private XYSeriesRenderer mRotateRenderer = new XYSeriesRenderer();
-	private XYSeries mTiltSeries = new XYSeries("Roll");
-	private XYSeriesRenderer mTiltRenderer = new XYSeriesRenderer();
+	private XYSeries mAzimuthSeries = new XYSeries("Azimuth");
+	private XYSeriesRenderer mAzimuthRenderer = new XYSeriesRenderer();
+	private XYSeries mPitchSeries = new XYSeries("Pitch");
+	private XYSeriesRenderer mPitchRenderer = new XYSeriesRenderer();
+	private XYSeries mRollSeries = new XYSeries("Roll");
+	private XYSeriesRenderer mRollRenderer = new XYSeriesRenderer();
+	
 	private XYSeries mShakeSeries = new XYSeries("Shake");
 	private XYSeriesRenderer mShakeRenderer = new XYSeriesRenderer();
 	private XYSeries mSpeedSeries = new XYSeries("Speed");
@@ -57,8 +59,8 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
 		
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	
-    	initGraph();
+
+        initGraph();
 
     	// Double axis title size
     	mRenderer.setYAxisMax(0.5);
@@ -76,30 +78,41 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     	fragmentView = inflater.inflate(R.layout.graph_sensor_data_fragment, container, false);
     	return fragmentView;
     }
+
+    @Override
+    public void onActivityCreated(Bundle saved) {
+        super.onActivityCreated(saved);
+
+        // connect to sensors
+        VideoCapture.getSelf().connectSensors(this);
+    }
     
     /**
      * Plots data to SensorDataGraphFragment
      * @param sensorDataList: List of sensor data to plot
      */
-    public void setSensorDataList(List<SensorData> sensorDataList) {
+    /*public void setSensorDataList(List<SensorData> sensorDataList) {
     	sensorDataLists.add(sensorDataList);
-    }
+    }*/
     
     private void initGraph() {
     	
     	// Set graph color
-    	mRotateRenderer.setColor(Color.MAGENTA);
-    	mTiltRenderer.setColor(Color.GREEN);
+    	mAzimuthRenderer.setColor(Color.MAGENTA);
+    	mPitchRenderer.setColor(Color.GREEN);
+    	mRollRenderer.setColor(Color.BLUE);
     	mShakeRenderer.setColor(Color.WHITE);
     	mSpeedRenderer.setColor(Color.RED);
     	
     	// Add graphs
-    	mDataset.addSeries(mRotateSeries);
-    	mDataset.addSeries(mTiltSeries);
+    	mDataset.addSeries(mAzimuthSeries);
+    	mDataset.addSeries(mPitchSeries);
+    	mDataset.addSeries(mRollSeries);
     	mDataset.addSeries(mShakeSeries);
     	mDataset.addSeries(mSpeedSeries);
-    	mRenderer.addSeriesRenderer(mRotateRenderer);
-    	mRenderer.addSeriesRenderer(mTiltRenderer);
+    	mRenderer.addSeriesRenderer(mAzimuthRenderer);
+    	mRenderer.addSeriesRenderer(mPitchRenderer);
+    	mRenderer.addSeriesRenderer(mRollRenderer);
     	mRenderer.addSeriesRenderer(mShakeRenderer);
     	mRenderer.addSeriesRenderer(mSpeedRenderer);
     }
@@ -110,7 +123,7 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
      * @param linePlotName		Name of line plot
      * @param color				Color of line plot
      */
-    public void addSensorDataList(List<SensorData> sensorDataList, String linePlotName, int color) {
+    /*public void addSensorDataList(List<SensorData> sensorDataList, String linePlotName, int color) {
     	    	
     	// Collect all readings
     	sensorDataLists.add(sensorDataList);
@@ -133,7 +146,7 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     	mRenderer.setYAxisMax(1);
     	mRenderer.setYAxisMin(-1);
 
-    }
+    }*/
     
     public void onResume() {
         super.onResume();
@@ -147,21 +160,27 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     }
 
 	public void update(Observable observable, Object data) {
-		// Make sure it is a SensorData
-		if(!(data instanceof SensorData)) 
+		if(!(data instanceof AbstractLogicalSensorData))
 			return;
 		
-		SensorData sensorData = (SensorData) data;
+		AbstractLogicalSensorData sensorData = (AbstractLogicalSensorData) data;
 		
-		// Add new data
-		if(sensorData.getSensor() instanceof RotationSensorObserver) {
-			mRotateSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), sensorData.getValue());
-		} else if(sensorData.getSensor() instanceof TiltSensorObserver) {
-			mTiltSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), sensorData.getValue());
-		} else if(sensorData.getSensor() instanceof AccelerationSensorObserver) {
-			mShakeSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), sensorData.getValue());
-		} else if(sensorData.getSensor() instanceof SpeedSensorObserver) {
-			mSpeedSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), sensorData.getValue());		
+		// rotation?
+        if (sensorData.getSensorID() == RotationVectorObserver.ID) {
+            RotationVectorObserver.LogicalSensorData logData = (RotationVectorObserver.LogicalSensorData) sensorData;
+            mAzimuthSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), logData.getAzimuth() / Math.PI);
+            mPitchSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), logData.getPitch() / Math.PI);
+            mRollSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), logData.getRoll() / Math.PI);
+        }
+
+        // acceleration?
+        else if (sensorData.getSensorID() == AccelerationSensorObserver.ID) {
+			mShakeSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((AccelerationSensorObserver.LogicalSensorData)sensorData).getAcceleration()/10);
+		}
+
+        // speed?
+        else if (sensorData.getSensorID() == SpeedSensorObserver.ID) {
+            mSpeedSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((SpeedSensorObserver.LogicalSensorData)sensorData).getSpeed());
 		}
 		
 		// Set new range - last 2 seconds
