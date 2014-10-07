@@ -54,7 +54,7 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 			fos.flush();
 			fos.close();
 			
-			snapshotData.add(fPath); // add full path of the just taken snaphot to the queue
+			snapshotData.add(fPath); // add full path of the just taken snapshot to the queue
 			
 			Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
 		} catch (Exception e) {
