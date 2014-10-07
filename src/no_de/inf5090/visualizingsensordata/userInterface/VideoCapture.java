@@ -13,7 +13,6 @@ import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
 import no_de.inf5090.visualizingsensordata.domain.PositionSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
-//import no_de.inf5090.visualizingsensordata.persistency.GPXWriter;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 import no_de.inf5090.visualizingsensordata.transmission.SnapshotTransmission;
 
@@ -132,10 +131,6 @@ public class VideoCapture extends Activity {
 				stopSnapshot();
 				stopSendingSnapshot();
 				
-				// Write XML
-				//GPXWriter writer = new GPXWriter();
-				//writer.writeGPXFileForData(currentFileName, gpsTracker.getTrack());
-
 				// Camera stuff
 				mediaRecorder.stop(); // stop the recording
 				releaseMediaRecorder(); // release the MediaRecorder object
