@@ -1,19 +1,10 @@
 package no_de.inf5090.visualizingsensordata.userInterface;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import no_de.inf5090.visualizingsensordata.R;
-import no_de.inf5090.visualizingsensordata.application.Utils;
-import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
-import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
 import android.os.Build;
 import android.os.Bundle;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.graphics.Color;
 import android.view.Menu;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)

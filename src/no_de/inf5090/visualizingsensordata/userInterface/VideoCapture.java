@@ -7,12 +7,13 @@ import java.util.*;
 
 import android.hardware.SensorManager;
 import no_de.inf5090.visualizingsensordata.R;
-import no_de.inf5090.visualizingsensordata.application.GPSTracker;
+//import no_de.inf5090.visualizingsensordata.domain.GPSTracker;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
+import no_de.inf5090.visualizingsensordata.domain.PositionSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
-import no_de.inf5090.visualizingsensordata.persistency.GPXWriter;
+//import no_de.inf5090.visualizingsensordata.persistency.GPXWriter;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 import no_de.inf5090.visualizingsensordata.transmission.SnapshotTransmission;
 
@@ -52,7 +53,7 @@ public class VideoCapture extends Activity {
 	private MediaRecorder mediaRecorder;
 	private Context context;
 	private String currentFileName;
-	private GPSTracker gpsTracker;
+	//private GPSTracker gpsTracker;
 	Button myButton;
 	SurfaceHolder surfaceHolder;
 	boolean recording;
@@ -110,7 +111,7 @@ public class VideoCapture extends Activity {
 		appDir  = new File(root + "/VSD");    
         appDir.mkdirs();
     	    	
-    	gpsTracker = new GPSTracker(context);
+    	//gpsTracker = new GPSTracker(context);
 	}
 
     public void enableButton(){
@@ -132,8 +133,8 @@ public class VideoCapture extends Activity {
 				stopSendingSnapshot();
 				
 				// Write XML
-				GPXWriter writer = new GPXWriter();
-				writer.writeGPXFileForData(currentFileName, gpsTracker.getTrack());
+				//GPXWriter writer = new GPXWriter();
+				//writer.writeGPXFileForData(currentFileName, gpsTracker.getTrack());
 
 				// Camera stuff
 				mediaRecorder.stop(); // stop the recording
@@ -166,7 +167,7 @@ public class VideoCapture extends Activity {
 				}
 				
 				// reset the track list
-				gpsTracker.startNewTrack();
+				//gpsTracker.startNewTrack();
 				
 				mediaRecorder.start();
 				recording = true;
@@ -391,6 +392,15 @@ public class VideoCapture extends Activity {
 		VideoCapture.self = self;
 	}
 
+    /**
+     * Listen to location updates from GPS-sensor
+     */
+    public void locationUpdate(PositionSensorObserver sensor) {
+        // on location change we can start record
+        // TODO: our project really don't need a location
+        this.enableButton();
+    }
+
 
 	private void stopSnapshot() { takingSnapshot = false; }
 	private void startSnapshot() { takingSnapshot = true; }
@@ -491,16 +501,16 @@ public class VideoCapture extends Activity {
             SensorManager manager = (SensorManager) VideoCapture.getSelf().getSystemService(Activity.SENSOR_SERVICE);
 
             // acceleration sensor
-            sensor = (LogicalSensorObservable) new AccelerationSensorObserver(manager);
+            sensor = new AccelerationSensorObserver(manager);
             sensors.add(sensor);
 
             // orientation sensor
-            sensor = (LogicalSensorObservable) new RotationVectorObserver(manager);
+            sensor = new RotationVectorObserver(manager);
             sensors.add(sensor);
 
             // movement sensor
-            //sensor = (LogicalSensorObservable) new SpeedSensorObserver(VideoCapture.getSelf().getContext());
-            //sensors.add(sensor);
+            sensor = new PositionSensorObserver(VideoCapture.getSelf().getContext());
+            sensors.add(sensor);
 
             // start listening to sensors
             resumeSensors();

@@ -1,27 +1,35 @@
 package no_de.inf5090.visualizingsensordata.domain;
 
-import java.util.Date;
 import java.util.LinkedList;
-import java.util.Observable;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import no_de.inf5090.visualizingsensordata.application.Utils;
+import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * @author Jens Naber
+ * @author Jens Naber et al.
  * Analyzes the GPS data to find out if the user is walking to fast to film a good video
  */
-public class SpeedSensorObserver extends LogicalSensorObservable implements LocationListener{
-	private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 0.5f; // meters
-	private static final long MIN_TIME_BW_UPDATES = 100; // milliseconds
+public class PositionSensorObserver extends LogicalSensorObservable implements LocationListener{
+    // The minimum distance to change Updates in meters
+    private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 0.5f; // meters (from GPSTracker: 1, and type long)
+
+    // The minimum time between updates in milliseconds
+    private static final long MIN_TIME_BW_UPDATES = 100; // milliseconds (from GPSTracker: 1000 * 1 * 1)
+
 	private static final int ACCURACY_THRESHOLD = 30; // meter
 	private static final int ACCURACY_ERROR = 2; // count
 	private static final int AVERAGE_VALUE_RANGE = 4; //count	
@@ -40,22 +48,21 @@ public class SpeedSensorObserver extends LogicalSensorObservable implements Loca
      */
     public final static int ID = 103;
 	
-	Context context;
+	private final Context mContext;
+
 	/**
-	 * Constructor gets an location manager and calls startUsingGPS()
-	 * @param c context
+	 * Constructor gets an location manager
 	 */
-	public SpeedSensorObserver(Context c){
-		context = c;
-		locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);		
-		//startUsingGPS();
+	public PositionSensorObserver(Context context){
+        this.mContext = context;
+        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 	}
-	
+
 	/**
 	 * Searches for the location provider, which fits best to the requirements
 	 * @return name of the best provider
 	 */
-	public String getBestProvider(){	    
+	public String getBestProvider(){
 	    Criteria criteria = new Criteria();
 	    criteria.setSpeedRequired(true);
 	    criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -74,7 +81,10 @@ public class SpeedSensorObserver extends LogicalSensorObservable implements Loca
 	 * @param location GPS location 
 	 */
 	public void onLocationChanged(Location location) {
-		normalizedSpeed = -2;
+        VideoCapture.getSelf().locationUpdate(this);
+        Log.d("GPS", "onLocationChanged");
+
+        normalizedSpeed = -2;
 		
 		if(location.hasSpeed()) {
 			// checks if the accuracy is low for the second time, if so return -2 and empty queue
@@ -181,7 +191,7 @@ public class SpeedSensorObserver extends LogicalSensorObservable implements Loca
     public class LogicalSensorData extends AbstractLogicalSensorData {
         private double speed;
 
-        public LogicalSensorData(SpeedSensorObserver sensor) {
+        public LogicalSensorData(PositionSensorObserver sensor) {
             super(sensor);
             this.speed = sensor.getSpeed();
         }
@@ -215,5 +225,70 @@ public class SpeedSensorObserver extends LogicalSensorObservable implements Loca
         public String getSensorName() {
             return "Speed";
         }
+    }
+
+    Location location; // location
+    double latitude; // latitude
+    double longitude; // longitude
+
+    /**
+     * Function to get latitude
+     * */
+    public double getLatitude() {
+        if (location != null) {
+            latitude = location.getLatitude();
+        }
+
+        // return latitude
+        return latitude;
+    }
+
+    /**
+     * Function to get longitude
+     * */
+    public double getLongitude() {
+        if (location != null) {
+            longitude = location.getLongitude();
+        }
+
+        // return longitude
+        return longitude;
+    }
+
+
+    /**
+     * Function to show settings alert dialog On pressing Settings button will
+     * lauch Settings Options
+     * */
+    public void showSettingsAlert() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+
+        // Setting Dialog Title
+        alertDialog.setTitle("GPS is settings");
+
+        // Setting Dialog Message
+        alertDialog
+                .setMessage("GPS is not enabled. Do you want to go to settings menu?");
+
+        // On pressing Settings button
+        alertDialog.setPositiveButton("Settings",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(
+                                Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        mContext.startActivity(intent);
+                    }
+                });
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 }
