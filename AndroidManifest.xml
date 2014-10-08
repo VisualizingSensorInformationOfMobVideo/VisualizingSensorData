@@ -34,10 +34,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="no_de.inf5090.visualizingsensordata.userInterface.GraphDrawActivity"
-            android:label="@string/title_activity_graph_draw" >
-        </activity>
     </application>
 
 </manifest>
