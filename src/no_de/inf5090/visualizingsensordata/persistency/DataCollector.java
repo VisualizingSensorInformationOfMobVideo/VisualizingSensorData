@@ -64,9 +64,7 @@ public abstract class DataCollector implements Observer {
         rootElement.appendChild(elm);
 
         // datetime
-        elm = doc.createElement("DateTime");
-        elm.appendChild(doc.createTextNode(Utils.getDateString(new Date())));
-        rootElement.appendChild(elm);
+        rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
 
         // sensor data
         for (AbstractLogicalSensorData logItem : mSensorData) {

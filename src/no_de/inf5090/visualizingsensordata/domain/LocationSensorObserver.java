@@ -308,27 +308,33 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
             Element item = getBaseXml(), elm;
 
             // actual sensor data
-            elm = doc.createElement("Speed");
+            elm = doc.createElement("Entry");
+            elm.setAttribute("type", "speed");
             elm.appendChild(doc.createTextNode(Double.toString(getSpeed())));
             item.appendChild(elm);
 
-            elm = doc.createElement("Altitude");
+            elm = doc.createElement("Entry");
+            elm.setAttribute("type", "altritude");
             elm.appendChild(doc.createTextNode(Double.toString(getAltitude())));
             item.appendChild(elm);
 
-            elm = doc.createElement("Longitude");
+            elm = doc.createElement("Entry");
+            elm.setAttribute("type", "longitude");
             elm.appendChild(doc.createTextNode(Double.toString(getLongitude())));
             item.appendChild(elm);
 
-            elm = doc.createElement("Latitude");
+            elm = doc.createElement("Entry");
+            elm.setAttribute("type", "latitude");
             elm.appendChild(doc.createTextNode(Double.toString(getLatitude())));
             item.appendChild(elm);
 
-            elm = doc.createElement("Accuracy");
+            elm = doc.createElement("Entry");
+            elm.setAttribute("type", "accuracy");
             elm.appendChild(doc.createTextNode(Double.toString(mLocation.getAccuracy())));
             item.appendChild(elm);
 
-            elm = doc.createElement("Provider");
+            elm = doc.createElement("Entry");
+            elm.setAttribute("type", "provider");
             elm.appendChild(doc.createTextNode(mLocation.getProvider()));
             item.appendChild(elm);
 

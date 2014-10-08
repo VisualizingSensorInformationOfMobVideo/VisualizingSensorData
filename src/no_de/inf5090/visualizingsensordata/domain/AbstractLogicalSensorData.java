@@ -109,9 +109,7 @@ public abstract class AbstractLogicalSensorData {
         item.appendChild(elm);
 
         // timestamp of data
-        elm = doc.createElement("DateTime");
-        elm.appendChild(doc.createTextNode(Utils.getDateString(getTimestamp())));
-        item.appendChild(elm);
+        item.setAttribute("dateTime", Utils.getDateString(getTimestamp()));
 
         return item;
     }
