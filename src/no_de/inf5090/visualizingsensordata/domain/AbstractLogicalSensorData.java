@@ -46,13 +46,6 @@ public abstract class AbstractLogicalSensorData {
     }
 
     /**
-     * Set sensor
-     */
-    /*public void setSensor(LogicalSensorObservable sensor) {
-		this.sensor = sensor;
-	}*/
-
-    /**
      * Get timestamp
      */
     public Date getTimestamp() {
