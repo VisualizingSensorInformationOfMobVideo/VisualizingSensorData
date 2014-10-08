@@ -30,7 +30,7 @@ import android.widget.LinearLayout;
 /**
  * Displays sensor data
  * Note: achartengine is licensed under apache license v2.0. Need to investigate what requirements exist here.
- * @author aage
+ * @author aage et al.
  *
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)

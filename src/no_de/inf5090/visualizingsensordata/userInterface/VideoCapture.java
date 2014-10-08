@@ -19,7 +19,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -51,7 +50,6 @@ public class VideoCapture extends Activity {
 	private MediaRecorder mediaRecorder;
 	private Context context;
 	private String currentFileName;
-	//private GPSTracker gpsTracker;
 	Button myButton;
 	SurfaceHolder surfaceHolder;
 	boolean recording;
@@ -108,8 +106,6 @@ public class VideoCapture extends Activity {
 		String root = Environment.getExternalStorageDirectory().toString();
 		appDir  = new File(root + "/VSD");    
         appDir.mkdirs();
-    	    	
-    	//gpsTracker = new GPSTracker(context);
 	}
 
     public void enableButton(){
@@ -153,9 +149,6 @@ public class VideoCapture extends Activity {
 							Toast.LENGTH_LONG).show();
 					finish();
 				}
-				
-				// reset the track list
-				//gpsTracker.startNewTrack();
 				
 				mediaRecorder.start();
 				recording = true;

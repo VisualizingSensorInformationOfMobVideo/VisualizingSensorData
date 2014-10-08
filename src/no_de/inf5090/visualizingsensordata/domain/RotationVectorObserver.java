@@ -10,7 +10,7 @@ import no_de.inf5090.visualizingsensordata.application.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/*
+/**
  * Listen to the ROTATION_VECTOR-sensor for providing orientation data
  */
 public class RotationVectorObserver extends LogicalSensorObservable implements Observer {
