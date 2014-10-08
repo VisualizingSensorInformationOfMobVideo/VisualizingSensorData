@@ -38,24 +38,6 @@ public abstract class AbstractLogicalSensorData {
         this.timestamp = new Date();
     }
 
-    /*
-    public LogicalSensorData() { };
-	public LogicalSensorData(Object sensor, float value) {
-		setSensor(sensor);
-		setValue(value);
-		setTimestamp(new Date());
-	}
-	public LogicalSensorData(Object sensor, float[] values) {
-		setSensor(sensor);
-		setValues(values);
-		setTimestamp(new Date());
-	}
-	public LogicalSensorData(Object sensor, float value, Date timestamp) {
-		setSensor(sensor);
-		setValue(value);
-		setTimestamp(timestamp);
-	}*/
-
     /**
      * Get sensor
      */
