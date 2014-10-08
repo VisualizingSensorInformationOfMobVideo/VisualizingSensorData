@@ -145,7 +145,8 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
 
         mLocation = location;
 
-        calculateSpeed();
+        // TODO: I don't think we have to normalize or make average values of the speed sensors
+        //calculateSpeed();
 
         setChanged();
         notifyObservers(new LogicalSensorData(this));
@@ -260,7 +261,8 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
     }
 	
 	public double getSpeed() {
-		return mAverageSpeed;
+        return mLocation.getSpeed();
+		//return mAverageSpeed;
 	}
 
     @Override
@@ -308,11 +310,6 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
             // actual sensor data
             elm = doc.createElement("Speed");
             elm.appendChild(doc.createTextNode(Double.toString(getSpeed())));
-            item.appendChild(elm);
-
-            // actual sensor data
-            elm = doc.createElement("RawSpeed");
-            elm.appendChild(doc.createTextNode(Double.toString(mLocation.getSpeed())));
             item.appendChild(elm);
 
             elm = doc.createElement("Altitude");
