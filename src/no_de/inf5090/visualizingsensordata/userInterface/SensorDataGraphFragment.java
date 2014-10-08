@@ -4,7 +4,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
-import no_de.inf5090.visualizingsensordata.domain.PositionSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -177,8 +177,8 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
 		}
 
         // speed?
-        else if (sensorData.getSensorID() == PositionSensorObserver.ID) {
-            mSpeedSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((PositionSensorObserver.LogicalSensorData)sensorData).getSpeed());
+        else if (sensorData.getSensorID() == LocationSensorObserver.ID) {
+            mSpeedSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((LocationSensorObserver.LogicalSensorData)sensorData).getSpeed());
 		}
 		
 		// Set new range - last 2 seconds

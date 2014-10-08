@@ -7,11 +7,10 @@ import java.util.*;
 
 import android.hardware.SensorManager;
 import no_de.inf5090.visualizingsensordata.R;
-//import no_de.inf5090.visualizingsensordata.domain.GPSTracker;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
-import no_de.inf5090.visualizingsensordata.domain.PositionSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 import no_de.inf5090.visualizingsensordata.transmission.SnapshotTransmission;
@@ -390,7 +389,7 @@ public class VideoCapture extends Activity {
     /**
      * Listen to location updates from GPS-sensor
      */
-    public void locationUpdate(PositionSensorObserver sensor) {
+    public void locationUpdate(LocationSensorObserver sensor) {
         // on location change we can start record
         // TODO: our project really don't need a location
         this.enableButton();
@@ -504,7 +503,7 @@ public class VideoCapture extends Activity {
             sensors.add(sensor);
 
             // movement sensor
-            sensor = new PositionSensorObserver(VideoCapture.getSelf().getContext());
+            sensor = new LocationSensorObserver(VideoCapture.getSelf().getContext());
             sensors.add(sensor);
 
             // start listening to sensors
