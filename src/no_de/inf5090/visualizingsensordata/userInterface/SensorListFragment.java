@@ -6,8 +6,8 @@ import java.util.Observer;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
-import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.os.Build;
@@ -70,8 +70,8 @@ public class SensorListFragment extends Fragment implements Observer {
         }
 
         // check for speed
-        else if (((AbstractLogicalSensorData)data).getSensorID() == SpeedSensorObserver.ID) {
-            handleSpeedEvent((SpeedSensorObserver.LogicalSensorData)data);
+        else if (((AbstractLogicalSensorData)data).getSensorID() == LocationSensorObserver.ID) {
+            handleSpeedEvent((LocationSensorObserver.LogicalSensorData)data);
         }
 
         // check for orientation
@@ -166,7 +166,7 @@ public class SensorListFragment extends Fragment implements Observer {
 	/**
 	 * This method handles speed events and updates the progress bar to show if speed is to high.
 	 */
-	private void handleSpeedEvent(SpeedSensorObserver.LogicalSensorData data) {
+	private void handleSpeedEvent(LocationSensorObserver.LogicalSensorData data) {
 		ProgressBar bar = (ProgressBar) fragmentView.findViewById(R.id.speedBar);
         int speedValue = (int) (data.getSpeed() * 100);
 

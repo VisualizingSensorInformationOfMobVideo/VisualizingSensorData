@@ -4,6 +4,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
+import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -15,7 +16,6 @@ import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
-import no_de.inf5090.visualizingsensordata.domain.SpeedSensorObserver;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.graphics.Color;
@@ -137,8 +137,8 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
 		}
 
         // speed?
-        else if (sensorData.getSensorID() == SpeedSensorObserver.ID) {
-            mSpeedSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((SpeedSensorObserver.LogicalSensorData)sensorData).getSpeed());
+        else if (sensorData.getSensorID() == LocationSensorObserver.ID) {
+            mSpeedSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((LocationSensorObserver.LogicalSensorData)sensorData).getSpeed());
 		}
 		
 		// Set new range - last 2 seconds

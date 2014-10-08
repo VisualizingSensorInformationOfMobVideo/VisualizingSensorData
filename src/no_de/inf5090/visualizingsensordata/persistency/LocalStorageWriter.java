@@ -49,6 +49,7 @@ public class LocalStorageWriter extends DataCollector {
             outFormat.setProperty(OutputKeys.VERSION, "1.0");
             outFormat.setProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.setOutputProperties(outFormat);
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(source, streamResult);
         } catch (TransformerConfigurationException e) {
         } catch (TransformerException e) {
