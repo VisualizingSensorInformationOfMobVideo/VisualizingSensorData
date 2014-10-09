@@ -16,11 +16,11 @@ public class Utils {
      */
     protected static Document document;
 
-	public static int puEncodingFormat = 0;
-	public static int puContainerFormat = 0;
-	public static int puResolutionChoice = 0;
+    public static int puEncodingFormat = 0;
+    public static int puContainerFormat = 0;
+    public static int puResolutionChoice = 0;
 
-	public static Date lastRecordingStar = new Date();
+    public static Date lastRecordingStar = new Date();
 
     /**
      * Get Document-instance

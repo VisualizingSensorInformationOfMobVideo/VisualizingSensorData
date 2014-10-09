@@ -36,44 +36,44 @@ import android.widget.LinearLayout;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SensorDataGraphFragment extends Fragment implements Observer {
 
-	private View fragmentView;
+    private View fragmentView;
     private GraphicalView mChart;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
-    
-	private XYSeries mAzimuthSeries = new XYSeries("Azimuth");
-	private XYSeriesRenderer mAzimuthRenderer = new XYSeriesRenderer();
-	private XYSeries mPitchSeries = new XYSeries("Pitch");
-	private XYSeriesRenderer mPitchRenderer = new XYSeriesRenderer();
-	private XYSeries mRollSeries = new XYSeries("Roll");
-	private XYSeriesRenderer mRollRenderer = new XYSeriesRenderer();
-	
-	private XYSeries mShakeSeries = new XYSeries("Shake");
-	private XYSeriesRenderer mShakeRenderer = new XYSeriesRenderer();
-	private XYSeries mSpeedSeries = new XYSeries("Speed");
-	private XYSeriesRenderer mSpeedRenderer = new XYSeriesRenderer();
 
-		
+    private XYSeries mAzimuthSeries = new XYSeries("Azimuth");
+    private XYSeriesRenderer mAzimuthRenderer = new XYSeriesRenderer();
+    private XYSeries mPitchSeries = new XYSeries("Pitch");
+    private XYSeriesRenderer mPitchRenderer = new XYSeriesRenderer();
+    private XYSeries mRollSeries = new XYSeries("Roll");
+    private XYSeriesRenderer mRollRenderer = new XYSeriesRenderer();
+
+    private XYSeries mShakeSeries = new XYSeries("Shake");
+    private XYSeriesRenderer mShakeRenderer = new XYSeriesRenderer();
+    private XYSeries mSpeedSeries = new XYSeries("Speed");
+    private XYSeriesRenderer mSpeedRenderer = new XYSeriesRenderer();
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         initGraph();
 
-    	// Double axis title size
-    	mRenderer.setYAxisMax(0.5);
-    	mRenderer.setYAxisMin(-0.5);
+        // Double axis title size
+        mRenderer.setYAxisMax(0.5);
+        mRenderer.setYAxisMin(-0.5);
 
-    	// Set default legend size in pixels (a bit smaller than button text)
-    	float textSize = new Button(inflater.getContext()).getTextSize()*2/3;
-    	//mRenderer.setLegendTextSize(mRenderer.getLegendTextSize() + 15);
-    	mRenderer.setLegendTextSize(textSize);
-    	    	
-    	// Minimize margins
-    	mRenderer.setMargins(new int[] {0,0,0,0});
-    	
-    	// Get fragment
-    	fragmentView = inflater.inflate(R.layout.graph_sensor_data_fragment, container, false);
-    	return fragmentView;
+        // Set default legend size in pixels (a bit smaller than button text)
+        float textSize = new Button(inflater.getContext()).getTextSize()*2/3;
+        //mRenderer.setLegendTextSize(mRenderer.getLegendTextSize() + 15);
+        mRenderer.setLegendTextSize(textSize);
+
+        // Minimize margins
+        mRenderer.setMargins(new int[] {0,0,0,0});
+
+        // Get fragment
+        fragmentView = inflater.inflate(R.layout.graph_sensor_data_fragment, container, false);
+        return fragmentView;
     }
 
     @Override
@@ -83,27 +83,27 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
         // connect to sensors
         VideoCapture.getSelf().connectSensors(this);
     }
-    
+
     private void initGraph() {
-    	
-    	// Set graph color
-    	mAzimuthRenderer.setColor(Color.MAGENTA);
-    	mPitchRenderer.setColor(Color.GREEN);
-    	mRollRenderer.setColor(Color.BLUE);
-    	mShakeRenderer.setColor(Color.WHITE);
-    	mSpeedRenderer.setColor(Color.RED);
-    	
-    	// Add graphs
-    	mDataset.addSeries(mAzimuthSeries);
-    	mDataset.addSeries(mPitchSeries);
-    	mDataset.addSeries(mRollSeries);
-    	mDataset.addSeries(mShakeSeries);
-    	mDataset.addSeries(mSpeedSeries);
-    	mRenderer.addSeriesRenderer(mAzimuthRenderer);
-    	mRenderer.addSeriesRenderer(mPitchRenderer);
-    	mRenderer.addSeriesRenderer(mRollRenderer);
-    	mRenderer.addSeriesRenderer(mShakeRenderer);
-    	mRenderer.addSeriesRenderer(mSpeedRenderer);
+
+        // Set graph color
+        mAzimuthRenderer.setColor(Color.MAGENTA);
+        mPitchRenderer.setColor(Color.GREEN);
+        mRollRenderer.setColor(Color.BLUE);
+        mShakeRenderer.setColor(Color.WHITE);
+        mSpeedRenderer.setColor(Color.RED);
+
+        // Add graphs
+        mDataset.addSeries(mAzimuthSeries);
+        mDataset.addSeries(mPitchSeries);
+        mDataset.addSeries(mRollSeries);
+        mDataset.addSeries(mShakeSeries);
+        mDataset.addSeries(mSpeedSeries);
+        mRenderer.addSeriesRenderer(mAzimuthRenderer);
+        mRenderer.addSeriesRenderer(mPitchRenderer);
+        mRenderer.addSeriesRenderer(mRollRenderer);
+        mRenderer.addSeriesRenderer(mShakeRenderer);
+        mRenderer.addSeriesRenderer(mSpeedRenderer);
     }
 
     public void onResume() {
@@ -117,13 +117,13 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
         }
     }
 
-	public void update(Observable observable, Object data) {
-		if(!(data instanceof AbstractLogicalSensorData))
-			return;
-		
-		AbstractLogicalSensorData sensorData = (AbstractLogicalSensorData) data;
-		
-		// rotation?
+    public void update(Observable observable, Object data) {
+        if(!(data instanceof AbstractLogicalSensorData))
+            return;
+
+        AbstractLogicalSensorData sensorData = (AbstractLogicalSensorData) data;
+
+        // rotation?
         if (sensorData.getSensorID() == RotationVectorObserver.ID) {
             RotationVectorObserver.LogicalSensorData logData = (RotationVectorObserver.LogicalSensorData) sensorData;
             mAzimuthSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), logData.getAzimuth() / Math.PI);
@@ -133,19 +133,19 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
 
         // acceleration?
         else if (sensorData.getSensorID() == AccelerationSensorObserver.ID) {
-			mShakeSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((AccelerationSensorObserver.LogicalSensorData)sensorData).getAcceleration()/10);
-		}
+            mShakeSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((AccelerationSensorObserver.LogicalSensorData)sensorData).getAcceleration()/10);
+        }
 
         // speed?
         else if (sensorData.getSensorID() == LocationSensorObserver.ID) {
             mSpeedSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((LocationSensorObserver.LogicalSensorData)sensorData).getSpeed());
-		}
-		
-		// Set new range - last 2 seconds
-		mRenderer.setXAxisMax(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime());
-		mRenderer.setXAxisMin(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime() - 2000);
-		
-		// Redraw
-		mChart.repaint();
-	}
+        }
+
+        // Set new range - last 2 seconds
+        mRenderer.setXAxisMax(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime());
+        mRenderer.setXAxisMin(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime() - 2000);
+
+        // Redraw
+        mChart.repaint();
+    }
 }

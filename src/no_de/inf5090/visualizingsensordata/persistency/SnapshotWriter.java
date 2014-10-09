@@ -14,54 +14,54 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
-	
-	//Queue<SnapshotData> snapshotData;
-	public static Queue<String> snapshotData = new LinkedList<String>();
-	/**
-	 * Constructor: initiates snapshotwriter
-	 */
-	public SnapshotWriter() {
-		//snapshotData = new LinkedList<SnapshotData>();	
-	}
-	
-	public void writeBitmap(String path, SnapshotData snapshotData) {
-		try {
-			FileOutputStream fos = new FileOutputStream(path + "/" + snapshotData.getName() + ".jpg");
-			snapshotData.getBitmap().compress(CompressFormat.JPEG, 75, fos);
-		    try {
-				fos.flush();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		    try {
-				fos.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		catch (FileNotFoundException  e) {
-		}
-	}
 
-	@Override
-	protected Void doInBackground(byte[]... data) {
-		try {	
-			String fPath = VideoCapture.appDir.getPath() + "/" + System.currentTimeMillis() + ".jpg";
-			FileOutputStream fos = new FileOutputStream(fPath);
-			fos.write(data[0]);
-			fos.flush();
-			fos.close();
-			
-			snapshotData.add(fPath); // add full path of the just taken snapshot to the queue
-			
-			Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
+    //Queue<SnapshotData> snapshotData;
+    public static Queue<String> snapshotData = new LinkedList<String>();
+    /**
+     * Constructor: initiates snapshotwriter
+     */
+    public SnapshotWriter() {
+        //snapshotData = new LinkedList<SnapshotData>();
+    }
+
+    public void writeBitmap(String path, SnapshotData snapshotData) {
+        try {
+            FileOutputStream fos = new FileOutputStream(path + "/" + snapshotData.getName() + ".jpg");
+            snapshotData.getBitmap().compress(CompressFormat.JPEG, 75, fos);
+            try {
+                fos.flush();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                fos.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        catch (FileNotFoundException  e) {
+        }
+    }
+
+    @Override
+    protected Void doInBackground(byte[]... data) {
+        try {
+            String fPath = VideoCapture.appDir.getPath() + "/" + System.currentTimeMillis() + ".jpg";
+            FileOutputStream fos = new FileOutputStream(fPath);
+            fos.write(data[0]);
+            fos.flush();
+            fos.close();
+
+            snapshotData.add(fPath); // add full path of the just taken snapshot to the queue
+
+            Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
 }

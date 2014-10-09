@@ -11,21 +11,21 @@ import android.hardware.SensorEventListener;
  */
 public class RawSensorObservable extends Observable implements SensorEventListener {
 
-	public float[] values;
-	
-	@Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
-		
-	}
+    public float[] values;
 
     @Override
-	public void onSensorChanged(SensorEvent event) {
-		values = event.values;
-		
-		// Raise changed event
-		setChanged();		// Sets changed to true
-		notifyObservers();	// Notifies observers about a change
-	}
-	
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        values = event.values;
+
+        // Raise changed event
+        setChanged();        // Sets changed to true
+        notifyObservers();   // Notifies observers about a change
+    }
+
 }

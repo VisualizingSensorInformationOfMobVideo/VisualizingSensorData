@@ -24,23 +24,23 @@ import android.widget.ProgressBar;
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SensorListFragment extends Fragment implements Observer {
-	private View fragmentView;
+    private View fragmentView;
 
-	//Warning toasts.
-	/*private Toast shakeWarning;
-	private Toast orientationWarning;
-	private Toast speedWarning;*/
-	
+    //Warning toasts.
+    /*private Toast shakeWarning;
+    private Toast orientationWarning;
+    private Toast speedWarning;*/
+
     //@SuppressLint("ShowToast")
-	@Override
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get fragment
-    	fragmentView = inflater.inflate(R.layout.sensor_data_fragment, container, false);
+        fragmentView = inflater.inflate(R.layout.sensor_data_fragment, container, false);
 
-    	// set up progress bars to fit with our sensors
-    	setUpAccelerationSensor();
-    	setUpSpeedSensor();
-    	setUpOrientationSensor();
+        // set up progress bars to fit with our sensors
+        setUpAccelerationSensor();
+        setUpSpeedSensor();
+        setUpOrientationSensor();
 
         // TODO: should we give feedback in our project?
         // Create warning messages.
@@ -78,106 +78,106 @@ public class SensorListFragment extends Fragment implements Observer {
         else if (((AbstractLogicalSensorData)data).getSensorID() == RotationVectorObserver.ID) {
             handleOrientionVectorObserverChanged((RotationVectorObserver.LogicalSensorData)data);
         }
-	}
+    }
 
     // Private functions
-	private void setUpAccelerationSensor() {    	
-    	ProgressBar progress_shake = (ProgressBar)fragmentView.findViewById(R.id.shakeBar);
-    	progress_shake.setMax(50);
-    	progress_shake.setProgress(0);
-	}
+    private void setUpAccelerationSensor() {
+        ProgressBar progress_shake = (ProgressBar)fragmentView.findViewById(R.id.shakeBar);
+        progress_shake.setMax(50);
+        progress_shake.setProgress(0);
+    }
 
-	private void setUpSpeedSensor() {
-    	ProgressBar progress_speed = (ProgressBar)fragmentView.findViewById(R.id.speedBar);
-    	progress_speed.setMax(25);
-    	progress_speed.setProgress(0);
-	}
+    private void setUpSpeedSensor() {
+        ProgressBar progress_speed = (ProgressBar)fragmentView.findViewById(R.id.speedBar);
+        progress_speed.setMax(25);
+        progress_speed.setProgress(0);
+    }
 
     private void setUpOrientationSensor() {
-    	ProgressBar bar;
-    	
-		// azimuth
-    	bar = (ProgressBar)fragmentView.findViewById(R.id.azimuthBar);
-    	bar.setMax(100);
-    	bar.setProgress(0);
-    	
-    	// pitch
-    	bar = (ProgressBar)fragmentView.findViewById(R.id.pitchBar);
-    	bar.setMax(100);
-    	bar.setProgress(0);
-    	
-    	// roll
-    	bar = (ProgressBar)fragmentView.findViewById(R.id.rollBar);
-    	bar.setMax(100);
-    	bar.setProgress(0);
-	}
-	
-	/**
-	 * This method handles shake events and updates the progress bar to show if shaking is too bad.
-	 */
-	private void handleShakeEvent(AccelerationSensorObserver.LogicalSensorData data) {
-		ProgressBar bar = (ProgressBar) fragmentView.findViewById(R.id.shakeBar);
+        ProgressBar bar;
+
+        // azimuth
+        bar = (ProgressBar)fragmentView.findViewById(R.id.azimuthBar);
+        bar.setMax(100);
+        bar.setProgress(0);
+
+        // pitch
+        bar = (ProgressBar)fragmentView.findViewById(R.id.pitchBar);
+        bar.setMax(100);
+        bar.setProgress(0);
+
+        // roll
+        bar = (ProgressBar)fragmentView.findViewById(R.id.rollBar);
+        bar.setMax(100);
+        bar.setProgress(0);
+    }
+
+    /**
+     * This method handles shake events and updates the progress bar to show if shaking is too bad.
+     */
+    private void handleShakeEvent(AccelerationSensorObserver.LogicalSensorData data) {
+        ProgressBar bar = (ProgressBar) fragmentView.findViewById(R.id.shakeBar);
         int shakeValue = (int) (Math.abs(data.getAcceleration()/10) * 100);
 
-		bar.setProgress(shakeValue);
+        bar.setProgress(shakeValue);
 
         // TODO: should we give feedback in our project?
-		/*if (shakeValue < 30) {	// Warning treshold.
-			progress_shake.setBackgroundColor(Color.GREEN);
-		} else { 
-			progress_shake.setBackgroundColor(Color.RED);
-			if (this.fragmentView.isShown()) shakeWarning.show();
-		}*/
-	}
-	
-	/*
-	 * Visually presents the orientation of the device
-	 */
-	private void handleOrientionVectorObserverChanged(RotationVectorObserver.LogicalSensorData data) {
-		ProgressBar bar;
-		int val;
-		
-		// azimuth
-		bar = (ProgressBar)fragmentView.findViewById(R.id.azimuthBar);
-		val = (int) ((data.getAzimuth() + Math.PI) / Math.PI / 2 * 100);
-		bar.setProgress(val);
-		
-		// pitch
-		bar = (ProgressBar)fragmentView.findViewById(R.id.pitchBar);
-		val = (int) (Math.abs(data.getPitch()) / Math.PI * 200);
-		bar.setProgress(val);
+        /*if (shakeValue < 30) {    // Warning treshold.
+            progress_shake.setBackgroundColor(Color.GREEN);
+        } else {
+            progress_shake.setBackgroundColor(Color.RED);
+            if (this.fragmentView.isShown()) shakeWarning.show();
+        }*/
+    }
+
+    /*
+     * Visually presents the orientation of the device
+     */
+    private void handleOrientionVectorObserverChanged(RotationVectorObserver.LogicalSensorData data) {
+        ProgressBar bar;
+        int val;
+
+        // azimuth
+        bar = (ProgressBar)fragmentView.findViewById(R.id.azimuthBar);
+        val = (int) ((data.getAzimuth() + Math.PI) / Math.PI / 2 * 100);
+        bar.setProgress(val);
+
+        // pitch
+        bar = (ProgressBar)fragmentView.findViewById(R.id.pitchBar);
+        val = (int) (Math.abs(data.getPitch()) / Math.PI * 200);
+        bar.setProgress(val);
         // TODO: should we give feedback in our project?
         //bar.setBackgroundColor(val < 10 ? Color.GREEN : Color.RED);
-		/*if (val >= 10) {
-			if (this.fragmentView.isShown()) orientationWarning.show();
-		}*/
-		
-		// roll
-		bar = (ProgressBar)fragmentView.findViewById(R.id.rollBar);
-		val = (int) (Math.abs(data.getRoll()) / Math.PI * 100);
-		bar.setProgress(val);
-        // TODO: should we give feedback in our project?
-		//bar.setBackgroundColor(val < 10 ? Color.GREEN : Color.RED);
-		/*if (val >= 10) {
-			if (this.fragmentView.isShown()) orientationWarning.show();
-		}*/
-	}
+        /*if (val >= 10) {
+            if (this.fragmentView.isShown()) orientationWarning.show();
+        }*/
 
-	/**
-	 * This method handles speed events and updates the progress bar to show if speed is to high.
-	 */
-	private void handleSpeedEvent(LocationSensorObserver.LogicalSensorData data) {
-		ProgressBar bar = (ProgressBar) fragmentView.findViewById(R.id.speedBar);
+        // roll
+        bar = (ProgressBar)fragmentView.findViewById(R.id.rollBar);
+        val = (int) (Math.abs(data.getRoll()) / Math.PI * 100);
+        bar.setProgress(val);
+        // TODO: should we give feedback in our project?
+        //bar.setBackgroundColor(val < 10 ? Color.GREEN : Color.RED);
+        /*if (val >= 10) {
+            if (this.fragmentView.isShown()) orientationWarning.show();
+        }*/
+    }
+
+    /**
+     * This method handles speed events and updates the progress bar to show if speed is to high.
+     */
+    private void handleSpeedEvent(LocationSensorObserver.LogicalSensorData data) {
+        ProgressBar bar = (ProgressBar) fragmentView.findViewById(R.id.speedBar);
         int speedValue = (int) (data.getSpeed() * 100);
 
         bar.setProgress(speedValue > 0 ? speedValue : 0);
 
         // TODO: should we give feedback in our project?
         /*if(speedValue < 15) {
-			bar.setBackgroundColor(Color.GREEN);
-		} else { 
-			bar.setBackgroundColor(Color.RED);
-			if (this.fragmentView.isShown()) speedWarning.show();
-		}*/
-	}
+            bar.setBackgroundColor(Color.GREEN);
+        } else {
+            bar.setBackgroundColor(Color.RED);
+            if (this.fragmentView.isShown()) speedWarning.show();
+        }*/
+    }
 }

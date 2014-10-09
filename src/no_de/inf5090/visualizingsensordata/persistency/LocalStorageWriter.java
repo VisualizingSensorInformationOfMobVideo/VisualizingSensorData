@@ -19,7 +19,7 @@ import org.w3c.dom.Document;
 
 /**
  * This class logs all changes in sensors. When writeXML is executed, the readings will be written to file in xml format
- * 
+ *
  * @author aage et al.
  *
  */
@@ -56,31 +56,31 @@ public class LocalStorageWriter extends DataCollector {
         }
     }
 
-	// Used for testing only
-	@SuppressWarnings("unused")
-	private static String readAll(String fpath) {
-		File xmlFile = new File(fpath);
-		
-		BufferedReader reader;
-		try {
-			reader = new BufferedReader(new FileReader(xmlFile));
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return null;
-		}
-		String text = "";
-		String tmpString;
-		
-		try {
-			while((tmpString = reader.readLine()) != null) {
-				text += tmpString + '\n';
-			}
-			reader.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return text;
-	}
+    // Used for testing only
+    @SuppressWarnings("unused")
+    private static String readAll(String fpath) {
+        File xmlFile = new File(fpath);
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(xmlFile));
+        } catch (FileNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            return null;
+        }
+        String text = "";
+        String tmpString;
+
+        try {
+            while((tmpString = reader.readLine()) != null) {
+                text += tmpString + '\n';
+            }
+            reader.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return text;
+    }
 }

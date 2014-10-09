@@ -48,20 +48,20 @@ public class VideoCapture extends Activity {
     private LocalStorageWriter localStorageWriter;
 
     private Camera myCamera;
-	private MyCameraSurfaceView myCameraSurfaceView;
-	private MediaRecorder mediaRecorder;
-	private Context context;
-	private String currentFileName;
-	Button myButton;
-	SurfaceHolder surfaceHolder;
-	boolean recording;
-	Thread t = null;
-	private volatile boolean takingSnapshot; // Used by snapshot feature
-	private static int snapshotCounter = 0; // Used by snapshot feature
-	private int numOfSnapshots = 2;
-	private static int delay =  2000;
-	private SnapshotTransmission snapshotTransmission;
-	public static boolean sendingSnapshot;
+    private MyCameraSurfaceView myCameraSurfaceView;
+    private MediaRecorder mediaRecorder;
+    private Context context;
+    private String currentFileName;
+    Button myButton;
+    SurfaceHolder surfaceHolder;
+    boolean recording;
+    Thread t = null;
+    private volatile boolean takingSnapshot; // Used by snapshot feature
+    private static int snapshotCounter = 0; // Used by snapshot feature
+    private int numOfSnapshots = 2;
+    private static int delay =  2000;
+    private SnapshotTransmission snapshotTransmission;
+    public static boolean sendingSnapshot;
 
     /**
      * The sensor controller
@@ -69,91 +69,91 @@ public class VideoCapture extends Activity {
     private SensorController sensorController;
 
     // singleton
-	private static VideoCapture self;
-	
-	public static File appDir; // Application directory
-	
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    private static VideoCapture self;
+
+    public static File appDir; // Application directory
+
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         // set as singleton
         setSelf(this);
 
         setContext(this);
-		recording = false;
-		setContentView(R.layout.main);
+        recording = false;
+        setContentView(R.layout.main);
 
-		myCamera = getCameraInstance();
-		if (myCamera == null) {
-			Toast.makeText(VideoCapture.this, "Fail to get Camera",
-					Toast.LENGTH_LONG).show();
-		}
-		
-		myCameraSurfaceView = new MyCameraSurfaceView(this, myCamera);
-		FrameLayout myCameraPreview = (FrameLayout) findViewById(R.id.videoview);
-		myCameraPreview.addView(myCameraSurfaceView);
+        myCamera = getCameraInstance();
+        if (myCamera == null) {
+            Toast.makeText(VideoCapture.this, "Fail to get Camera",
+                    Toast.LENGTH_LONG).show();
+        }
+
+        myCameraSurfaceView = new MyCameraSurfaceView(this, myCamera);
+        FrameLayout myCameraPreview = (FrameLayout) findViewById(R.id.videoview);
+        myCameraPreview.addView(myCameraSurfaceView);
 
         // set up sensors
         sensorController = new SensorController();
         sensorController.initSensors();
 
         myButton = (Button) findViewById(R.id.mybutton);
-		myButton.setOnClickListener(myButtonOnClickListener);
-		//myButton.setEnabled(false);
-		myButton.setEnabled(true);
-		
-		// init app Dir
-		String root = Environment.getExternalStorageDirectory().toString();
-		appDir  = new File(root + "/VSD");    
+        myButton.setOnClickListener(myButtonOnClickListener);
+        //myButton.setEnabled(false);
+        myButton.setEnabled(true);
+
+        // init app Dir
+        String root = Environment.getExternalStorageDirectory().toString();
+        appDir  = new File(root + "/VSD");
         appDir.mkdirs();
-	}
+    }
 
     public void enableButton(){
-		myButton.setEnabled(true);
-	}
-	
-	@SuppressLint("NewApi")
-	Button.OnClickListener myButtonOnClickListener = new Button.OnClickListener() {
-		@SuppressLint("NewApi")
-		public void onClick(View v) {
-			if (recording) {
-				stopSnapshot();
-				stopSendingSnapshot();
-				
-				// Camera stuff
-				mediaRecorder.stop(); // stop the recording
-				releaseMediaRecorder(); // release the MediaRecorder object
-				recording = false;
-				myButton.setText("Record");
-				
-				// Stop recording sensor data
+        myButton.setEnabled(true);
+    }
+
+    @SuppressLint("NewApi")
+    Button.OnClickListener myButtonOnClickListener = new Button.OnClickListener() {
+        @SuppressLint("NewApi")
+        public void onClick(View v) {
+            if (recording) {
+                stopSnapshot();
+                stopSendingSnapshot();
+
+                // Camera stuff
+                mediaRecorder.stop(); // stop the recording
+                releaseMediaRecorder(); // release the MediaRecorder object
+                recording = false;
+                myButton.setText("Record");
+
+                // Stop recording sensor data
                 stopPersistingSensorData(currentFileName);
 
                 myCamera.startPreview();
-			} else {
-				
-				// create a new connection to the server
-				// TODO create a variable with webserver url
-				snapshotTransmission = new SnapshotTransmission("http://example.com"); 
-				
-				
-				// Mark last recording start
-				Utils.lastRecordingStar = new Date();
-					
-				// --- Camera Stuff
-				// Release Camera before MediaRecorder start
-				releaseCamera();
-				if (!prepareMediaRecorder()) {
-					Toast.makeText(VideoCapture.this,
-							"Fail in prepareMediaRecorder()!\n - Ended -",
-							Toast.LENGTH_LONG).show();
-					finish();
-				}
-				
-				mediaRecorder.start();
-				recording = true;
+            } else {
+
+                // create a new connection to the server
+                // TODO create a variable with webserver url
+                snapshotTransmission = new SnapshotTransmission("http://example.com");
+
+
+                // Mark last recording start
+                Utils.lastRecordingStar = new Date();
+
+                // --- Camera Stuff
+                // Release Camera before MediaRecorder start
+                releaseCamera();
+                if (!prepareMediaRecorder()) {
+                    Toast.makeText(VideoCapture.this,
+                            "Fail in prepareMediaRecorder()!\n - Ended -",
+                            Toast.LENGTH_LONG).show();
+                    finish();
+                }
+
+                mediaRecorder.start();
+                recording = true;
                 myButton.setText("Stop");
 
                 // Start recording sensor data
@@ -164,198 +164,198 @@ public class VideoCapture extends Activity {
                 myCamera.takePicture(null, null, jpegCallback);
 
                 startSendingSnapshot();
-			}
-		}
-	};
-	
-	private Camera getCameraInstance() {
-		Camera c = null;
-		try {
-			c = Camera.open(); // attempt to get a Camera instance
-		} catch (Exception e) {
-			// Camera is not available (in use or does not exist)
-		}
-		return c; // returns null if camera is unavailable
-	}
+            }
+        }
+    };
 
-	private boolean prepareMediaRecorder() {
-		myCamera = getCameraInstance();
-		mediaRecorder = new MediaRecorder();
+    private Camera getCameraInstance() {
+        Camera c = null;
+        try {
+            c = Camera.open(); // attempt to get a Camera instance
+        } catch (Exception e) {
+            // Camera is not available (in use or does not exist)
+        }
+        return c; // returns null if camera is unavailable
+    }
 
-		myCamera.unlock();
-		mediaRecorder.setCamera(myCamera);
+    private boolean prepareMediaRecorder() {
+        myCamera = getCameraInstance();
+        mediaRecorder = new MediaRecorder();
 
-		mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-		mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        myCamera.unlock();
+        mediaRecorder.setCamera(myCamera);
 
-		mediaRecorder.setProfile(CamcorderProfile
-				.get(CamcorderProfile.QUALITY_HIGH));
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
-		Date date = new Date() ;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss", java.util.Locale.getDefault()) ;
-		currentFileName = dateFormat.format(date);
-		mediaRecorder.setOutputFile(appDir.getPath()+"/"+currentFileName+".mp4");
-		//mediaRecorder.setMaxDuration(60000); // Set max duration 60 sec.
-		//mediaRecorder.setMaxFileSize(5000000); // Set max file size 5M
+        mediaRecorder.setProfile(CamcorderProfile
+                .get(CamcorderProfile.QUALITY_HIGH));
 
-		mediaRecorder.setPreviewDisplay(myCameraSurfaceView.getHolder()
-				.getSurface());
+        Date date = new Date() ;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss", java.util.Locale.getDefault()) ;
+        currentFileName = dateFormat.format(date);
+        mediaRecorder.setOutputFile(appDir.getPath()+"/"+currentFileName+".mp4");
+        //mediaRecorder.setMaxDuration(60000); // Set max duration 60 sec.
+        //mediaRecorder.setMaxFileSize(5000000); // Set max file size 5M
 
-		try {
-			mediaRecorder.prepare();
-		} catch (IllegalStateException e) {
-			releaseMediaRecorder();
-			return false;
-		} catch (IOException e) {
-			releaseMediaRecorder();
-			return false;
-		}
-		return true;
- 
-	}
+        mediaRecorder.setPreviewDisplay(myCameraSurfaceView.getHolder()
+                .getSurface());
 
-	@Override
-	/*
-	 * (non-Javadoc)
-	 * @see android.app.Activity#onResume()
-	 */
-	protected void onResume() {
-		super.onResume();		
-		//TODO: Resume Camera/Media recorder.
-		sensorController.resumeSensors();
-	}
-	
-	@Override
-	/*
-	 * (non-Javadoc)
-	 * @see android.app.Activity#onPause()
-	 */
-	protected void onPause() {
-		super.onPause();
-		//releaseMediaRecorder(); // if you are using MediaRecorder, release it
-		//releaseCamera(); // release the camera immediately on pause event
+        try {
+            mediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            releaseMediaRecorder();
+            return false;
+        } catch (IOException e) {
+            releaseMediaRecorder();
+            return false;
+        }
+        return true;
+
+    }
+
+    @Override
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onResume()
+     */
+    protected void onResume() {
+        super.onResume();
+        //TODO: Resume Camera/Media recorder.
+        sensorController.resumeSensors();
+    }
+
+    @Override
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onPause()
+     */
+    protected void onPause() {
+        super.onPause();
+        //releaseMediaRecorder(); // if you are using MediaRecorder, release it
+        //releaseCamera(); // release the camera immediately on pause event
 
         sensorController.pauseSensors();
-	}
+    }
 
-	private void releaseMediaRecorder() {
-		if (mediaRecorder != null) {
-			mediaRecorder.reset(); // clear recorder configuration
-			mediaRecorder.release(); // release the recorder object
-			mediaRecorder = null;
-			myCamera.lock(); // lock camera for later use
-		}
-	}
+    private void releaseMediaRecorder() {
+        if (mediaRecorder != null) {
+            mediaRecorder.reset(); // clear recorder configuration
+            mediaRecorder.release(); // release the recorder object
+            mediaRecorder = null;
+            myCamera.lock(); // lock camera for later use
+        }
+    }
 
-	private void releaseCamera() {
-		if (myCamera != null) {
-			myCamera.release(); // release the camera for other applications
-			myCamera = null;
-		}
-	}
+    private void releaseCamera() {
+        if (myCamera != null) {
+            myCamera.release(); // release the camera for other applications
+            myCamera = null;
+        }
+    }
 
-	public Context getContext() {
-		return context;
-	}
+    public Context getContext() {
+        return context;
+    }
 
-	public void setContext(Context context) {
-		this.context = context;
-	}
+    public void setContext(Context context) {
+        this.context = context;
+    }
 
-	public class MyCameraSurfaceView extends SurfaceView implements
-			SurfaceHolder.Callback {
+    public class MyCameraSurfaceView extends SurfaceView implements
+            SurfaceHolder.Callback {
 
-		private SurfaceHolder mHolder;
-		private Camera mCamera;
+        private SurfaceHolder mHolder;
+        private Camera mCamera;
 
-		public MyCameraSurfaceView(Context context, Camera camera) {
-			super(context);
-			mCamera = camera;
+        public MyCameraSurfaceView(Context context, Camera camera) {
+            super(context);
+            mCamera = camera;
 
-			// Install a SurfaceHolder.Callback so we get notified when the
-			// underlying surface is created and destroyed.
-			mHolder = getHolder();
-			mHolder.addCallback(this);
-			// deprecated setting, but required on Android versions prior to 3.0
-			// Are we really going to support such old phones? Is GPS + Good camera even a given then?
-			//mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		}
+            // Install a SurfaceHolder.Callback so we get notified when the
+            // underlying surface is created and destroyed.
+            mHolder = getHolder();
+            mHolder.addCallback(this);
+            // deprecated setting, but required on Android versions prior to 3.0
+            // Are we really going to support such old phones? Is GPS + Good camera even a given then?
+            //mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        }
 
-		public void surfaceChanged(SurfaceHolder holder, int format, int weight, int height) {
-			// If your preview can change or rotate, take care of those events
-			// here.
-			// Make sure to stop the preview before resizing or reformatting it.
+        public void surfaceChanged(SurfaceHolder holder, int format, int weight, int height) {
+            // If your preview can change or rotate, take care of those events
+            // here.
+            // Make sure to stop the preview before resizing or reformatting it.
 
-			if (mHolder.getSurface() == null) {
-				// preview surface does not exist
-				return;
-			}
+            if (mHolder.getSurface() == null) {
+                // preview surface does not exist
+                return;
+            }
 
-			// stop preview before making changes
-			try {
-				mCamera.stopPreview();
-			} catch (Exception e) {
-				// ignore: tried to stop a non-existent preview
-			}
+            // stop preview before making changes
+            try {
+                mCamera.stopPreview();
+            } catch (Exception e) {
+                // ignore: tried to stop a non-existent preview
+            }
 
-			// make any resize, rotate or reformatting changes here
+            // make any resize, rotate or reformatting changes here
 
-			// start preview with new settings
-			try {
-				//mCamera.setPreviewDisplay(mHolder);
-				mCamera.setPreviewDisplay(holder);
-				mCamera.startPreview();
+            // start preview with new settings
+            try {
+                //mCamera.setPreviewDisplay(mHolder);
+                mCamera.setPreviewDisplay(holder);
+                mCamera.startPreview();
 
-			} catch (Exception e) {
-			}
-		}
+            } catch (Exception e) {
+            }
+        }
 
-		public void surfaceCreated(SurfaceHolder holder) {
-			// TODO Auto-generated method stub
-			// The Surface has been created, now tell the camera where to draw
-			// the preview.
-			try {
-				mCamera.setPreviewDisplay(holder);
-				mCamera.startPreview();
-			} catch (IOException e) {
-			}
-		}
+        public void surfaceCreated(SurfaceHolder holder) {
+            // TODO Auto-generated method stub
+            // The Surface has been created, now tell the camera where to draw
+            // the preview.
+            try {
+                mCamera.setPreviewDisplay(holder);
+                mCamera.startPreview();
+            } catch (IOException e) {
+            }
+        }
 
-		public void surfaceDestroyed(SurfaceHolder holder) {
-			// TODO Auto-generated method stub
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            // TODO Auto-generated method stub
 
-		}
-	}
+        }
+    }
 
-	public File getAppDir() {
-		return appDir;
-	}
+    public File getAppDir() {
+        return appDir;
+    }
 
-	public void setAppDir(File appDir) {
-		VideoCapture.appDir = appDir;
-	}
-	
-	/**
-	 * Toggles the visibility of the sensor warnings when the toggle button is pressed.
-	 * @param view	The toggle button view.
-	 */
-	public void onToggleClicked(View view) {
-		View sensorList = findViewById(R.id.row_sensor_data);
-		
-		if (((ToggleButton) view).isChecked() == false) {
-			sensorList.setVisibility(View.INVISIBLE);
-		} else {
-			sensorList.setVisibility(View.VISIBLE);
-		}
-	}
+    public void setAppDir(File appDir) {
+        VideoCapture.appDir = appDir;
+    }
 
-	public static VideoCapture getSelf() {
-		return self;
-	}
+    /**
+     * Toggles the visibility of the sensor warnings when the toggle button is pressed.
+     * @param view    The toggle button view.
+     */
+    public void onToggleClicked(View view) {
+        View sensorList = findViewById(R.id.row_sensor_data);
+
+        if (((ToggleButton) view).isChecked() == false) {
+            sensorList.setVisibility(View.INVISIBLE);
+        } else {
+            sensorList.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public static VideoCapture getSelf() {
+        return self;
+    }
 
     public static void setSelf(VideoCapture self) {
-		VideoCapture.self = self;
-	}
+        VideoCapture.self = self;
+    }
 
     /**
      * Listen to location updates from GPS-sensor
@@ -367,59 +367,59 @@ public class VideoCapture extends Activity {
     }
 
 
-	private void stopSnapshot() { takingSnapshot = false; }
-	private void startSnapshot() { takingSnapshot = true; }
-	private void stopSendingSnapshot() { sendingSnapshot = false; }
-	private void startSendingSnapshot() { sendingSnapshot = true; }
+    private void stopSnapshot() { takingSnapshot = false; }
+    private void startSnapshot() { takingSnapshot = true; }
+    private void stopSendingSnapshot() { sendingSnapshot = false; }
+    private void startSendingSnapshot() { sendingSnapshot = true; }
 
-	ShutterCallback shutterCallback = new ShutterCallback() {
-		public void onShutter() {
-			Log.d("snap", "onShutter");
-		}
-	};
-	
-	PictureCallback rawCallback = new PictureCallback() {
-		public void onPictureTaken(byte[] data, Camera camera) {
-			Log.d("snap", "onPictureTaken - raw");
-		}
-	};
-	
-	PictureCallback jpegCallback = new PictureCallback() {
-		public void onPictureTaken(byte[] data, Camera camera) {
-			
-			if (!takingSnapshot) {
-				// The user has stopped recording
-				return; 
-			}
-			
-			myCamera.startPreview(); // to avoid preview freezing after taking a pic
-			
-			new SnapshotWriter().execute(data);
-			Log.d("snap", "onPictureTaken - jpeg");	
-			snapshotTransmission.send_snapshot();
-			if (sendingSnapshot) {
-				snapshotTransmission.send_snapshot();
-		    }
-			snapshotCounter++;
-			if (snapshotCounter <= numOfSnapshots) {
-	            Thread thread = new Thread() {
-	                @Override
-	                public void run() {
-	                    try {
-	                        sleep(delay);
-	                        myCamera.takePicture(null, null, jpegCallback); 
-	                    }
-	                    catch (InterruptedException e) {
-	                        e.printStackTrace();
-	                    }
-	                }
-	            };
-	            thread.start();
-	        }
-			else return;
-		}
-	};
-	
+    ShutterCallback shutterCallback = new ShutterCallback() {
+        public void onShutter() {
+            Log.d("snap", "onShutter");
+        }
+    };
+
+    PictureCallback rawCallback = new PictureCallback() {
+        public void onPictureTaken(byte[] data, Camera camera) {
+            Log.d("snap", "onPictureTaken - raw");
+        }
+    };
+
+    PictureCallback jpegCallback = new PictureCallback() {
+        public void onPictureTaken(byte[] data, Camera camera) {
+
+            if (!takingSnapshot) {
+                // The user has stopped recording
+                return;
+            }
+
+            myCamera.startPreview(); // to avoid preview freezing after taking a pic
+
+            new SnapshotWriter().execute(data);
+            Log.d("snap", "onPictureTaken - jpeg");
+            snapshotTransmission.send_snapshot();
+            if (sendingSnapshot) {
+                snapshotTransmission.send_snapshot();
+            }
+            snapshotCounter++;
+            if (snapshotCounter <= numOfSnapshots) {
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            sleep(delay);
+                            myCamera.takePicture(null, null, jpegCallback);
+                        }
+                        catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                thread.start();
+            }
+            else return;
+        }
+    };
+
 
 
     /**
@@ -479,7 +479,7 @@ public class VideoCapture extends Activity {
 
             sensor = new BrightnessSensorObserver(manager);
             sensors.add(sensor);
-            
+
             // snapshot sensor
             sensor = new SnapshotObserver();
             sensors.add(sensor);

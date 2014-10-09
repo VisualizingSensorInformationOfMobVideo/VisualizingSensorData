@@ -1,7 +1,5 @@
 package no_de.inf5090.visualizingsensordata.domain;
 
-import java.util.LinkedList;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
