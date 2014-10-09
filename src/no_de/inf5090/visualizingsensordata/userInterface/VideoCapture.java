@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.BrightnessSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
@@ -474,6 +475,9 @@ public class VideoCapture extends Activity {
 
             // movement sensor
             sensor = new LocationSensorObserver(VideoCapture.getSelf().getContext());
+            sensors.add(sensor);
+
+            sensor = new BrightnessSensorObserver(manager);
             sensors.add(sensor);
             
             // snapshot sensor
