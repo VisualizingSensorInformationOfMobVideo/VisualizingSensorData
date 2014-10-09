@@ -13,7 +13,7 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
     /**
      * The unique ID for this sensor observer
      */
-    public final static int ID = 101;
+    public final static int ID = 104;
     
     /**
      * The unique ID for this sensor observer
@@ -32,6 +32,16 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
 	
 	@Override
 	public void update(Observable observable, Object data) {
+		// make sure the sensor don't flood; time since last update should be above threshold
+		long now = System.currentTimeMillis();
+		long elapsed = now - mLastTime;
+		mLastTime = now;
+		if (elapsed < MINIMUM_DELAY) return;
+		
+		/*
+		 * Do something with the data updated
+		 */
+		
 		setChanged();
 		notifyObservers(new LogicalSensorData(this));
 	}
