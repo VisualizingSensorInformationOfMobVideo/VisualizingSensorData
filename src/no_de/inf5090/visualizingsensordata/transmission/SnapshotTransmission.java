@@ -14,10 +14,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 
-public class SnapshotTransmission {
+public class SnapshotTransmission extends AsyncTask<byte[], Void, Void>{
 	
 	URL url;
 	HttpURLConnection urlConnection = null;
@@ -48,31 +49,49 @@ public class SnapshotTransmission {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		urlConnection.setDoOutput(true);
 	}
 	
-	public void send_snapshot(){
+	public static byte[] bitmapToByteArray(Bitmap bm) {
+        // Create the buffer with the correct size
+        int iBytes = bm.getWidth() * bm.getHeight() * 4;
+        ByteBuffer buffer = ByteBuffer.allocate(iBytes);
+
+        // Log.e("DBG", buffer.remaining()+""); -- Returns a correct number based on dimensions
+        // Copy to buffer and then into byte array
+        bm.copyPixelsToBuffer(buffer);
+        // Log.e("DBG", buffer.remaining()+""); -- Returns 0
+        return buffer.array();
+    }
+
+	@Override
+	protected Void doInBackground(byte[]... params) {
+		
+		// TODO Auto-generated method stub
+
 		// read fpath of the first snapshot which is not sent yet
 		// check if there is a snapshot we can send
-		if (SnapshotWriter.snapshotData.isEmpty())
-			return;
+		//if (SnapshotWriter.snapshotData.isEmpty())
+//			return null;//
 		
-		String fpath = SnapshotWriter.snapshotData.poll();
+		//String fpath = SnapshotWriter.snapshotData.poll();
 		// load Bitmap
-		Bitmap mbitmap = BitmapFactory.decodeFile(fpath);
+		//Bitmap mbitmap = BitmapFactory.decodeFile(fpath);
 		// Bitmap to byte []
-		byte [] byte_snapshot = bitmapToByteArray(mbitmap);
+		//byte [] byte_snapshot = bitmapToByteArray(mbitmap);
 		// check connection
-		/*if (check_connection()) {
+		//if (check_connection()) {
 			
 			// setup the request
 			// sent a snapshot
 			try {
 				DataOutputStream request = new DataOutputStream(urlConnection.getOutputStream());
 				try {
-					request.write(byte_snapshot);
+					//request.write(byte_snapshot);
+					request.writeFloat(111.2f);
 					// delete a snapshot
-						File mfile = new File(fpath);
-						mfile.delete();
+						//File mfile = new File(fpath);
+						//mfile.delete();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -85,19 +104,8 @@ public class SnapshotTransmission {
 			}
 
 			
-		}*/
-		
+	//	}
+		return null;
 	}
-	public static byte[] bitmapToByteArray(Bitmap bm) {
-        // Create the buffer with the correct size
-        int iBytes = bm.getWidth() * bm.getHeight() * 4;
-        ByteBuffer buffer = ByteBuffer.allocate(iBytes);
-
-        // Log.e("DBG", buffer.remaining()+""); -- Returns a correct number based on dimensions
-        // Copy to buffer and then into byte array
-        bm.copyPixelsToBuffer(buffer);
-        // Log.e("DBG", buffer.remaining()+""); -- Returns 0
-        return buffer.array();
-    }
 	
 }

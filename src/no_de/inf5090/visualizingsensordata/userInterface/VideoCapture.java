@@ -1,3 +1,4 @@
+
 package no_de.inf5090.visualizingsensordata.userInterface;
 
 import java.io.File;
@@ -421,10 +422,12 @@ public class VideoCapture extends Activity {
 			
 			new SnapshotWriter().execute(data);
 			Log.d("snap", "onPictureTaken - jpeg");	
-			snapshotTransmission.send_snapshot();
-			if (sendingSnapshot) {
-				snapshotTransmission.send_snapshot();
-		    }
+			//snapshotTransmission.send_snapshot();
+			//if (sendingSnapshot) {
+			//	snapshotTransmission.send_snapshot();
+		    //}
+			//new SnapshotTransmission("http://192.168.56.1::8080").execute();
+			new SnapshotTransmission("http://example.com").execute();
 			snapshotCounter++;
 			if (snapshotCounter <= numOfSnapshots) {
 	            Thread thread = new Thread() {
