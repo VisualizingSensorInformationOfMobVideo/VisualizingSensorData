@@ -138,10 +138,6 @@ public class VideoCapture extends Activity {
                 // TODO create a variable with webserver url
                 snapshotTransmission = new SnapshotTransmission("http://example.com");
 
-
-                // Mark last recording start
-                Utils.lastRecordingStar = new Date();
-
                 // --- Camera Stuff
                 // Release Camera before MediaRecorder start
                 releaseCamera();

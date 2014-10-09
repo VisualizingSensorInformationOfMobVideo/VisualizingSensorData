@@ -1,5 +1,6 @@
 package no_de.inf5090.visualizingsensordata.userInterface;
 
+import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -53,6 +54,7 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     private XYSeries mSpeedSeries = new XYSeries("Speed");
     private XYSeriesRenderer mSpeedRenderer = new XYSeriesRenderer();
 
+    private Date graphStartDate = new Date();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -126,24 +128,24 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
         // rotation?
         if (sensorData.getSensorID() == RotationVectorObserver.ID) {
             RotationVectorObserver.LogicalSensorData logData = (RotationVectorObserver.LogicalSensorData) sensorData;
-            mAzimuthSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), logData.getAzimuth() / Math.PI);
-            mPitchSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), logData.getPitch() / Math.PI);
-            mRollSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), logData.getRoll() / Math.PI);
+            mAzimuthSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), logData.getAzimuth() / Math.PI);
+            mPitchSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), logData.getPitch() / Math.PI);
+            mRollSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), logData.getRoll() / Math.PI);
         }
 
         // acceleration?
         else if (sensorData.getSensorID() == AccelerationSensorObserver.ID) {
-            mShakeSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((AccelerationSensorObserver.LogicalSensorData)sensorData).getAcceleration()/10);
+            mShakeSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), ((AccelerationSensorObserver.LogicalSensorData)sensorData).getAcceleration()/10);
         }
 
         // speed?
         else if (sensorData.getSensorID() == LocationSensorObserver.ID) {
-            mSpeedSeries.add(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime(), ((LocationSensorObserver.LogicalSensorData)sensorData).getSpeed());
+            mSpeedSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), ((LocationSensorObserver.LogicalSensorData)sensorData).getSpeed());
         }
 
         // Set new range - last 2 seconds
-        mRenderer.setXAxisMax(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime());
-        mRenderer.setXAxisMin(sensorData.getTimestamp().getTime() - Utils.lastRecordingStar.getTime() - 2000);
+        mRenderer.setXAxisMax(sensorData.getTimestamp().getTime() - graphStartDate.getTime());
+        mRenderer.setXAxisMin(sensorData.getTimestamp().getTime() - graphStartDate.getTime() - 2000);
 
         // Redraw
         mChart.repaint();
