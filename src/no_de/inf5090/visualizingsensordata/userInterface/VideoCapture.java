@@ -12,6 +12,7 @@ import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
+import no_de.inf5090.visualizingsensordata.domain.SnapshotObserver;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 import no_de.inf5090.visualizingsensordata.transmission.SnapshotTransmission;
 
@@ -473,6 +474,10 @@ public class VideoCapture extends Activity {
 
             // movement sensor
             sensor = new LocationSensorObserver(VideoCapture.getSelf().getContext());
+            sensors.add(sensor);
+            
+            // snapshot sensor
+            sensor = new SnapshotObserver();
             sensors.add(sensor);
 
             // start listening to sensors
