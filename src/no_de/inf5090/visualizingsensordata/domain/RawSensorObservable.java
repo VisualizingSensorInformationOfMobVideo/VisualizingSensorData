@@ -23,11 +23,6 @@ public class RawSensorObservable extends Observable implements SensorEventListen
 	public void onSensorChanged(SensorEvent event) {
 		values = event.values;
 		
-		// Default error 
-		if(values.length < 3) {
-			values = new float[]{-999f,-999f,-999f};
-		}
-
 		// Raise changed event
 		setChanged();		// Sets changed to true
 		notifyObservers();	// Notifies observers about a change
