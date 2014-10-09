@@ -37,51 +37,6 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
     private static final long MIN_TIME_BW_UPDATES = 5000; // (from GPSTracker: 1000 * 1 * 1, from SpeedSensor: 100)
 
     /**
-     * Don't estimate speed when location is of low accuracy
-     */
-    private static final int ACCURACY_THRESHOLD = 30; // meter
-
-    /**
-     *
-     */
-	private static final int ACCURACY_ERROR = 2; // count
-
-    /**
-     *
-     */
-	private static final int AVERAGE_VALUE_RANGE = 4; //count
-
-    /**
-     *
-     */
-	private static final float LOWER_THRESHOLD = 0.8f; //meter/seconds
-
-    /**
-     *
-     */
-	private static final float UPPER_THRESHOLD = 1.7f; //meter/seconds
-
-    /**
-     *
-     */
-    int mAccuracyErrorCount = ACCURACY_ERROR;
-
-    /**
-     *
-     */
-    boolean mLastSpeedZero = false;
-
-    /**
-     * The speed we have guessed is the most correctly speed
-     */
-    double mAverageSpeed = -1;
-
-    /**
-     * List for calculating average speed
-     */
-    LinkedList<Float> mSpeedQueue = new LinkedList<Float>();
-
-    /**
      * The location manager
      */
     protected LocationManager mLocationManager;
@@ -106,138 +61,52 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
      */
     private final Context mContext;
 
-	/**
-	 * Constructor gets an location manager
-	 */
-	public LocationSensorObserver(Context context){
+    /**
+     * Constructor gets an location manager
+     */
+    public LocationSensorObserver(Context context){
         this.mContext = context;
         mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-	}
+    }
 
-	/**
-	 * Searches for the location provider, which fits best to the requirements
-	 * @return name of the best provider
-	 */
-	public String getBestProvider(){
-	    Criteria criteria = new Criteria();
-	    criteria.setSpeedRequired(true);
-	    criteria.setAccuracy(Criteria.ACCURACY_FINE);
-	    String bestProvider = mLocationManager.getBestProvider(criteria, true);
+    /**
+     * Searches for the location provider, which fits best to the requirements
+     * @return name of the best provider
+     */
+    public String getBestProvider(){
+        Criteria criteria = new Criteria();
+        criteria.setSpeedRequired(true);
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        String bestProvider = mLocationManager.getBestProvider(criteria, true);
         Log.d(TAG, "got best provider: "+bestProvider);
-	    return bestProvider;
-	}
+        return bestProvider;
+    }
 
-	/** 
-	 * Gets called when the location is updated. Smoothes the speed data by calculating the moving average. 
-	 * Will check for the GPS accuracy. Speed data is only used if the signal is accurate enough, returns error value else.
-	 * Normalizes the speed to the range of 0-1.
-	 * 
-	 * Notifies the observers about the result value. Sends -2 if no speed data is provided or the signal was not accurate enough.
-     *
-     * TODO: this text must be updated
-	 * 
-	 * @see android.location.LocationListener#onLocationChanged(android.location.Location)
-	 * @param location GPS location 
-	 */
-	public void onLocationChanged(Location location) {
+    /**
+     * Gets called when the location is updated and notifies observers
+     */
+    public void onLocationChanged(Location location) {
         VideoCapture.getSelf().locationUpdate(this);
         Log.d(TAG, "onLocationChanged");
 
         mLocation = location;
 
-        // TODO: I don't think we have to normalize or make average values of the speed sensors
-        //calculateSpeed();
-
         setChanged();
         notifyObservers(new LogicalSensorData(this));
     }
 
-    /**
-     * Calculate the speed
-     */
-    public void calculateSpeed() {
-        mAverageSpeed = -1;
-
-        // the sensor must provide speed
-        if (!mLocation.hasSpeed()) return;
-
-        // don't provide speed on too low accuracy
-        if (mLocation.getAccuracy() > ACCURACY_THRESHOLD) {
-            mSpeedQueue.clear();
-            return;
-        }
-
-        mAverageSpeed = 0;
-
-        // shift off old elements
-        if (mSpeedQueue.size() > AVERAGE_VALUE_RANGE) {
-            mSpeedQueue.remove();
-        }
-
-        // calculate average
-        mSpeedQueue.add(mLocation.getSpeed());
-        for (Float val: mSpeedQueue) {
-            mAverageSpeed += val;
-        }
-        mAverageSpeed /= mSpeedQueue.size();
-
-        // checks if the accuracy is low for the second time, if so return -2 and empty queue
-        /*if (mLocation.getAccuracy() > ACCURACY_THRESHOLD) {
-            if (mAccuracyErrorCount < ACCURACY_ERROR) {
-                mAccuracyErrorCount++;
-            } else {
-                mNormalizedSpeed = -2;
-                mSpeedQueue.clear();
-            }
-        } else {
-            mAccuracyErrorCount = 0;
-        }
-
-        // move on if accuracy is ok
-        if (mAccuracyErrorCount < ACCURACY_ERROR) {
-            mNormalizedSpeed = 0;
-
-            // if the speed is zero for the second time, assume user has stopped. return 0 and empty queue
-            if (mLastSpeedZero && mLocation.getSpeed() == 0) {
-                mSpeedQueue.clear();
-            } else {
-                // remember always the last AVERAGE_VALUE_RANGE speed values and calculate average.
-                if (mSpeedQueue.size() < AVERAGE_VALUE_RANGE) {
-                    mSpeedQueue.add(mLocation.getSpeed());
-                } else {
-                    mSpeedQueue.remove();
-                    mSpeedQueue.add(mLocation.getSpeed());
-                }
-
-                for (int x = 0; x < mSpeedQueue.size(); x++)
-                    mNormalizedSpeed += mSpeedQueue.get(x);
-
-                mNormalizedSpeed /= mSpeedQueue.size();
-                mLastSpeedZero = mLocation.getSpeed() == 0;
-            }
-        }
-
-        // normalize the data
-        if (mNormalizedSpeed != -2) {
-            mNormalizedSpeed = (mNormalizedSpeed - LOWER_THRESHOLD) / (UPPER_THRESHOLD - LOWER_THRESHOLD);
-            mNormalizedSpeed = mNormalizedSpeed < 0 ? 0 : mNormalizedSpeed;
-            mNormalizedSpeed = mNormalizedSpeed > 1 ? 1 : mNormalizedSpeed;
-        }*/
+    public void onProviderDisabled(String provider) {
+        Log.d(TAG, "provider disabled");
     }
 
-	public void onProviderDisabled(String provider) {
-	    Log.d(TAG, "provider disabled");
-	}
+    public void onProviderEnabled(String provider) {
+        Log.d(TAG, "provider enabled");
+    }
 
-
-	public void onProviderEnabled(String provider) {
-	    Log.d(TAG, "provider enabled");
-	}
-
-	/**
-	 * Status change from provider
-	 */
-	public void onStatusChanged(String provider, int status, Bundle extras) {
+    /**
+     * Status change from provider
+     */
+    public void onStatusChanged(String provider, int status, Bundle extras) {
         String statusName = "UNKNOWN";
         switch (status) {
             case LocationProvider.AVAILABLE:
@@ -251,7 +120,7 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
         }
 
         Log.d(TAG, "status changed; status: "+statusName);
-	}
+    }
 
     /**
      * Get last known location object
@@ -259,11 +128,10 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
     public Location getLocation() {
         return mLocation;
     }
-	
-	public double getSpeed() {
+
+    public double getSpeed() {
         return mLocation.getSpeed();
-		//return mAverageSpeed;
-	}
+    }
 
     @Override
     public void onPause() {
