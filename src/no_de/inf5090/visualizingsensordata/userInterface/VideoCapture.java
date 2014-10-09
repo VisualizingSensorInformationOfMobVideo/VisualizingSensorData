@@ -7,7 +7,6 @@ import java.util.*;
 
 import android.hardware.SensorManager;
 import no_de.inf5090.visualizingsensordata.R;
-import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.BrightnessSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
@@ -473,10 +472,12 @@ public class VideoCapture extends Activity {
             sensor = new LocationSensorObserver(VideoCapture.getSelf().getContext());
             sensors.add(sensor);
 
+            // brightness sensor
             sensor = new BrightnessSensorObserver(manager);
             sensors.add(sensor);
 
             // snapshot sensor
+            // TODO: the video object should be injected into the observer
             sensor = new SnapshotObserver();
             sensors.add(sensor);
 
