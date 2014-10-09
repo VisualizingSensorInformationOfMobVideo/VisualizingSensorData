@@ -61,6 +61,8 @@ public class VideoCapture extends Activity {
     private static int delay =  2000;
     private SnapshotTransmission snapshotTransmission;
     public static boolean sendingSnapshot;
+    private int res_width = 640;
+    private int res_height = 480;
 
     /**
      * The sensor controller
@@ -90,6 +92,7 @@ public class VideoCapture extends Activity {
                     Toast.LENGTH_LONG).show();
         }
 
+        
         myCameraSurfaceView = new MyCameraSurfaceView(this, myCamera);
         FrameLayout myCameraPreview = (FrameLayout) findViewById(R.id.videoview);
         myCameraPreview.addView(myCameraSurfaceView);
@@ -177,6 +180,13 @@ public class VideoCapture extends Activity {
         myCamera = getCameraInstance();
         mediaRecorder = new MediaRecorder();
 
+
+        Camera.Parameters params = myCamera.getParameters();
+        List<Camera.Size> sizes =params.getSupportedPreviewSizes();
+        
+        params.setPictureSize(sizes.get(sizes.size() - 1).width, sizes.get(sizes.size() - 1).height);
+        myCamera.setParameters(params);
+        
         myCamera.unlock();
         mediaRecorder.setCamera(myCamera);
 
@@ -391,10 +401,10 @@ public class VideoCapture extends Activity {
 
             new SnapshotWriter().execute(data);
             Log.d("snap", "onPictureTaken - jpeg");
-            snapshotTransmission.send_snapshot();
+            /*snapshotTransmission.send_snapshot();
             if (sendingSnapshot) {
                 snapshotTransmission.send_snapshot();
-            }
+            }*/
             snapshotCounter++;
             if (snapshotCounter <= numOfSnapshots) {
                 Thread thread = new Thread() {

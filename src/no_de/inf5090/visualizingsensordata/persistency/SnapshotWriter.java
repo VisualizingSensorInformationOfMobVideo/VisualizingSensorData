@@ -1,5 +1,6 @@
 package no_de.inf5090.visualizingsensordata.persistency;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,7 +10,9 @@ import java.util.Queue;
 import no_de.inf5090.visualizingsensordata.domain.SnapshotData;
 import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 
+import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -17,6 +20,7 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 
     //Queue<SnapshotData> snapshotData;
     public static Queue<String> snapshotData = new LinkedList<String>();
+    private int jpegQuality = 100;
     /**
      * Constructor: initiates snapshotwriter
      */
@@ -48,9 +52,13 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
     @Override
     protected Void doInBackground(byte[]... data) {
         try {
+        	Bitmap image = BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
             String fPath = VideoCapture.appDir.getPath() + "/" + System.currentTimeMillis() + ".jpg";
             FileOutputStream fos = new FileOutputStream(fPath);
-            fos.write(data[0]);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.JPEG, jpegQuality, out);
+          //  fos.write(data[0]);
+            fos.write(out.toByteArray());
             fos.flush();
             fos.close();
 
