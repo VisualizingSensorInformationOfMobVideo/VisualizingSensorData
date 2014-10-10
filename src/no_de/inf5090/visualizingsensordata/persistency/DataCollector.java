@@ -61,17 +61,22 @@ public abstract class DataCollector implements Observer {
     protected Document generateXmlDom() {
         Element elm;
         Document doc = Utils.getDocumentInstance();
-        Element rootElement = doc.createElement("LogFile");
-        doc.appendChild(rootElement);
-
-        // app name
-        elm = doc.createElement("AppName");
-        elm.appendChild(doc.createTextNode("VisualizingSensorData"));
-        rootElement.appendChild(elm);
-
-        // datetime
-        rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
-
+        Element rootElement = doc.getDocumentElement(); 
+        
+        // Check if this document already has been created
+        if (rootElement == null) {
+	        rootElement = doc.createElement("LogFile");
+	        doc.appendChild(rootElement);
+	
+	        // app name
+	        elm = doc.createElement("AppName");
+	        elm.appendChild(doc.createTextNode("VisualizingSensorData"));
+	        rootElement.appendChild(elm);
+	
+	        // datetime
+	        rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
+        }
+        
         // sensor data
         for (AbstractLogicalSensorData logItem : mSensorData) {
             rootElement.appendChild(logItem.getXml());
