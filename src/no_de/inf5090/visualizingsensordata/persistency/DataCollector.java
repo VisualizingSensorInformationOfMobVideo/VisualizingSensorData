@@ -124,6 +124,8 @@ public abstract class DataCollector implements Observer {
         return writer.getBuffer().toString();
     }
 
+   
+    
     /**
      * Empty list of sensor data (e.g. after XML is generated)
      */
