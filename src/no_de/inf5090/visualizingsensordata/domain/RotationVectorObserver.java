@@ -175,17 +175,17 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
             Element item = getBaseXml(), elm;
 
             // actual sensor data
-            elm = doc.createElement("Entry");
+            elm = doc.createElement(xmlDataEntryName);
             elm.setAttribute("type", "azimuth");
             elm.appendChild(doc.createTextNode(Double.toString(getAzimuth())));
             item.appendChild(elm);
 
-            elm = doc.createElement("Entry");
+            elm = doc.createElement(xmlDataEntryName);
             elm.setAttribute("type", "pitch");
             elm.appendChild(doc.createTextNode(Double.toString(getPitch())));
             item.appendChild(elm);
 
-            elm = doc.createElement("Entry");
+            elm = doc.createElement(xmlDataEntryName);
             elm.setAttribute("type", "roll");
             elm.appendChild(doc.createTextNode(Double.toString(getRoll())));
             item.appendChild(elm);

@@ -120,7 +120,7 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
             Element item = getBaseXml();
 
             // actual sensor data
-            Element elm = doc.createElement("Entry");
+            Element elm = doc.createElement(xmlDataEntryName);
             elm.setAttribute("type", "force");
             elm.appendChild(doc.createTextNode(Float.toString(getAcceleration())));
             item.appendChild(elm);

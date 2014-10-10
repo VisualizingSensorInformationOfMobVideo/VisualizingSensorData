@@ -15,6 +15,9 @@ import java.util.Date;
  * that will not be implementation-dependant
  */
 public abstract class AbstractLogicalSensorData {
+	/** Name of the XML element that contains data */
+	public final static String xmlDataEntryName = "entry"; 
+	
     /**
      * The sensor that generated this data
      */
@@ -70,11 +73,11 @@ public abstract class AbstractLogicalSensorData {
     protected Element getBaseXml() {
         Document doc = Utils.getDocumentInstance();
 
-        Element item = doc.createElement("LogItem");
+        Element item = doc.createElement("logItem");
         Element elm;
 
         // name of sensor
-        elm = doc.createElement("Name");
+        elm = doc.createElement("name");
         elm.appendChild(doc.createTextNode(getSensorName()));
         item.appendChild(elm);
 

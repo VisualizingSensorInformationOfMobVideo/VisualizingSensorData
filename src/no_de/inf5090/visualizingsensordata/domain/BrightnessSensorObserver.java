@@ -100,7 +100,7 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
             Element item = getBaseXml();
 
             // actual sensor data
-            Element elm = doc.createElement("Entry");
+            Element elm = doc.createElement(xmlDataEntryName);
             elm.setAttribute("type", "lux");
             elm.appendChild(doc.createTextNode(Float.toString(getLux())));
             item.appendChild(elm);

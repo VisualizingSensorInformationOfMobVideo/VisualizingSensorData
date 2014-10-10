@@ -78,7 +78,7 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
             Element item = getBaseXml();
 
             // actual sensor data
-            Element elm = doc.createElement("Entry");
+            Element elm = doc.createElement(xmlDataEntryName);
             elm.setAttribute("type", "base64data");
             elm.appendChild(doc.createTextNode("base64data lots of data"));
             item.appendChild(elm);

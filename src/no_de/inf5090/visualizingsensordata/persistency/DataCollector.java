@@ -65,11 +65,11 @@ public abstract class DataCollector implements Observer {
         
         // Check if this document already has been created
         if (rootElement == null) {
-	        rootElement = doc.createElement("LogFile");
+	        rootElement = doc.createElement("logFile");
 	        doc.appendChild(rootElement);
 	
 	        // app name
-	        elm = doc.createElement("AppName");
+	        elm = doc.createElement("appName");
 	        elm.appendChild(doc.createTextNode("VisualizingSensorData"));
 	        rootElement.appendChild(elm);
 	
