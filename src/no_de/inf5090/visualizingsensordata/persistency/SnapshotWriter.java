@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.Observer;
 import java.util.Queue;
 
-import no_de.inf5090.visualizingsensordata.domain.SnapshotData;
 import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 
 import android.graphics.Bitmap;
@@ -20,37 +19,12 @@ import android.util.Log;
 
 public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 	private Observer snapshotObserver; 
-
-    //Queue<SnapshotData> snapshotData;
-    public static Queue<String> snapshotData = new LinkedList<String>();
     private int jpegQuality = 100;
     /**
      * Constructor: initiates snapshotwriter
      */
     public SnapshotWriter(Observer observer) {
-        //snapshotData = new LinkedList<SnapshotData>();
     	snapshotObserver = observer;
-    }
-
-    public void writeBitmap(String path, SnapshotData snapshotData) {
-        try {
-            FileOutputStream fos = new FileOutputStream(path + "/" + snapshotData.getName() + ".jpg");
-            snapshotData.getBitmap().compress(CompressFormat.JPEG, 75, fos);
-            try {
-                fos.flush();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            try {
-                fos.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        catch (FileNotFoundException  e) {
-        }
     }
 
     @Override
