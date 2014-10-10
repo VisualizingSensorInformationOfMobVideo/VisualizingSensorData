@@ -27,6 +27,11 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
     public final static int ID = 101;
 
     /**
+     * The name for this sensor observer
+     */
+    public final static String NAME = "Acceleration";
+    
+    /**
      * Time of last shake update
      */
     private long lastTime = System.currentTimeMillis();
@@ -137,7 +142,7 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
 
         @Override
         public String getSensorName() {
-            return "Acceleration";
+            return NAME;
         }
     }
 }
