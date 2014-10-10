@@ -29,7 +29,7 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
     public final static int ID = 105;
 
     /**
-     * The unique ID for this sensor observer
+     * The name for this sensor observer
      */
     public final static String NAME = "Brightness";
 
@@ -87,9 +87,11 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
      * Sensor observer data
      */
     public class LogicalSensorData extends AbstractLogicalSensorData {
-
-        protected LogicalSensorData(LogicalSensorObservable sensor) {
+    	private float mLux;
+    	
+        protected LogicalSensorData(BrightnessSensorObserver sensor) {
             super(sensor);
+            mLux = sensor.getLux();
         }
 
         @Override
@@ -114,6 +116,17 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
         @Override
         public String getSensorName() {
             return NAME;
+        }
+        
+        /**
+         * Returns number of lux measured at the time this object was created
+         * 
+         * This method is needed because otherwise getXml() will call getLux() from
+         * the outer class (BrightnessSensorObserver), and that value may have been
+         * updated in the time between creation of this object and the call on getXml()
+         */
+        public float getLux() {
+        	return mLux;
         }
     }
 
