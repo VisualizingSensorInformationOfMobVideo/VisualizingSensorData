@@ -9,7 +9,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class SnapshotObserver extends LogicalSensorObservable implements Observer {
-
+	private String encodedImage;
+	
     /**
      * The unique ID for this sensor observer
      */
@@ -41,7 +42,8 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
         /*
          * Do something with the data updated
          */
-
+        encodedImage = (String) data;
+        
         setChanged();
         notifyObservers(new LogicalSensorData(this));
     }
@@ -67,9 +69,11 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
      * Sensor observer data
      */
     public class LogicalSensorData extends AbstractLogicalSensorData {
-
-        protected LogicalSensorData(LogicalSensorObservable sensor) {
+    	private String encodedImage;
+    	
+        protected LogicalSensorData(SnapshotObserver sensor) {
             super(sensor);
+            this.encodedImage = sensor.encodedImage;
         }
 
         @Override
@@ -80,7 +84,7 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
             // actual sensor data
             Element elm = doc.createElement(xmlDataEntryName);
             elm.setAttribute("type", "base64data");
-            elm.appendChild(doc.createTextNode("base64data lots of data"));
+            elm.appendChild(doc.createTextNode(encodedImage));
             item.appendChild(elm);
 
             return item;

@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
-
+/*
 public class XmlTransmission {
     private Context mContext;
 
@@ -36,11 +36,11 @@ public class XmlTransmission {
         httpPost.setEntity(se);
         httpClient.execute(httpPost);
         f.delete();
-    }
+    }*/
 
     /**
      * @see http://stackoverflow.com/a/9095689
-     */
+     *
     private String getFileContent(File file) {
         FileInputStream fis;
         fis = openFileInput("test.txt");
@@ -55,3 +55,4 @@ public class XmlTransmission {
         return fileContent;
     }
 }
+*/

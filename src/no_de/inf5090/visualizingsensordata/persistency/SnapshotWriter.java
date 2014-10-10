@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Observer;
 import java.util.Queue;
 
 import no_de.inf5090.visualizingsensordata.domain.SnapshotData;
@@ -14,9 +15,11 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.util.Log;
 
 public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
+	private Observer snapshotObserver; 
 
     //Queue<SnapshotData> snapshotData;
     public static Queue<String> snapshotData = new LinkedList<String>();
@@ -24,8 +27,9 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
     /**
      * Constructor: initiates snapshotwriter
      */
-    public SnapshotWriter() {
+    public SnapshotWriter(Observer observer) {
         //snapshotData = new LinkedList<SnapshotData>();
+    	snapshotObserver = observer;
     }
 
     public void writeBitmap(String path, SnapshotData snapshotData) {
@@ -52,6 +56,10 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
     @Override
     protected Void doInBackground(byte[]... data) {
         try {
+        	String encodedImage = Base64.encodeToString(data[0], Base64.DEFAULT);
+        	snapshotObserver.update(null, encodedImage);
+        	
+        	/*
         	Bitmap image = BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
             String fPath = VideoCapture.appDir.getPath() + "/" + System.currentTimeMillis() + ".jpg";
             FileOutputStream fos = new FileOutputStream(fPath);
@@ -63,8 +71,9 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
             fos.close();
 
             snapshotData.add(fPath); // add full path of the just taken snapshot to the queue
-
-            Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
+*/
+            //Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
+            Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to SnapshotObserver");
         } catch (Exception e) {
             e.printStackTrace();
         }

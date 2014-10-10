@@ -37,8 +37,10 @@ public abstract class DataCollector implements Observer {
      * Changes are collected
      */
     public void update(Observable observable, Object data) {
-        if (!(data instanceof AbstractLogicalSensorData) || !mIsRecording) return;
-        mSensorData.add((AbstractLogicalSensorData) data);
+    	synchronized(this) {
+    		if (!(data instanceof AbstractLogicalSensorData) || !mIsRecording) return;
+    		mSensorData.add((AbstractLogicalSensorData) data);
+    	}
     }
 
     /**

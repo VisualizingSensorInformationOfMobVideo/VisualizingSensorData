@@ -298,7 +298,7 @@ public class VideoCapture extends Activity {
             // TODO: is this really needed?
             mCameraHelper.getCamera().startPreview(); // to avoid preview freezing after taking a pic
 
-            new SnapshotWriter().execute(data);
+            new SnapshotWriter((Observer) sensorController.sensors.get(4)).execute(data);
             Log.d("snap", "onPictureTaken - jpeg");
             /*snapshotTransmission.send_snapshot();
             if (sendingSnapshot) {
