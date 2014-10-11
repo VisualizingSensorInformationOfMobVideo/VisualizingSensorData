@@ -25,7 +25,8 @@ public class LocalStorageWriter extends DataCollector {
             transformXml(writer);
             writer.close();
             
-            XmlTransmission trans = new XmlTransmission(new File(fpath));
+            // maybe a bit hackish, just for testing purpose right now
+            XmlTransmission trans = new XmlTransmission(getXmlString());
             TransmissionService.getService().addTransmission(trans);
         } catch (IOException e) {
             Log.e("LocalStorageWriter", "IOException detected!");

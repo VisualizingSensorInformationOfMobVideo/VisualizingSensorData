@@ -1,7 +1,5 @@
 package no_de.inf5090.visualizingsensordata.transmission;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.apache.http.HttpResponse;
@@ -18,18 +16,12 @@ public class XmlTransmission implements Runnable {
 
 	private StringEntity mStringEntity = null;
 
-	public XmlTransmission(File f) {
-		Log.d(TAG, "try to read file " + f.getName() + " exists " + f.exists());
-		// String filePath = mContext.getFilesDir().getAbsolutePath();
-
+	public XmlTransmission(String xml) {
 		try {
-			String content = getFileContents(f);
-			mStringEntity = new StringEntity(content, HTTP.UTF_8);
+			mStringEntity = new StringEntity(xml, HTTP.UTF_8);
 		} catch (IOException e) {
-			Log.e(TAG, "Error reading file thus nothing gets executed " + e.getMessage());
+			Log.e(TAG, "Error while converting string to StringEntitiy " + e.getMessage());
 			mStringEntity = null;
-		} finally {
-			f.delete();
 		}
 	}
 
@@ -53,18 +45,5 @@ public class XmlTransmission implements Runnable {
 		} catch (IOException e) {
 			Log.e(TAG, "Exception occured while trying to POST xml file " + e.getMessage());
 		}
-	}
-
-	private String getFileContents(File file) throws IOException {
-		FileInputStream fis = new FileInputStream(file);
-		StringBuffer fileContent = new StringBuffer();
-
-		byte[] buffer = new byte[1024];
-		while (fis.read(buffer) != -1) {
-			fileContent.append(new String(buffer, 0, fis.read(buffer)));
-		}
-
-		fis.close();
-		return fileContent.toString();
 	}
 }
