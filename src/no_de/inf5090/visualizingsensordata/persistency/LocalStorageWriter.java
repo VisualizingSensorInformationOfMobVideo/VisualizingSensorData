@@ -1,6 +1,9 @@
 package no_de.inf5090.visualizingsensordata.persistency;
 
 import java.io.*;
+
+import no_de.inf5090.visualizingsensordata.transmission.TransmissionService;
+import no_de.inf5090.visualizingsensordata.transmission.XmlTransmission;
 import android.util.Log;
 
 /**
@@ -21,6 +24,9 @@ public class LocalStorageWriter extends DataCollector {
             FileWriter writer = new FileWriter(fpath);
             transformXml(writer);
             writer.close();
+            
+            XmlTransmission trans = new XmlTransmission(new File(fpath));
+            TransmissionService.getService().addTransmission(trans);
         } catch (IOException e) {
             Log.e("LocalStorageWriter", "IOException detected!");
         }
