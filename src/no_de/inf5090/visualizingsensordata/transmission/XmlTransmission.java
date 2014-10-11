@@ -3,74 +3,68 @@ package no_de.inf5090.visualizingsensordata.transmission;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
-
-
-import no_de.inf5090.visualizingsensordata.persistency.DataCollector;
-
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 
-import android.content.Context;
+import android.util.Log;
 
-public class XmlTransmission extends DataCollector {
-    private Context mContext;
+public class XmlTransmission implements Runnable {
+	public final static String TAG = XmlTransmission.class.getSimpleName();
+	public final static String HOSTNAME = "http://134.155.92.184";
 
-    private final static String HOSTNAME = "134.155.92.184";
-    private final static String FILENAME = "file.xml";
+	private StringEntity mStringEntity = null;
 
-    public XmlTransmission(Context context) {
-        mContext = context;
-    }
+	public XmlTransmission(File f) {
+		Log.d(TAG, "try to read file " + f.getName() + " exists " + f.exists());
+		// String filePath = mContext.getFilesDir().getAbsolutePath();
 
-    public void dataSend(String fpath, File file) throws IOException {
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(HOSTNAME);
-
-        String filePath = mContext.getFilesDir().getAbsolutePath();
-        File f = new File(filePath, FILENAME);
-
-        String content = getFileContents(file);
-        StringEntity se = null;
-        try {
-            se = new StringEntity(content, HTTP.UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        se.setContentType("text/xml");
-        httpPost.setEntity(se);
-        try {
-			httpClient.execute(httpPost);
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		try {
+			String content = getFileContents(f);
+			mStringEntity = new StringEntity(content, HTTP.UTF_8);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Error reading file thus nothing gets executed " + e.getMessage());
+			mStringEntity = null;
+		} finally {
+			f.delete();
 		}
-        f.delete();
-    }
+	}
 
-    /**
-     * @throws IOException 
-     * @see http://stackoverflow.com/a/9095689
-     */
-    private String getFileContents(File file) throws IOException {
-        FileInputStream fis = null;
-        fis = mContext.openFileInput("test.txt");
-        StringBuffer fileContent = new StringBuffer("");
+	@Override
+	public void run() {
+		Log.d(TAG, "Job gets executed...trying to send xml");
 
-        byte[] buffer = new byte[1024];
+		if (mStringEntity == null) {
+			Log.e(TAG, "Job aborted cause no content was provided.");
+			return;
+		}
 
-        while (fis.read(buffer) != -1)
-        {
-            fileContent.append(new String(buffer, 0, fis.read(buffer)));
-        }
-        return fileContent.toString();
-    }
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpPost httpPost = new HttpPost(HOSTNAME);
+		mStringEntity.setContentType("text/xml");
+		httpPost.setEntity(mStringEntity);
+
+		try {
+			HttpResponse response = httpClient.execute(httpPost);
+			Log.d(TAG, "Job executed successfully. Response: " + response.getStatusLine().getStatusCode());
+		} catch (IOException e) {
+			Log.e(TAG, "Exception occured while trying to POST xml file " + e.getMessage());
+		}
+	}
+
+	private String getFileContents(File file) throws IOException {
+		FileInputStream fis = new FileInputStream(file);
+		StringBuffer fileContent = new StringBuffer();
+
+		byte[] buffer = new byte[1024];
+		while (fis.read(buffer) != -1) {
+			fileContent.append(new String(buffer, 0, fis.read(buffer)));
+		}
+
+		fis.close();
+		return fileContent.toString();
+	}
 }
