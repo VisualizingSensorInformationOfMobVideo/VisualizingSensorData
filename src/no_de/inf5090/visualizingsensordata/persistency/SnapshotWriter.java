@@ -19,15 +19,17 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 	private int jpegQuality = 50;
 	private int photoWidth = 320;
 	private int photoHeight = 240;
+	
     /**
      * Constructor: initiates snapshotwriter
      */
-    public SnapshotWriter(Observer observer) {
-    	snapshotObserver = observer;
+    public SnapshotWriter(Observer snapshotObserver) {
+    	this.snapshotObserver = snapshotObserver;
     }
 
     @Override
     protected Void doInBackground(byte[]... data) {
+        //String encodedImageTest = Base64.encodeToString(data[0], Base64.DEFAULT);
         /*try {
         	ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         	try{
@@ -64,11 +66,18 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 
             //Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to " + fPath);
             Log.d("snap", "onPictureTaken - wrote bytes: " + data.length + " to SnapshotObserver");
+            
+    		/*
+                 Log.d("snap", "onPictureTaken - org: " + encodedImageTest.length() + 
+                		 " enc: " + encodedImage.length() + 
+                		 " diff: " + (encodedImageTest.length() - encodedImage.length()) +
+                		 " rat: " + (encodedImageTest.length() / (encodedImage.length()*1.0)));
+    		 */
+            
         /*} catch (Exception e) {
             e.printStackTrace();
         }*/
 
         return null;
     }
-
 }
