@@ -17,7 +17,7 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
     public final static int ID = 104;
 
     /**
-     * The unique ID for this sensor observer
+     * A the name for this sensor
      */
     public final static String NAME = "Snapshot";
 
@@ -65,6 +65,11 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
         return ID;
     }
 
+	@Override
+	public String getName() {
+		return NAME;
+	}
+    
     /**
      * Sensor observer data
      */
@@ -97,7 +102,7 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
 
         @Override
         public String getSensorName() {
-            return NAME;
+            return getName();
         }
 
     }
