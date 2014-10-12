@@ -13,7 +13,7 @@ import java.util.Observer;
  */
 public class SensorController {
     /** Sensor list */
-    public ArrayList<LogicalSensorObservable> sensors = new ArrayList<LogicalSensorObservable>();
+    private ArrayList<LogicalSensorObservable> sensors = new ArrayList<LogicalSensorObservable>();
 
     /**
      * Initialize sensors
