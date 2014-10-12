@@ -17,8 +17,8 @@ import android.util.Log;
 public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 	private Observer snapshotObserver; 
 	private int jpegQuality = 50;
-	//private int photoWidth = 320;
-	//private int photoHeight = 240;
+	private int photoWidth = 320;
+	private int photoHeight = 240;
     /**
      * Constructor: initiates snapshotwriter
      */
@@ -45,7 +45,9 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
         	
         	
         	Bitmap image = BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
-        	//image.createScaledBitmap(image, PHOTO_WIDTH, PHOTO_HEIGHT, true);
+        	int ratio = image.getHeight() / photoHeight;        	
+        	image = Bitmap.createScaledBitmap(image, image.getWidth() / ratio, image.getHeight() / ratio, true);
+        	
             //String fPath = VideoCapture.appDir.getPath() + "/" + System.currentTimeMillis() + ".jpg";
            // FileOutputStream fos = new FileOutputStream(fPath);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
