@@ -15,7 +15,9 @@ import android.util.Base64;
 import android.util.Log;
 
 public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
-	private Observer snapshotObserver; 
+	/** The observer to send snapshots to */
+	private Observer snapshotObserver;
+	
 	private int jpegQuality = 50;
 	private int photoWidth = 320;
 	private int photoHeight = 240;
