@@ -331,6 +331,7 @@ public class VideoCapture extends Activity {
         // initiate SensorWriter
         if (mLocalStorageWriter == null) {
             mLocalStorageWriter = new LocalStorageWriter();
+            mLocalStorageWriter.setCameraHelper(mCameraHelper);
         }
 
         sensorController.connectSensors(mLocalStorageWriter);

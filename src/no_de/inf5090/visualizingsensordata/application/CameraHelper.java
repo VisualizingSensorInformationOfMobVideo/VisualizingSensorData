@@ -21,6 +21,11 @@ public class CameraHelper {
     private boolean mIsRecording = false;
 
     /**
+     * Profile for video recording
+     */
+    private CamcorderProfile mProfile;
+
+    /**
      * The preview view
      */
     private CameraPreview mCameraPreview;
@@ -97,7 +102,8 @@ public class CameraHelper {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
-        mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+        mProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        mediaRecorder.setProfile(mProfile);
 
         mediaRecorder.setOutputFile(getOutputFileName());
         //mediaRecorder.setMaxDuration(60000); // Set max duration 60 sec.
@@ -173,5 +179,16 @@ public class CameraHelper {
      */
     public boolean isRecording() {
         return mIsRecording;
+    }
+
+    /**
+     * Get resolution in format widthxheight for the video resource
+     */
+    public String getVideoResolution() {
+        //Camera.Size s = mCamera.getParameters().getPreviewSize();
+        //return s.width + "x" + s.height;
+        if (mProfile == null)
+            return null;
+        return mProfile.videoFrameWidth + "x" + mProfile.videoFrameHeight;
     }
 }
