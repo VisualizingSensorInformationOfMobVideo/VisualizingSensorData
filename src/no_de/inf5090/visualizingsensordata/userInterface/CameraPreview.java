@@ -1,6 +1,7 @@
 package no_de.inf5090.visualizingsensordata.userInterface;
 
 import android.content.Context;
+import android.hardware.Camera;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -46,9 +47,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         // start preview with new settings
         try {
-            //mCamera.setPreviewDisplay(mHolder);
-            mCameraHelper.getCamera().setPreviewDisplay(holder);
-            mCameraHelper.getCamera().startPreview();
+            // set size
+            Camera c = mCameraHelper.getCamera();
+            Camera.Parameters p = c.getParameters();
+            p.setPreviewSize(1920, 1080); // FIXME: check for supported and most optional sizes
+            c.setParameters(p);
+
+            c.setPreviewDisplay(holder);
+            c.startPreview();
 
         } catch (Exception e) {
         }
