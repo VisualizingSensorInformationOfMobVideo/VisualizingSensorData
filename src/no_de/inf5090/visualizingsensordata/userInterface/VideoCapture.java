@@ -323,7 +323,8 @@ public class VideoCapture extends Activity {
             mLocalStorageWriter.setCameraHelper(mCameraHelper);
         }
         if (mRemoteDataPusher == null) {
-        	mRemoteDataPusher = new RemoteDataPusher();
+            mRemoteDataPusher = new RemoteDataPusher();
+            mRemoteDataPusher.setCameraHelper(mCameraHelper);
         }
 
         sensorController.connectSensors(mLocalStorageWriter);
