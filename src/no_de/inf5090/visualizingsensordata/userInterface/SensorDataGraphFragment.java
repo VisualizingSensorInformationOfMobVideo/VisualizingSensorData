@@ -126,7 +126,7 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
         AbstractLogicalSensorData sensorData = (AbstractLogicalSensorData) data;
 
         // rotation?
-        if (sensorData.getSensorID() == RotationVectorObserver.ID) {
+        if (observable instanceof RotationVectorObserver) {
             RotationVectorObserver.LogicalSensorData logData = (RotationVectorObserver.LogicalSensorData) sensorData;
             mAzimuthSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), logData.getAzimuth() / Math.PI);
             mPitchSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), logData.getPitch() / Math.PI);
@@ -134,12 +134,12 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
         }
 
         // acceleration?
-        else if (sensorData.getSensorID() == AccelerationSensorObserver.ID) {
+        else if (observable instanceof AccelerationSensorObserver) {
             mShakeSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), ((AccelerationSensorObserver.LogicalSensorData)sensorData).getAcceleration()/10);
         }
 
         // speed?
-        else if (sensorData.getSensorID() == LocationSensorObserver.ID) {
+        else if (observable instanceof LocationSensorObserver) {
             mSpeedSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), ((LocationSensorObserver.LogicalSensorData)sensorData).getSpeed());
         }
 

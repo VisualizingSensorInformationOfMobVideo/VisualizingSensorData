@@ -9,12 +9,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class SnapshotObserver extends LogicalSensorObservable implements Observer {
-	private String encodedImage;
-	
-    /**
-     * The unique ID for this sensor observer
-     */
-    public final static int ID = 104;
+    private String encodedImage;
 
     /**
      * A the name for this sensor
@@ -61,11 +56,6 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
     }
 
     @Override
-    public int getSensorID() {
-        return ID;
-    }
-
-	@Override
 	public String getName() {
 		return NAME;
 	}
@@ -93,11 +83,6 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
             item.appendChild(elm);
 
             return item;
-        }
-
-        @Override
-        public int getSensorID() {
-            return ID;
         }
 
         @Override

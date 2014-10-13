@@ -19,11 +19,6 @@ public abstract class LogicalSensorObservable extends Observable {
     abstract public void onResume();
 
     /**
-     * Get unique ID for sensor
-     */
-    abstract public int getSensorID();
-    
-    /**
      * Get name of this sensor
      */
     abstract public String getName();

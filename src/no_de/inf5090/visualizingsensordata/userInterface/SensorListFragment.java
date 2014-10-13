@@ -65,17 +65,17 @@ public class SensorListFragment extends Fragment implements Observer {
      */
     public void update(Observable observable, Object data) {
         // check for acceleration
-        if (((AbstractLogicalSensorData)data).getSensorID() == AccelerationSensorObserver.ID) {
+        if (observable instanceof AccelerationSensorObserver) {
             handleShakeEvent((AccelerationSensorObserver.LogicalSensorData)data);
         }
 
         // check for speed
-        else if (((AbstractLogicalSensorData)data).getSensorID() == LocationSensorObserver.ID) {
+        else if (observable instanceof LocationSensorObserver) {
             handleSpeedEvent((LocationSensorObserver.LogicalSensorData)data);
         }
 
         // check for orientation
-        else if (((AbstractLogicalSensorData)data).getSensorID() == RotationVectorObserver.ID) {
+        else if (observable instanceof RotationVectorObserver) {
             handleOrientionVectorObserverChanged((RotationVectorObserver.LogicalSensorData)data);
         }
     }

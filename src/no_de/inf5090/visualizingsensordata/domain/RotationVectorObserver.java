@@ -30,11 +30,6 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
     private boolean mIsFallback = false;
 
     /**
-     * The unique ID for this sensor observer
-     */
-    public final static int ID = 102;
-    
-    /**
      * The name for this sensor observer
      */
     public final static String NAME = "Rotation";
@@ -154,11 +149,6 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
         return mRoll;
     }
 
-    @Override
-    public int getSensorID() {
-        return ID;
-    }
-    
 	@Override
 	public String getName() {
 		return NAME;
@@ -201,11 +191,6 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
             item.appendChild(elm);
 
             return item;
-        }
-
-        @Override
-        public int getSensorID() {
-            return ID;
         }
 
         @Override
