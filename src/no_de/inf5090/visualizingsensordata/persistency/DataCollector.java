@@ -82,6 +82,9 @@ public abstract class DataCollector implements Observer {
             // datetime
             rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
 
+            // phone model
+            rootElement.setAttribute("phoneModel", android.os.Build.MODEL);
+
             // camera details
             elm = doc.createElement("camera");
             Element subelm = doc.createElement("resolution");
