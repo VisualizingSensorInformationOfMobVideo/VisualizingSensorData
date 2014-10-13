@@ -260,29 +260,22 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
      * Function to show settings alert dialog On pressing Settings button will
      * lauch Settings Options
      * */
-    public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+    public static void showSettingsDialog(final Context context) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 
         // Setting Dialog Title
-        alertDialog.setTitle("GPS is settings");
-
-        // Setting Dialog Message
         alertDialog
-                .setMessage("GPS is not enabled. Do you want to go to settings menu?");
+                .setTitle("GPS is disabled")
+                .setMessage("GPS is not enabled. Do you want to go to settings menu?")
 
-        // On pressing Settings button
-        alertDialog.setPositiveButton("Settings",
-                new DialogInterface.OnClickListener() {
+                        // buttons
+                .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(
-                                Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        mContext.startActivity(intent);
+                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        context.startActivity(intent);
                     }
-                });
-
-        // on pressing cancel button
-        alertDialog.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
@@ -290,5 +283,13 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
 
         // Showing Alert Message
         alertDialog.show();
+    }
+
+    /**
+     * Check if GPS is enabled
+     */
+    public static boolean isGpsEnabled(Context context) {
+        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 }

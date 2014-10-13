@@ -100,6 +100,11 @@ public class VideoCapture extends Activity {
         String root = Environment.getExternalStorageDirectory().toString();
         appDir  = new File(root + "/VSD");
         appDir.mkdirs();
+
+        // show GPS-dialog if disabled
+        if (!LocationSensorObserver.isGpsEnabled(this)) {
+            LocationSensorObserver.showSettingsDialog(this);
+        }
     }
 
     /**
