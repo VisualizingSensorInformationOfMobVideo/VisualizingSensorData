@@ -9,14 +9,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class SnapshotObserver extends LogicalSensorObservable implements Observer {
-
+	private String encodedImage;
+	
     /**
      * The unique ID for this sensor observer
      */
     public final static int ID = 104;
 
     /**
-     * The unique ID for this sensor observer
+     * A the name for this sensor
      */
     public final static String NAME = "Snapshot";
 
@@ -41,7 +42,8 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
         /*
          * Do something with the data updated
          */
-
+        encodedImage = (String) data;
+        
         setChanged();
         notifyObservers(new LogicalSensorData(this));
     }
@@ -63,13 +65,20 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
         return ID;
     }
 
+	@Override
+	public String getName() {
+		return NAME;
+	}
+    
     /**
      * Sensor observer data
      */
     public class LogicalSensorData extends AbstractLogicalSensorData {
-
-        protected LogicalSensorData(LogicalSensorObservable sensor) {
+    	private String encodedImage;
+    	
+        protected LogicalSensorData(SnapshotObserver sensor) {
             super(sensor);
+            this.encodedImage = sensor.encodedImage;
         }
 
         @Override
@@ -80,7 +89,7 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
             // actual sensor data
             Element elm = doc.createElement(xmlDataEntryName);
             elm.setAttribute("type", "base64data");
-            elm.appendChild(doc.createTextNode("base64data lots of data"));
+            elm.appendChild(doc.createTextNode(encodedImage));
             item.appendChild(elm);
 
             return item;
@@ -93,7 +102,7 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
 
         @Override
         public String getSensorName() {
-            return NAME;
+            return getName();
         }
 
     }

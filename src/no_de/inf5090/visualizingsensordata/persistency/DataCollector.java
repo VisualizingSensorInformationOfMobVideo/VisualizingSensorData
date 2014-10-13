@@ -1,6 +1,7 @@
 package no_de.inf5090.visualizingsensordata.persistency;
 
 import android.util.Log;
+import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
 import org.w3c.dom.Document;
@@ -28,6 +29,11 @@ public abstract class DataCollector implements Observer {
     List<AbstractLogicalSensorData> mSensorData = new ArrayList<AbstractLogicalSensorData>();
 
     /**
+     * We need access to camera object to fetch things like resolution
+     */
+    private CameraHelper mCameraHelper;
+
+    /**
      * State of listening - if sensor data should be added to list or dropped
      */
     private boolean mIsRecording = false;
@@ -37,8 +43,10 @@ public abstract class DataCollector implements Observer {
      * Changes are collected
      */
     public void update(Observable observable, Object data) {
-        if (!(data instanceof AbstractLogicalSensorData) || !mIsRecording) return;
-        mSensorData.add((AbstractLogicalSensorData) data);
+        synchronized(this) {
+            if (!(data instanceof AbstractLogicalSensorData) || !mIsRecording) return;
+            mSensorData.add((AbstractLogicalSensorData) data);
+        }
     }
 
     /**
@@ -62,21 +70,31 @@ public abstract class DataCollector implements Observer {
         Element elm;
         Document doc = Utils.getDocumentInstance();
         Element rootElement = doc.getDocumentElement(); 
-        
+
         // Check if this document already has been created
         if (rootElement == null) {
-	        rootElement = doc.createElement("logFile");
-	        doc.appendChild(rootElement);
-	
-	        // app name
-	        elm = doc.createElement("appName");
-	        elm.appendChild(doc.createTextNode("VisualizingSensorData"));
-	        rootElement.appendChild(elm);
-	
-	        // datetime
-	        rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
+            rootElement = doc.createElement("logFile");
+            doc.appendChild(rootElement);
+
+            // app name
+            elm = doc.createElement("appName");
+            elm.appendChild(doc.createTextNode("VisualizingSensorData"));
+            rootElement.appendChild(elm);
+
+            // datetime
+            rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
+
+            // phone model
+            rootElement.setAttribute("phoneModel", android.os.Build.MODEL);
+
+            // camera details
+            elm = doc.createElement("camera");
+            Element subelm = doc.createElement("resolution");
+            subelm.appendChild(doc.createTextNode(mCameraHelper.getVideoResolution()));
+            elm.appendChild(subelm);
+            rootElement.appendChild(elm);
         }
-        
+
         // sensor data
         for (AbstractLogicalSensorData logItem : mSensorData) {
             rootElement.appendChild(logItem.getXml());
@@ -124,12 +142,17 @@ public abstract class DataCollector implements Observer {
         return writer.getBuffer().toString();
     }
 
-   
-    
     /**
      * Empty list of sensor data (e.g. after XML is generated)
      */
     protected void emptyData() {
         mSensorData = new ArrayList<AbstractLogicalSensorData>();
+    }
+
+    /**
+     * Inject camera helper
+     */
+    public void setCameraHelper(CameraHelper ch) {
+        mCameraHelper = ch;
     }
 }

@@ -53,6 +53,11 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
      * The unique ID for this sensor observer
      */
     public final static int ID = 103;
+    
+    /**
+     * A the name for this sensor
+     */
+    public final static String NAME = "Location";
 
     /**
      * Context
@@ -151,6 +156,11 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
     public int getSensorID() {
         return ID;
     }
+    
+	@Override
+	public String getName() {
+		return NAME;
+	}
 
     /**
      * Sensor observer data
@@ -242,7 +252,7 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
 
         @Override
         public String getSensorName() {
-            return "Location";
+            return getName();
         }
     }
 

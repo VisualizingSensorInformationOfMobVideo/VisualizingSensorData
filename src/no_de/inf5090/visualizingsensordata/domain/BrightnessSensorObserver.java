@@ -77,6 +77,11 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
     public int getSensorID() {
         return ID;
     }
+    
+	@Override
+	public String getName() {
+		return NAME;
+	}
 
     /** Return lux measured by this sensor */
     public float getLux() {
@@ -115,7 +120,7 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
 
         @Override
         public String getSensorName() {
-            return NAME;
+            return getName();
         }
         
         /**
