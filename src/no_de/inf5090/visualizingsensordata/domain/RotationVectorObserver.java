@@ -33,6 +33,11 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
      * The unique ID for this sensor observer
      */
     public final static int ID = 102;
+    
+    /**
+     * The name for this sensor observer
+     */
+    public final static String NAME = "Rotation";
 
     /**
      * Time of last update
@@ -153,6 +158,11 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
     public int getSensorID() {
         return ID;
     }
+    
+	@Override
+	public String getName() {
+		return NAME;
+	}
 
     /**
      * Sensor observer data
@@ -200,7 +210,7 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
 
         @Override
         public String getSensorName() {
-            return "Rotation";
+            return getName();
         }
 
         /**

@@ -53,7 +53,6 @@ public class CameraHelper {
             c = Camera.open(); // attempt to get a Camera instance
 
             Camera.Parameters params = c.getParameters();
-            //List<Camera.Size> sizes = params.getSupportedPreviewSizes();
             List<Camera.Size> sizes = params.getSupportedPictureSizes();
 
             params.setPictureSize(sizes.get(sizes.size() - 1).width, sizes.get(sizes.size() - 1).height);

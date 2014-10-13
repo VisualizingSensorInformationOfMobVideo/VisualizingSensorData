@@ -82,4 +82,20 @@ public class SensorController {
             sensor.onResume();
         }
     }
+    
+    /**
+     * Returns the first (by the order of how they got added) 
+     * sensor that have the name given.
+     * @param sensorName name of the wanted sensor
+     * @return the sensor that match the given name, and null if no sensor is found
+     */
+    public LogicalSensorObservable getSensor(String sensorName) {
+    	for (LogicalSensorObservable s : sensors) {
+    		if (s.getName().equals(sensorName)) {
+    			return s;
+    		}
+    	}
+    	
+    	return null;
+    }
 }

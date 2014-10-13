@@ -103,6 +103,11 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
         return ID;
     }
 
+	@Override
+	public String getName() {
+		return NAME;
+	}
+    
     /**
      * Sensor observer data
      */
@@ -142,7 +147,7 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
 
         @Override
         public String getSensorName() {
-            return NAME;
+            return getName();
         }
     }
 }

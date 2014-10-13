@@ -9,7 +9,6 @@ import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 import no_de.inf5090.visualizingsensordata.application.SensorController;
 import no_de.inf5090.visualizingsensordata.domain.*;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
-import no_de.inf5090.visualizingsensordata.transmission.SnapshotTransmission;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -45,10 +44,6 @@ public class VideoCapture extends Activity {
     private static int snapshotCounter = 0; // Used by snapshot feature
     private int numOfSnapshots = 2;
     private static int delay =  2000;
-    private SnapshotTransmission snapshotTransmission;
-    public static boolean sendingSnapshot;
-    private int res_width = 640;
-    private int res_height = 480;
 
     /**
      * The sensor controller
@@ -115,7 +110,7 @@ public class VideoCapture extends Activity {
         mCameraHelper = new CameraHelper();
         if (!mCameraHelper.hasCamera()) {
             Toast.makeText(VideoCapture.this, "Fail to get Camera", Toast.LENGTH_LONG).show();
-            // FIXME: abort application?
+            finish(); //abort application
         }
 
         // create a camera surface for the preview and add to the view
@@ -152,10 +147,6 @@ public class VideoCapture extends Activity {
         // create a new name for this recording
         refreshOutputFileName();
 
-        // create a new connection to the server
-        // TODO create a variable with webserver url
-        snapshotTransmission = new SnapshotTransmission("http://example.com");
-
         mCameraHelper.startRecording();
         mRecordButton.setText("Stop");
 
@@ -166,7 +157,6 @@ public class VideoCapture extends Activity {
         startSnapshot();
         //myCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
         mCameraHelper.getCamera().takePicture(null, null, jpegCallback);
-        startSendingSnapshot();
     }
 
     /**
@@ -174,7 +164,6 @@ public class VideoCapture extends Activity {
      */
     private void stopRecording() {
         stopSnapshot();
-        stopSendingSnapshot();
 
         mCameraHelper.stopRecording();
         mRecordButton.setText("Record");
@@ -272,8 +261,6 @@ public class VideoCapture extends Activity {
 
     private void stopSnapshot() { takingSnapshot = false; }
     private void startSnapshot() { takingSnapshot = true; }
-    private void stopSendingSnapshot() { sendingSnapshot = false; }
-    private void startSendingSnapshot() { sendingSnapshot = true; }
 
     ShutterCallback shutterCallback = new ShutterCallback() {
         public void onShutter() {
@@ -298,12 +285,9 @@ public class VideoCapture extends Activity {
             // TODO: is this really needed?
             mCameraHelper.getCamera().startPreview(); // to avoid preview freezing after taking a pic
 
-            new SnapshotWriter().execute(data);
+            new SnapshotWriter((Observer) sensorController.getSensor(SnapshotObserver.NAME)).execute(data);
             Log.d("snap", "onPictureTaken - jpeg");
-            /*snapshotTransmission.send_snapshot();
-            if (sendingSnapshot) {
-                snapshotTransmission.send_snapshot();
-            }*/
+            
             snapshotCounter++;
             if (snapshotCounter <= numOfSnapshots) {
                 Thread thread = new Thread() {
