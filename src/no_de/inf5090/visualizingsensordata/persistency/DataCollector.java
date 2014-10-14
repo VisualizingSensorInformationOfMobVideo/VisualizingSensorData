@@ -39,6 +39,11 @@ public abstract class DataCollector implements Observer {
     private boolean mIsRecording = false;
 
     /**
+     * Unique id for request chain
+     */
+	private String mUniqueId;
+
+    /**
      * Notification of a change in one of the sensors
      * Changes are collected
      */
@@ -62,6 +67,12 @@ public abstract class DataCollector implements Observer {
     public void stopRecording() {
         mIsRecording = false;
     }
+    
+    private String getUniqueId() {
+    	if (mUniqueId == null)
+    		mUniqueId = UUID.randomUUID();
+    	return mUniqueId;
+    }
 
     /**
      * Generate XML-DOM for the data
@@ -80,6 +91,9 @@ public abstract class DataCollector implements Observer {
             elm = doc.createElement("appName");
             elm.appendChild(doc.createTextNode("VisualizingSensorData"));
             rootElement.appendChild(elm);
+            
+            // id
+            rootElement.setAttribute("id", getUniqueId());
 
             // datetime
             rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
