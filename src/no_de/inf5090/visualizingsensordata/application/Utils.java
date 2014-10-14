@@ -12,24 +12,20 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class Utils {
     /**
-     * Instance for creating DOM
+     * Get a new Document-instance
      */
-    protected static Document document;
+    public static Document getXmlDocumentInstance() {
+        Document doc = null;
 
-    /**
-     * Get Document-instance
-     */
-    public static Document getDocumentInstance() {
-        if (document == null) {
-            try {
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = dbf.newDocumentBuilder();
-                document = docBuilder.newDocument();
-            } catch (ParserConfigurationException e) {
-                // TODO: this will cause a NullPointerException in current implementation
-            }
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+            doc = docBuilder.newDocument();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
         }
-        return document;
+
+        return doc;
     }
 
     /**

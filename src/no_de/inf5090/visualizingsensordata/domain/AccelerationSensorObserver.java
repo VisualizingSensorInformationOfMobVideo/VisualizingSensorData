@@ -110,9 +110,8 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
         }
 
         @Override
-        public Element getXml() {
-            Document doc = Utils.getDocumentInstance();
-            Element item = getBaseXml();
+        public Element getXml(Document doc) {
+            Element item = getBaseXml(doc);
 
             // actual sensor data
             Element elm = doc.createElement(xmlDataEntryName);

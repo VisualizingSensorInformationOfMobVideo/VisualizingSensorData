@@ -55,7 +55,7 @@ public abstract class AbstractLogicalSensorData {
      *
      * TODO: Document the implementation of this
      */
-    public abstract Element getXml();
+    public abstract Element getXml(Document doc);
 
     /**
      * All sensors should have a unique name to identify it
@@ -65,9 +65,7 @@ public abstract class AbstractLogicalSensorData {
     /**
      * Get basic XML-DOM-element to inject data
      */
-    protected Element getBaseXml() {
-        Document doc = Utils.getDocumentInstance();
-
+    protected Element getBaseXml(Document doc) {
         Element item = doc.createElement("logItem");
         Element elm;
 

@@ -79,39 +79,35 @@ public abstract class DataCollector implements Observer {
      */
     protected Document generateXmlDom() {
         Element elm;
-        Document doc = Utils.getDocumentInstance();
-        Element rootElement = doc.getDocumentElement(); 
+        Document doc = Utils.getXmlDocumentInstance();
 
-        // Check if this document already has been created
-        if (rootElement == null) {
-            rootElement = doc.createElement("logFile");
-            doc.appendChild(rootElement);
+        Element rootElement = doc.createElement("logFile");
+        doc.appendChild(rootElement);
 
-            // app name
-            elm = doc.createElement("appName");
-            elm.appendChild(doc.createTextNode("VisualizingSensorData"));
-            rootElement.appendChild(elm);
-            
-            // id
-            rootElement.setAttribute("id", getUniqueId());
+        // app name
+        elm = doc.createElement("appName");
+        elm.appendChild(doc.createTextNode("VisualizingSensorData"));
+        rootElement.appendChild(elm);
 
-            // datetime
-            rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
+        // id
+        rootElement.setAttribute("id", getUniqueId());
 
-            // phone model
-            rootElement.setAttribute("phoneModel", android.os.Build.MODEL);
+        // datetime
+        rootElement.setAttribute("dateTime", Utils.getDateString(new Date()));
 
-            // camera details
-            elm = doc.createElement("camera");
-            Element subelm = doc.createElement("resolution");
-            subelm.appendChild(doc.createTextNode(mCameraHelper.getVideoResolution()));
-            elm.appendChild(subelm);
-            rootElement.appendChild(elm);
-        }
+        // phone model
+        rootElement.setAttribute("phoneModel", android.os.Build.MODEL);
+
+        // camera details
+        elm = doc.createElement("camera");
+        Element subelm = doc.createElement("resolution");
+        subelm.appendChild(doc.createTextNode(mCameraHelper.getVideoResolution()));
+        elm.appendChild(subelm);
+        rootElement.appendChild(elm);
 
         // sensor data
         for (AbstractLogicalSensorData logItem : mSensorData) {
-            rootElement.appendChild(logItem.getXml());
+            rootElement.appendChild(logItem.getXml(doc));
         }
 
         return doc;
@@ -121,8 +117,11 @@ public abstract class DataCollector implements Observer {
      * Fill a Writer-object with transformed XML data and empty the data list
      */
     protected void transformXml(Writer writer) {
-        Document doc = generateXmlDom();
-        emptyData();
+        Document doc;
+        synchronized (this) {
+            doc = generateXmlDom();
+            emptyData();
+        }
 
         DOMSource source = new DOMSource(doc);
 

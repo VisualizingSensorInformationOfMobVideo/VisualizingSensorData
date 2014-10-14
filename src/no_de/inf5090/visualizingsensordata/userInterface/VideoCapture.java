@@ -344,6 +344,7 @@ public class VideoCapture extends Activity {
         sensorController.connectSensors(mLocalStorageWriter);
         sensorController.connectSensors(mRemoteDataPusher);
         mLocalStorageWriter.startRecording();
+        mRemoteDataPusher.startRecording();
     }
 
     /**

@@ -169,9 +169,8 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
         }
 
         @Override
-        public Element getXml() {
-            Document doc = Utils.getDocumentInstance();
-            Element item = getBaseXml(), elm;
+        public Element getXml(Document doc) {
+            Element item = getBaseXml(doc), elm;
 
             // actual sensor data
             elm = doc.createElement(xmlDataEntryName);
