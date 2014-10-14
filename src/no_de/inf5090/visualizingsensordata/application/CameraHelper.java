@@ -8,7 +8,6 @@ import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.util.Log;
 import android.widget.Toast;
 
 public class CameraHelper {
@@ -121,9 +120,9 @@ public class CameraHelper {
 
         // set preview to previewholder
         // this is actually not needed when it is already set on the Camera object
-        /*if (mCameraPreview != null) {
+        if (mCameraPreview != null) {
             mediaRecorder.setPreviewDisplay(mCameraPreview.getHolder().getSurface());
-        }*/
+        }
 
         try {
             mediaRecorder.prepare();
