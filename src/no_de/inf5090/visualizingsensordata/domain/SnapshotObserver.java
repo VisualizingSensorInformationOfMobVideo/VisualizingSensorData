@@ -8,12 +8,17 @@ import org.w3c.dom.Element;
 
 public class SnapshotObserver extends LogicalSensorObservable implements Observer {
     private String encodedImage;
+    private Observable mSnapshotSensor;
 
     /**
      * A the name for this sensor
      */
     public final static String NAME = "Snapshot";
 
+    public SnapshotObserver(Observable snapshotSensor) {
+    	mSnapshotSensor = snapshotSensor;
+    }
+    
     @Override
     public void update(Observable observable, Object data) {
         encodedImage = (String) data;
@@ -25,13 +30,13 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
     @Override
     public void onPause() {
         // controlled directly from controller when recording stops
-        //stopSnapshot();
+    	mSnapshotSensor.deleteObserver(this);
     }
 
     @Override
     public void onResume() {
         // controlled directly from controller when recording start
-        //startSnapshot();
+        mSnapshotSensor.addObserver(this);
     }
 
     /**

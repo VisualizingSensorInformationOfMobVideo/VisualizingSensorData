@@ -1,10 +1,10 @@
-package no_de.inf5090.visualizingsensordata.persistency;
+package no_de.inf5090.visualizingsensordata.domain;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Observable;
 import java.util.Observer;
 
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
-import no_de.inf5090.visualizingsensordata.domain.SnapshotObserver;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,7 +15,7 @@ import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
 
-public class SnapshotWriter { 
+public class SnapshotSensor extends Observable { 
 
     /**
      * The camera helper (injected when sensor is created)
@@ -33,10 +33,9 @@ public class SnapshotWriter {
     private SnapshotLoopThread mThreadLoop; 
     
 
-    public SnapshotWriter(CameraHelper cameraHelper, Observer snapshotObserver) {
+    public SnapshotSensor(CameraHelper cameraHelper) {
         mCameraHelper = cameraHelper;
-        mSnapshotObserver = snapshotObserver;
-        mThreadLoop = new SnapshotLoopThread(this);
+        mThreadLoop = new SnapshotLoopThread();
     }
     
     /**
@@ -101,25 +100,10 @@ public class SnapshotWriter {
 		@Override
 		protected String doInBackground(byte[]... data) {
 			//String encodedImageTest = Base64.encodeToString(data[0], Base64.DEFAULT);
-			/*try {
-        	ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        	try{
-                 GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-                 gzipOutputStream.write(data[0]);
-                 gzipOutputStream.close();
-             } catch(IOException e){
-                 throw new RuntimeException(e);
-             }*/
-			// System.out.printf("Compression ratio %f\n", (1.0f * data.length/byteArrayOutputStream.size()));
-
-			//String encodedImage = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
-			// String encodedImage = Base64.encodeToString(data[0], Base64.DEFAULT);
-
-			Log.d("snap", "in doInBackground beginning");
 
 			Bitmap image = BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
 			int ratio = image.getHeight() / photoHeight;        	
-			image = Bitmap.createScaledBitmap(image, image.getWidth() / ratio, image.getHeight() / ratio, true);
+            image = Bitmap.createScaledBitmap(image, image.getWidth() / ratio, image.getHeight() / ratio, true);
 
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			image.compress(Bitmap.CompressFormat.JPEG, jpegQuality, out);
@@ -128,7 +112,9 @@ public class SnapshotWriter {
 		}
 
 		protected void onPostExecute(String encodedImage) {
-			snapshotObserver.update(null, encodedImage);
+			hasChanged();
+			notifyObservers(encodedImage);
+			//snapshotObserver.update(null, encodedImage);
 			/*
             Log.d("snap", "onPictureTaken - org: " + encodedImageTest.length() + 
            		 " enc: " + encodedImage.length() + 
@@ -140,28 +126,16 @@ public class SnapshotWriter {
 	}
 	
     private class SnapshotLoopThread implements Runnable {
-    	private SnapshotWriter mObserver;
     	private Handler mHandler = new Handler(Looper.getMainLooper());
     	
-    	public SnapshotLoopThread(SnapshotWriter observer) {
-    		mObserver = observer;
-    	}
-    	
     	public void run() {
-
-    		while (takingSnapshot) {    			
-    			Log.d("snap", "inLoop before post");
-    			
+    		while (takingSnapshot) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                    	Log.d("snap", "inLoop IN post before snapshot");
-                        mObserver.takeSnapshot();
-                    	Log.d("snap", "inLoop IN post after snapshot");
+                        takeSnapshot();
                     }
                 });
-
-    			Log.d("snap", "inLoop after post");
 
                 try {
 					Thread.sleep(delay);

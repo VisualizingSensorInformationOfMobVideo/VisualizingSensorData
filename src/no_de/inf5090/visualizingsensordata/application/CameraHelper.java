@@ -2,10 +2,9 @@ package no_de.inf5090.visualizingsensordata.application;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Observer;
+import java.util.Observable;
 
-import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
-import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
+import no_de.inf5090.visualizingsensordata.domain.SnapshotSensor;
 import no_de.inf5090.visualizingsensordata.userInterface.CameraPreview;
 import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import android.hardware.Camera;
@@ -34,15 +33,11 @@ public class CameraHelper {
     private CameraPreview mCameraPreview;
     
     /** The snapshot sensor */
-    private SnapshotWriter mSnapshotSensor;
-    
-    /** An observer that observes snapshots */
-    private Observer mSnapshotObserver;
+    private SnapshotSensor mSnapshotSensor;
 
-    public CameraHelper(Observer snapshotObserver) {
+    public CameraHelper() {
        obtainCameraOrFinish();
-       mSnapshotObserver = snapshotObserver; 
-       //mSnapshotSensor = new SnapshotWriter(this, snapshotObserver);
+       mSnapshotSensor = new SnapshotSensor(this);
     }
 
     /**
@@ -122,7 +117,7 @@ public class CameraHelper {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
-        mProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        mProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_LOW);
         mediaRecorder.setProfile(mProfile);
 
         mediaRecorder.setOutputFile(getOutputFileName());
@@ -184,7 +179,7 @@ public class CameraHelper {
         mIsRecording = true;
 
         // start snapshots
-        //mSnapshotSensor.startSnapshot();
+        mSnapshotSensor.startSnapshot();
     }
 
     /**
@@ -193,7 +188,7 @@ public class CameraHelper {
     public void stopRecording() {
         releaseMediaRecorder();
         mIsRecording = false;
-        //mSnapshotSensor.stopSnapshot();
+        mSnapshotSensor.stopSnapshot();
     }
 
     /**
@@ -280,5 +275,12 @@ public class CameraHelper {
      */
     public String getUnitOfViewAngle() {
     	return "degrees";
+    }
+    
+    /**
+     * Get 
+     */
+    public Observable getSnapshotSensor() {
+    	return mSnapshotSensor;
     }
 }

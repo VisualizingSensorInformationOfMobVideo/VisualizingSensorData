@@ -3,6 +3,7 @@ package no_de.inf5090.visualizingsensordata.userInterface;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Observable;
 import java.util.Observer;
 
 import android.content.Intent;
@@ -104,7 +105,7 @@ public class VideoCapture extends Activity {
 
         // do the camera magic
         initCameraStuff();
-        
+
         // set up sensors
         sensorController = new SensorController();
         sensorController.initSensors();
@@ -130,8 +131,8 @@ public class VideoCapture extends Activity {
      */
     private void initCameraStuff() {
         // create the helper, it will get and hold the real camera instance
-    	//mCameraHelper = new CameraHelper((Observer)sensorController.getSensor("Snapshot"));
-    	mCameraHelper = new CameraHelper(null);
+    	mCameraHelper = new CameraHelper();
+
         if (!mCameraHelper.hasCamera()) {
             Toast.makeText(VideoCapture.this, "Fail to get Camera", Toast.LENGTH_LONG).show();
             VideoCapture.getSelf().finish(); //abort application
@@ -360,4 +361,8 @@ public class VideoCapture extends Activity {
     public CameraHelper getCameraHelper() {
         return mCameraHelper;
     }
+
+	public Observable getSnapshotObservable() {
+		return mCameraHelper.getSnapshotSensor();
+	}
 }
