@@ -13,16 +13,13 @@ import no_de.inf5090.visualizingsensordata.domain.SnapshotObserver;
 import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 import no_de.inf5090.visualizingsensordata.persistency.RemoteDataPusher;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
-import no_de.inf5090.visualizingsensordata.transmission.BaseTransmission;
 import no_de.inf5090.visualizingsensordata.transmission.StopTransmission;
-import no_de.inf5090.visualizingsensordata.transmission.XmlTransmission;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
-import android.hardware.Camera.ShutterCallback;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -167,7 +164,6 @@ public class VideoCapture extends Activity {
 
         // TODO: refactor snapshot stuff into SnapshotObserver and CameraHelper
         startSnapshot();
-        //myCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
         mCameraHelper.getCamera().takePicture(null, null, jpegCallback);
     }
 
@@ -280,18 +276,6 @@ public class VideoCapture extends Activity {
 
     private void stopSnapshot() { takingSnapshot = false; }
     private void startSnapshot() { takingSnapshot = true; }
-
-    ShutterCallback shutterCallback = new ShutterCallback() {
-        public void onShutter() {
-            Log.d("snap", "onShutter");
-        }
-    };
-
-    PictureCallback rawCallback = new PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) {
-            Log.d("snap", "onPictureTaken - raw");
-        }
-    };
 
     PictureCallback jpegCallback = new PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
