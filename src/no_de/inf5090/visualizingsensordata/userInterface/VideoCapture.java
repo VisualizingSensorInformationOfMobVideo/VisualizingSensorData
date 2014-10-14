@@ -5,6 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Observer;
 
+import android.content.Intent;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 import no_de.inf5090.visualizingsensordata.application.SensorController;
@@ -20,13 +24,13 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import no_de.inf5090.visualizingsensordata.transmission.BaseTransmission;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
@@ -38,6 +42,21 @@ public class VideoCapture extends Activity {
 
     private Context mContext;
     private Button mRecordButton;
+
+    /**
+     * Name of preference for remote host (see preferences.xml)
+     */
+    public final static String KEY_PREF_REMOTE_HOST = "remote_host";
+
+    /**
+     * Name of preference for enabling remote connection (see preferences.xml)
+     */
+    public final static String KEY_PREF_REMOTE_ENABLED = "remote_connect";
+
+    /**
+     * Name of preference for enabling local storage (see preferences.xml)
+     */
+    public final static String KEY_PREF_LOCAL_ENABLED = "local_storage";
 
     /**
      * The sensor controller
@@ -78,6 +97,9 @@ public class VideoCapture extends Activity {
 
         setContext(this);
         setContentView(R.layout.main);
+
+        // set default settings
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // do the camera magic
         initCameraStuff();
@@ -178,7 +200,11 @@ public class VideoCapture extends Activity {
             if (mCameraHelper.isRecording()) {
                 stopRecording();
             } else {
-                startRecording();
+                if (!LocalStorageWriter.isLocalStorageAvailable() && !BaseTransmission.isTransferAvailable()) {
+                    Toast.makeText(VideoCapture.this, "Neither local storage nor remote transmission is enabled. Cannot start recording. Change in settings.", Toast.LENGTH_LONG).show();
+                } else {
+                    startRecording();
+                }
             }
         }
     };
@@ -188,6 +214,28 @@ public class VideoCapture extends Activity {
         Log.d("VideoCapture", "onDestroy");
         super.onDestroy();
         mCameraHelper.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Handle selection in the option menu
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // open settings window
+            case R.id.settings:
+                Intent intent = new Intent();
+                intent.setClass(this, SettingsActivity.class);
+                startActivityForResult(intent, 0);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -260,20 +308,23 @@ public class VideoCapture extends Activity {
      * Starts recording of sensor data
      */
     public void startPersistingSensorData() {
-        // initiate SensorWriter
-        if (mLocalStorageWriter == null) {
-            mLocalStorageWriter = new LocalStorageWriter();
-            mLocalStorageWriter.setCameraHelper(mCameraHelper);
-        }
-        if (mRemoteDataPusher == null) {
-            mRemoteDataPusher = new RemoteDataPusher();
-            mRemoteDataPusher.setCameraHelper(mCameraHelper);
+        if (LocalStorageWriter.isLocalStorageAvailable()) {
+            if (mLocalStorageWriter == null) {
+                mLocalStorageWriter = new LocalStorageWriter();
+                mLocalStorageWriter.setCameraHelper(mCameraHelper);
+            }
+            sensorController.connectSensors(mLocalStorageWriter);
+            mLocalStorageWriter.startRecording();
         }
 
-        sensorController.connectSensors(mLocalStorageWriter);
-        sensorController.connectSensors(mRemoteDataPusher);
-        mLocalStorageWriter.startRecording();
-        mRemoteDataPusher.startRecording();
+        if (BaseTransmission.isTransferAvailable()) {
+            if (mRemoteDataPusher == null) {
+                mRemoteDataPusher = new RemoteDataPusher();
+                mRemoteDataPusher.setCameraHelper(mCameraHelper);
+            }
+            sensorController.connectSensors(mRemoteDataPusher);
+            mRemoteDataPusher.startRecording();
+        }
 
         // TODO: should there be some events that the SnapshotObserver can listen to?
         ((SnapshotObserver)sensorController.getSensor("Snapshot")).startSnapshot();
@@ -283,13 +334,18 @@ public class VideoCapture extends Activity {
      * Stops and persists recording of sensor data
      */
     public void stopPersistingSensorData() {
-        String correspondingFileName = getOutputFileName();
-        sensorController.disconnectSensors(mLocalStorageWriter);
-        sensorController.disconnectSensors(mRemoteDataPusher);
-        mRemoteDataPusher.finish();
-        mRemoteDataPusher = null;
-        mLocalStorageWriter.stopRecording();
-        mLocalStorageWriter.writeXml(appDir.getPath() + "/" + correspondingFileName + "-sensor.xml");
+        if (mRemoteDataPusher != null) {
+            sensorController.disconnectSensors(mRemoteDataPusher);
+            mRemoteDataPusher.finish();
+            mRemoteDataPusher = null;
+        }
+
+        if (mLocalStorageWriter != null) {
+            String correspondingFileName = getOutputFileName();
+            sensorController.disconnectSensors(mLocalStorageWriter);
+            mLocalStorageWriter.stopRecording();
+            mLocalStorageWriter.writeXml(appDir.getPath() + "/" + correspondingFileName + "-sensor.xml");
+        }
 
         // TODO: should there be some events that the SnapshotObserver can listen to?
         ((SnapshotObserver)sensorController.getSensor("Snapshot")).stopSnapshot();

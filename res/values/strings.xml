@@ -10,5 +10,12 @@
     <string name="graph_tilt_text">Horizontal tilt</string>
     <string name="graph_shake_text">Device shaking</string>
     <string name="graph_speed_text">Walking speed</string>
-    
+
+    <!-- for menu -->
+    <string name="settings_activity_label">VisualizingSensorData - Settings</string>
+    <string name="settings">Settings</string>
+    <string name="local_storage">Enable local storage</string>
+    <string name="remote_connect">Enable remote connection</string>
+    <string name="remote_host">Set remote host</string>
+
 </resources>

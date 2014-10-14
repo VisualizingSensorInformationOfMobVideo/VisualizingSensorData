@@ -2,6 +2,9 @@ package no_de.inf5090.visualizingsensordata.transmission;
 
 import java.io.IOException;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -23,7 +26,7 @@ public final class StopTransmission extends BaseTransmission {
 			mStringEntity = null;
 		}
 		
-		HttpPost httpPost = new HttpPost(HOSTNAME);
+		HttpPost httpPost = new HttpPost(mHostname);
 		mStringEntity.setContentType("text/plain");
 		httpPost.setEntity(mStringEntity);
 		try {

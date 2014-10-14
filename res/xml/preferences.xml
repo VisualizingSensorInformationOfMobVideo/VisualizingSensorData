@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+            android:key="local_storage"
+            android:title="@string/local_storage"
+            android:defaultValue="true" />
+    <CheckBoxPreference
+            android:key="remote_connect"
+            android:title="@string/remote_connect"
+            android:defaultValue="false" />
+    <EditTextPreference
+            android:key="remote_host"
+            android:title="@string/remote_host"
+            android:inputType="textUri"
+            android:defaultValue="http://" />
+</PreferenceScreen>

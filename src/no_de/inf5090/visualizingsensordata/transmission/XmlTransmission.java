@@ -15,6 +15,7 @@ public final class XmlTransmission extends BaseTransmission {
 	private StringEntity mStringEntity = null;
 
 	public XmlTransmission(String xml) {
+        super();
 		try {
 			mStringEntity = new StringEntity(xml, HTTP.UTF_8);
 		} catch (IOException e) {
@@ -32,7 +33,7 @@ public final class XmlTransmission extends BaseTransmission {
 			return;
 		}
 
-		HttpPost httpPost = new HttpPost(HOSTNAME);
+		HttpPost httpPost = new HttpPost(mHostname);
 		mStringEntity.setContentType("text/xml");
 		httpPost.setEntity(mStringEntity);
 
