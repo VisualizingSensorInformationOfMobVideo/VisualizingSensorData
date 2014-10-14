@@ -1,12 +1,7 @@
 package no_de.inf5090.visualizingsensordata.persistency;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Observer;
-import java.util.zip.GZIPOutputStream;
-
-import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,8 +14,8 @@ public class SnapshotWriter extends AsyncTask<byte[], Void, Void>{
 	private Observer snapshotObserver;
 	
 	private int jpegQuality = 50;
-	private int photoWidth = 320;
-	private int photoHeight = 240;
+	private int photoWidth = 256;
+	private int photoHeight = 144;
 	
     /**
      * Constructor: initiates snapshotwriter

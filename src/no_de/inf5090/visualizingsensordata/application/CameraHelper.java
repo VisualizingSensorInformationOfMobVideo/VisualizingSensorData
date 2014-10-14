@@ -1,14 +1,14 @@
 package no_de.inf5090.visualizingsensordata.application;
 
+import java.io.IOException;
+import java.util.List;
+
+import no_de.inf5090.visualizingsensordata.userInterface.CameraPreview;
+import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.widget.Toast;
-import no_de.inf5090.visualizingsensordata.userInterface.CameraPreview;
-import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
-
-import java.io.IOException;
-import java.util.List;
 
 public class CameraHelper {
     private Camera mCamera;
@@ -55,7 +55,8 @@ public class CameraHelper {
             Camera.Parameters params = c.getParameters();
             List<Camera.Size> sizes = params.getSupportedPictureSizes();
 
-            params.setPictureSize(sizes.get(sizes.size() - 1).width, sizes.get(sizes.size() - 1).height);
+            // set the second lowest resolution for taking snapshots
+            params.setPictureSize(sizes.get(sizes.size() - 2).width, sizes.get(sizes.size() - 2).height);
             c.setParameters(params);
         } catch (Exception e) {
             // Camera is not available (in use or does not exist)

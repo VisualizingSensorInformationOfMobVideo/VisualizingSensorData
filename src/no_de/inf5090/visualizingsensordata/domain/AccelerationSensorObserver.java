@@ -22,11 +22,6 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
     private float mAcceleration = SensorManager.GRAVITY_EARTH;   // The previous acceleration value (with gravity).
 
     /**
-     * The unique ID for this sensor observer
-     */
-    public final static int ID = 101;
-
-    /**
      * The name for this sensor observer
      */
     public final static String NAME = "Acceleration";
@@ -99,11 +94,6 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
     }
 
     @Override
-    public int getSensorID() {
-        return ID;
-    }
-
-	@Override
 	public String getName() {
 		return NAME;
 	}
@@ -138,11 +128,6 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
          */
         public float getAcceleration() {
             return acceleration;
-        }
-
-        @Override
-        public int getSensorID() {
-            return ID;
         }
 
         @Override

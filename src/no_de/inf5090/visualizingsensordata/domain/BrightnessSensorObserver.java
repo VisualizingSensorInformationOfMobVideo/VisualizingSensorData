@@ -24,11 +24,6 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
     private float mLux = 0.0f;
 
     /**
-     * The unique ID for this sensor observer
-     */
-    public final static int ID = 105;
-
-    /**
      * The name for this sensor observer
      */
     public final static String NAME = "Brightness";
@@ -74,11 +69,6 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
     }
 
     @Override
-    public int getSensorID() {
-        return ID;
-    }
-    
-	@Override
 	public String getName() {
 		return NAME;
 	}
@@ -111,11 +101,6 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
             item.appendChild(elm);
 
             return item;
-        }
-
-        @Override
-        public int getSensorID() {
-            return ID;
         }
 
         @Override

@@ -58,11 +58,6 @@ public abstract class AbstractLogicalSensorData {
     public abstract Element getXml();
 
     /**
-     * All sensors should have a unique ID to identify it
-     */
-    public abstract int getSensorID();
-
-    /**
      * All sensors should have a unique name to identify it
      */
     public abstract String getSensorName();
