@@ -95,8 +95,8 @@ public class VideoCapture extends Activity {
     
     public void printBatteryLevel(String mString) {
         Intent batteryIntent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        float level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        float scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
         // Error checking that probably isn't needed but I added just in case.
         /*if(level == -1 || scale == -1) {
@@ -114,7 +114,7 @@ public class VideoCapture extends Activity {
         Log.d("VideoCapture", "onCreate");
         super.onCreate(savedInstanceState);
         
-        printBatteryLevel("onCreate");
+        printBatteryLevel("onCreate_beginning");
         
         
         
@@ -127,13 +127,17 @@ public class VideoCapture extends Activity {
         // set default settings
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
+        printBatteryLevel("onCreate_before_initCameraStuff");
         // do the camera magic
         initCameraStuff();
+        printBatteryLevel("onCreate_after_initCameraStuff");
 
         // set up sensors
         sensorController = new SensorController();
         sensorController.initSensors();
 
+        printBatteryLevel("onCreate_after_sensorController.initSensors()");
+        
         // set up the record button
         mRecordButton = (Button) findViewById(R.id.mybutton);
         mRecordButton.setOnClickListener(myButtonOnClickListener);
@@ -148,6 +152,7 @@ public class VideoCapture extends Activity {
         if (!LocationSensorObserver.isGpsEnabled(this)) {
             LocationSensorObserver.showSettingsDialog(this);
         }
+        printBatteryLevel("onCreate_at_the_end");
     }
 
     /**
@@ -193,24 +198,32 @@ public class VideoCapture extends Activity {
      */
     private void startRecording() {
         // create a new name for this recording
+        printBatteryLevel("startRecording_VideoCapture_beginning");
         refreshOutputFileName();
+        printBatteryLevel("startRecording_VideoCapture_before_mCameraHelper.startRecording()");
 
         mCameraHelper.startRecording();
+        printBatteryLevel("startRecording_VideoCapture_after_mCameraHelper.startRecording()");
         mRecordButton.setText("Stop");
 
         // Start recording sensor data
+        printBatteryLevel("startRecording_VideoCapture_before_startPersistingSensorData()");
         startPersistingSensorData();
+        printBatteryLevel("startRecording_VideoCapture_end");
     }
 
     /**
      * Stop recording (i.e. movie session)
      */
     private void stopRecording() {
+        printBatteryLevel("stopRecording_VideoCapture_beginning");
         mCameraHelper.stopRecording();
         mRecordButton.setText("Record");
 
         // Stop recording sensor data
+        printBatteryLevel("stopRecording_VideoCapture_before_StopPersistingData()");
         stopPersistingSensorData();
+        printBatteryLevel("stopRecording_VideoCapture_end");
     }
 
 	/**

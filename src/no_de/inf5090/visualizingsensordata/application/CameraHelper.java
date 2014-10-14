@@ -101,6 +101,7 @@ public class CameraHelper {
      * It will create a new MediaRecorder-object and set all needed options to it
      */
     private boolean prepareMediaRecorder() {
+        VideoCapture.getSelf().printBatteryLevel("CameraHelper_prepareMediaRecorder()_beginning");
         if (mediaRecorder == null)
             mediaRecorder = new MediaRecorder();
 
@@ -134,6 +135,7 @@ public class CameraHelper {
             return false;
         }
 
+        VideoCapture.getSelf().printBatteryLevel("cameraHelper_prepareMediaRecorder_end");
         return true;
     }
 
@@ -142,9 +144,11 @@ public class CameraHelper {
      */
     private void releaseMediaRecorder() {
         if (mediaRecorder == null) return;
-
+        VideoCapture.getSelf().printBatteryLevel("CameraHelper().releaseMediaRecorder_before_mediaRecorder.stop");
         mediaRecorder.stop();
+        VideoCapture.getSelf().printBatteryLevel("CameraHelper().releaseMediaRecorder_before_mediaRecorder.reset");
         mediaRecorder.reset(); // clear recorder configuration
+        VideoCapture.getSelf().printBatteryLevel("CameraHelper().releaseMediaRecorder_after_mediaRecorder.reset");
     }
 
     /**
@@ -168,8 +172,10 @@ public class CameraHelper {
             VideoCapture.getSelf().finish();
         }
 
+        VideoCapture.getSelf().printBatteryLevel("CameraHelper().startReording_before_mediaRecorder.start()");
         // start the recording
         mediaRecorder.start();
+        VideoCapture.getSelf().printBatteryLevel("CameraHelper().startReording_after_mediaRecorder.start()");
         mIsRecording = true;
     }
 
@@ -177,7 +183,9 @@ public class CameraHelper {
      * Stop recording
      */
     public void stopRecording() {
+        VideoCapture.getSelf().printBatteryLevel("CameraHelper().stopReording_before_releaseMediaRecorder");
         releaseMediaRecorder();
+        VideoCapture.getSelf().printBatteryLevel("CameraHelper().stopReording_after_releaseMediaRecorder");
         mIsRecording = false;
     }
 
