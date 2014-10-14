@@ -1,6 +1,7 @@
 package no_de.inf5090.visualizingsensordata.userInterface;
 
 import android.content.Context;
+import android.hardware.Camera;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -60,8 +61,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
-        // TODO Auto-generated method stub
-
+        Log.d("CameraPreview", "surfaceDestroyed");
+        Camera c = mCameraHelper.getCamera();
+        if (c != null) c.stopPreview();
     }
 
     /**

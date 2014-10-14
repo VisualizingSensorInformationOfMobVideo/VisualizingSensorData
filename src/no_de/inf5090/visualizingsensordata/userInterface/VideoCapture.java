@@ -82,6 +82,7 @@ public class VideoCapture extends Activity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d("VideoCapture", "onCreate");
         super.onCreate(savedInstanceState);
 
         // set as singleton
@@ -201,6 +202,13 @@ public class VideoCapture extends Activity {
         }
     };
 
+    @Override
+    protected void onDestroy() {
+        Log.d("VideoCapture", "onDestroy");
+        super.onDestroy();
+        mCameraHelper.onDestroy();
+    }
+
     /**
      * Run when the activity is resumed
      */
@@ -208,6 +216,8 @@ public class VideoCapture extends Activity {
     protected void onResume() {
         super.onResume();
         //TODO: Resume Camera/Media recorder.
+        mCameraHelper.onResume();
+        mCameraPreview.startPreview();
         sensorController.resumeSensors();
     }
 
@@ -217,9 +227,13 @@ public class VideoCapture extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        //releaseMediaRecorder(); // if you are using MediaRecorder, release it
-        //releaseCamera(); // release the camera immediately on pause event
 
+        // stop any recording
+        if (mCameraHelper.isRecording()) {
+            stopRecording();
+        }
+
+        mCameraHelper.onPause();
         sensorController.pauseSensors();
     }
 

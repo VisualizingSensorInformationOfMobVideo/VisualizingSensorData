@@ -8,6 +8,7 @@ import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.util.Log;
 import android.widget.Toast;
 
 public class CameraHelper {
@@ -31,9 +32,17 @@ public class CameraHelper {
     private CameraPreview mCameraPreview;
 
     public CameraHelper() {
+       obtainCameraOrFinish();
+    }
+
+    /**
+     * Obtain the camera instance or finish the application
+     */
+    public void obtainCameraOrFinish() {
         mCamera = getCameraInstance();
         if (mCamera == null) {
             Toast.makeText(VideoCapture.getSelf(), "Fail to get Camera", Toast.LENGTH_LONG).show();
+            VideoCapture.getSelf().finish();
         }
     }
 
@@ -140,8 +149,6 @@ public class CameraHelper {
 
     /**
      * Release the camera object to other resources and applications
-     *
-     * TODO: This should be called on shutdown
      */
     private void releaseCamera() {
         if (mCamera != null) {
@@ -190,5 +197,30 @@ public class CameraHelper {
         if (mProfile == null)
             return null;
         return mProfile.videoFrameWidth + "x" + mProfile.videoFrameHeight;
+    }
+
+    /**
+     * Activity is destroyed
+     */
+    public void onDestroy() {
+        releaseCamera();
+    }
+
+    /**
+     * Activity is paused
+     * Release the camera to other applications
+     */
+    public void onPause() {
+        releaseCamera();
+    }
+
+    /**
+     * Activity is resumed
+     * Obtain the camera again
+     */
+    public void onResume() {
+        if (mCamera == null) {
+            obtainCameraOrFinish();
+        }
     }
 }
