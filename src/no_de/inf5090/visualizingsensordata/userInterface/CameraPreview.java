@@ -7,6 +7,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 
+import java.util.List;
+
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
     private SurfaceHolder mHolder;
@@ -46,13 +48,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         // make any resize, rotate or reformatting changes here
 
         // start preview with new settings
-        try {
-            //mCamera.setPreviewDisplay(mHolder);
-            mCameraHelper.getCamera().setPreviewDisplay(holder);
-            mCameraHelper.getCamera().startPreview();
-
-        } catch (Exception e) {
-        }
+        startPreview();
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
@@ -70,12 +66,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
      * Start preview
      */
     public void startPreview() {
-        Log.d("CameraPreview", "startPreview");
-        // start preview with new settings
         try {
             mCameraHelper.getCamera().setPreviewDisplay(mHolder);
             mCameraHelper.getCamera().startPreview();
 
+            mCameraHelper.setAutoFocus();
         } catch (Exception e) {
         }
     }
