@@ -2,7 +2,10 @@ package no_de.inf5090.visualizingsensordata.application;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Observer;
 
+import no_de.inf5090.visualizingsensordata.domain.LogicalSensorObservable;
+import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 import no_de.inf5090.visualizingsensordata.userInterface.CameraPreview;
 import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import android.hardware.Camera;
@@ -29,9 +32,17 @@ public class CameraHelper {
      * The preview view
      */
     private CameraPreview mCameraPreview;
+    
+    /** The snapshot sensor */
+    private SnapshotWriter mSnapshotSensor;
+    
+    /** An observer that observes snapshots */
+    private Observer mSnapshotObserver;
 
-    public CameraHelper() {
+    public CameraHelper(Observer snapshotObserver) {
        obtainCameraOrFinish();
+       mSnapshotObserver = snapshotObserver; 
+       //mSnapshotSensor = new SnapshotWriter(this, snapshotObserver);
     }
 
     /**
@@ -171,6 +182,9 @@ public class CameraHelper {
         // start the recording
         mediaRecorder.start();
         mIsRecording = true;
+
+        // start snapshots
+        //mSnapshotSensor.startSnapshot();
     }
 
     /**
@@ -179,6 +193,7 @@ public class CameraHelper {
     public void stopRecording() {
         releaseMediaRecorder();
         mIsRecording = false;
+        //mSnapshotSensor.stopSnapshot();
     }
 
     /**

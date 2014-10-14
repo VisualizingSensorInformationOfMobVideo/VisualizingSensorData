@@ -39,7 +39,7 @@ public class SensorController {
         sensors.add(sensor);
 
         // snapshot sensor
-        sensor = new SnapshotObserver(VideoCapture.getSelf().getCameraHelper());
+        sensor = new SnapshotObserver();
         sensors.add(sensor);
 
         // start listening to sensors

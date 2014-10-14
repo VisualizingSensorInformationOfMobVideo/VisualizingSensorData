@@ -104,7 +104,7 @@ public class VideoCapture extends Activity {
 
         // do the camera magic
         initCameraStuff();
-
+        
         // set up sensors
         sensorController = new SensorController();
         sensorController.initSensors();
@@ -130,7 +130,8 @@ public class VideoCapture extends Activity {
      */
     private void initCameraStuff() {
         // create the helper, it will get and hold the real camera instance
-        mCameraHelper = new CameraHelper();
+    	//mCameraHelper = new CameraHelper((Observer)sensorController.getSensor("Snapshot"));
+    	mCameraHelper = new CameraHelper(null);
         if (!mCameraHelper.hasCamera()) {
             Toast.makeText(VideoCapture.this, "Fail to get Camera", Toast.LENGTH_LONG).show();
             VideoCapture.getSelf().finish(); //abort application
@@ -326,9 +327,6 @@ public class VideoCapture extends Activity {
             sensorController.connectSensors(mRemoteDataPusher);
             mRemoteDataPusher.startRecording();
         }
-
-        // TODO: should there be some events that the SnapshotObserver can listen to?
-        ((SnapshotObserver)sensorController.getSensor("Snapshot")).startSnapshot();
     }
 
     /**
@@ -347,9 +345,6 @@ public class VideoCapture extends Activity {
             mLocalStorageWriter.stopRecording();
             mLocalStorageWriter.writeXml(appDir.getPath() + "/" + correspondingFileName + "-sensor.xml");
         }
-
-        // TODO: should there be some events that the SnapshotObserver can listen to?
-        ((SnapshotObserver)sensorController.getSensor("Snapshot")).stopSnapshot();
     }
 
     /**

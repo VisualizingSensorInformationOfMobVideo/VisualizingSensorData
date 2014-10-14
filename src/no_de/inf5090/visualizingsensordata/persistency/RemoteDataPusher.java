@@ -16,7 +16,7 @@ public class RemoteDataPusher extends DataCollector {
 	private boolean shouldRun = true;
 
 	public RemoteDataPusher() {
-		// background handler
+		// background handler 
 		mBackgroundHandler = new AsyncTask<Void, Void, Void>() {
 
 			protected Void doInBackground(Void... params) {
