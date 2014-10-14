@@ -8,6 +8,7 @@ import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.util.Log;
 import android.widget.Toast;
 
 public class CameraHelper {
@@ -65,6 +66,7 @@ public class CameraHelper {
 
             // set the second lowest resolution for taking snapshots
             params.setPictureSize(sizes.get(sizes.size() - 2).width, sizes.get(sizes.size() - 2).height);
+
             c.setParameters(params);
         } catch (Exception e) {
             // Camera is not available (in use or does not exist)
@@ -227,11 +229,42 @@ public class CameraHelper {
      * Set auto focus if available
      */
     public void setAutoFocus() {
-        Camera.Parameters params = mCamera.getParameters();
-        List<String> focusModes = params.getSupportedFocusModes();
-        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
-            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-            mCamera.setParameters(params);
-        }
+    	Camera.Parameters params = mCamera.getParameters();
+    	List<String> focusModes = params.getSupportedFocusModes();
+    	if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+    		params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+    		mCamera.setParameters(params);
+    	}
+    }
+
+    /**
+     * This is the "base" vertical view angle. "Base" because this is just a 
+     * constant, and does not change if the camera is zoomed. So the actual
+     * view angle has to be calculated if zoom is implemented. 
+     * 
+     * @return returns the vertical view angle of the camera
+     */
+    public float getBaseVerticalViewAngle() {
+    	return mCamera.getParameters().getVerticalViewAngle();
+    }
+    
+    /**
+     * This is the "base" horizontal view angle. "Base" because this is just a 
+     * constant, and does not change if the camera is zoomed. So the actual
+     * view angle has to be calculated if zoom is implemented. 
+     * 
+     * @return returns the horizontal view angle of the camera
+     */
+    public float getBaseHorizontalViewAngle() {
+    	return mCamera.getParameters().getHorizontalViewAngle();
+    }
+
+    /**
+     * As long as we return the values from get[Horizontal|Vertical]ViewAngle(), 
+     * the angle unit will be degrees. 
+     * @return string representing the unit of view angle
+     */
+    public String getUnitOfViewAngle() {
+    	return "degrees";
     }
 }

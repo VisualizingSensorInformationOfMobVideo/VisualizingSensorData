@@ -100,14 +100,25 @@ public abstract class DataCollector implements Observer {
 
         // camera details
         elm = doc.createElement("camera");
-        Element subelm = doc.createElement("resolution");
-        subelm.appendChild(doc.createTextNode(mCameraHelper.getVideoResolution()));
-        elm.appendChild(subelm);
-        rootElement.appendChild(elm);
+        Element subelmResolution = doc.createElement("resolution");
+        subelmResolution.appendChild(doc.createTextNode(mCameraHelper.getVideoResolution()));
+        elm.appendChild(subelmResolution);
+
+        Element subelmVerticalViewAngle = doc.createElement("verticalViewAngle");
+        subelmVerticalViewAngle.appendChild(doc.createTextNode(Float.toString(mCameraHelper.getBaseVerticalViewAngle())));
+        subelmVerticalViewAngle.setAttribute("type", mCameraHelper.getUnitOfViewAngle());
+        elm.appendChild(subelmVerticalViewAngle);
+
+        Element subelmHorizontalViewAngle = doc.createElement("horizontalViewAngle");
+        subelmHorizontalViewAngle.appendChild(doc.createTextNode(Float.toString(mCameraHelper.getBaseHorizontalViewAngle())));
+        subelmHorizontalViewAngle.setAttribute("type", mCameraHelper.getUnitOfViewAngle());
+        elm.appendChild(subelmHorizontalViewAngle);
+
+        rootElement.appendChild(elm); 
 
         // sensor data
         for (AbstractLogicalSensorData logItem : mSensorData) {
-            rootElement.appendChild(logItem.getXml(doc));
+        	rootElement.appendChild(logItem.getXml(doc));
         }
 
         return doc;
