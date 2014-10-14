@@ -215,7 +215,6 @@ public class VideoCapture extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        //TODO: Resume Camera/Media recorder.
         mCameraHelper.onResume();
         mCameraPreview.startPreview();
         sensorController.resumeSensors();
