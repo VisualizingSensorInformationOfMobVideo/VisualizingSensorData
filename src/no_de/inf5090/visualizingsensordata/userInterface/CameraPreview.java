@@ -7,6 +7,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 
+import java.util.List;
+
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
     private SurfaceHolder mHolder;
@@ -47,10 +49,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         // start preview with new settings
         try {
-            // set size
+            // set size - just select the best one
             Camera c = mCameraHelper.getCamera();
             Camera.Parameters p = c.getParameters();
-            p.setPreviewSize(1920, 1080); // FIXME: check for supported and most optional sizes
+            List<Camera.Size> sizes = p.getSupportedPreviewSizes();
+            p.setPreviewSize(sizes.get(0).width, sizes.get(0).height);
             c.setParameters(p);
 
             c.setPreviewDisplay(holder);
