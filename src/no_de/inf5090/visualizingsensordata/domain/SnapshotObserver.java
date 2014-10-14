@@ -21,16 +21,6 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
     public final static String NAME = "Snapshot";
 
     /**
-     * Time of last update
-     */
-    private long mLastTime = System.currentTimeMillis();
-
-    /**
-     * Minimum delay between updates in milliseconds
-     */
-    private static final long MINIMUM_DELAY = 150;
-
-    /**
      * The camera helper (injected when sensor is created)
      */
     private CameraHelper mCameraHelper;
@@ -46,12 +36,6 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
 
     @Override
     public void update(Observable observable, Object data) {
-        // make sure the sensor don't flood; time since last update should be above threshold
-        long now = System.currentTimeMillis();
-        long elapsed = now - mLastTime;
-        mLastTime = now;
-        if (elapsed < MINIMUM_DELAY) return;
-
         /*
          * Do something with the data updated
          */
