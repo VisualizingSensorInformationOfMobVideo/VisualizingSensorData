@@ -7,10 +7,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 public final class XmlTransmission extends BaseTransmission {
-	public final static String TAG = XmlTransmission.class.getSimpleName();
+	public final static String TAG = "Transmission";
 
 	private StringEntity mStringEntity = null;
 
@@ -28,11 +29,13 @@ public final class XmlTransmission extends BaseTransmission {
 	public void run() {
 		Log.d(TAG, "Job gets executed...trying to send xml");
 
-		if (mStringEntity == null) {
-			Log.e(TAG, "Job aborted cause no content was provided.");
+		if (mStringEntity == null || TextUtils.isEmpty(mHostname)) {
+			Log.e(TAG, "Job aborted cause no content was provided or hostname was not available.");
+			Log.e(TAG, "mHostname " + mHostname);
+			Log.e(TAG, "mStringEntity " + mStringEntity);
 			return;
 		}
-
+		
 		HttpPost httpPost = new HttpPost(mHostname);
 		mStringEntity.setContentType("text/xml");
 		httpPost.setEntity(mStringEntity);

@@ -9,7 +9,7 @@ public class RemoteDataPusher extends DataCollector {
 	 * Interval between pushes
 	 */
 	public static final long DELAY = 1000 * 3;
-	public static final String TAG = RemoteDataPusher.class.getSimpleName();
+	public static final String TAG = "Transmission";
 
 	AsyncTask<Void, Void, Void> mBackgroundHandler;
 	// we actually do not care...
