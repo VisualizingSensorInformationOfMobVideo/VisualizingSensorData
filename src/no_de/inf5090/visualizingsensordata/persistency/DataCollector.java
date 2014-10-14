@@ -70,7 +70,7 @@ public abstract class DataCollector implements Observer {
     
     private String getUniqueId() {
     	if (mUniqueId == null)
-    		mUniqueId = UUID.randomUUID();
+    		mUniqueId = UUID.randomUUID().toString();
     	return mUniqueId;
     }
 
