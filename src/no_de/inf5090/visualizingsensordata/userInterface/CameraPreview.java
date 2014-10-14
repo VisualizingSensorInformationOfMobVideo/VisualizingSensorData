@@ -47,6 +47,13 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         // make any resize, rotate or reformatting changes here
 
+        // set size - just select the best one
+        Camera c = mCameraHelper.getCamera();
+        Camera.Parameters p = c.getParameters();
+        List<Camera.Size> sizes = p.getSupportedPreviewSizes();
+        p.setPreviewSize(sizes.get(0).width, sizes.get(0).height);
+        c.setParameters(p);
+
         // start preview with new settings
         startPreview();
     }
