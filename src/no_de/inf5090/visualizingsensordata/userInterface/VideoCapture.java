@@ -244,14 +244,6 @@ public class VideoCapture extends Activity {
         this.mContext = context;
     }
 
-    /*public File getAppDir() {
-        return appDir;
-    }
-
-    public void setAppDir(File appDir) {
-        VideoCapture.appDir = appDir;
-    }*/
-
     /**
      * Toggles the visibility of the sensor warnings when the toggle button is pressed.
      * @param view    The toggle button view.
