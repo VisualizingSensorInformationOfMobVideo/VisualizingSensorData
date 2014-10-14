@@ -2,12 +2,15 @@ package no_de.inf5090.visualizingsensordata.userInterface;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Observer;
 
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 import no_de.inf5090.visualizingsensordata.application.SensorController;
-import no_de.inf5090.visualizingsensordata.domain.*;
+import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.SnapshotObserver;
+import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 import no_de.inf5090.visualizingsensordata.persistency.RemoteDataPusher;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 import android.annotation.SuppressLint;
@@ -15,6 +18,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.ShutterCallback;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,9 +29,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
-import android.hardware.Camera.PictureCallback;
-import android.hardware.Camera.ShutterCallback;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
@@ -115,7 +117,7 @@ public class VideoCapture extends Activity {
         mCameraHelper = new CameraHelper();
         if (!mCameraHelper.hasCamera()) {
             Toast.makeText(VideoCapture.this, "Fail to get Camera", Toast.LENGTH_LONG).show();
-            finish(); //abort application
+            VideoCapture.getSelf().finish(); //abort application
         }
 
         // create a camera surface for the preview and add to the view
