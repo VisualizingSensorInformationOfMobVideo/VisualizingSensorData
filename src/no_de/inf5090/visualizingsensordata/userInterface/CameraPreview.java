@@ -39,20 +39,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
 
         // stop preview before making changes
-        try {
-            mCameraHelper.getCamera().stopPreview();
-        } catch (Exception e) {
-            // ignore: tried to stop a non-existent preview
-        }
-
-        // make any resize, rotate or reformatting changes here
-
-        // set size - just select the best one
-        Camera c = mCameraHelper.getCamera();
-        Camera.Parameters p = c.getParameters();
-        List<Camera.Size> sizes = p.getSupportedPreviewSizes();
-        p.setPreviewSize(sizes.get(0).width, sizes.get(0).height);
-        c.setParameters(p);
+        stopPreview();
 
         // start preview with new settings
         startPreview();
@@ -65,20 +52,44 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.d("CameraPreview", "surfaceDestroyed");
-        Camera c = mCameraHelper.getCamera();
-        if (c != null) c.stopPreview();
+        stopPreview();
     }
 
     /**
      * Start preview
      */
     public void startPreview() {
+        if (!mCameraHelper.hasCamera())
+            return;
+
+        // set preview size - just select the best one
+        Camera c = mCameraHelper.getCamera();
+        Camera.Parameters p = c.getParameters();
+        List<Camera.Size> sizes = p.getSupportedPreviewSizes();
+        p.setPreviewSize(sizes.get(0).width, sizes.get(0).height);
+        c.setParameters(p);
+
         try {
-            mCameraHelper.getCamera().setPreviewDisplay(mHolder);
-            mCameraHelper.getCamera().startPreview();
+            c.setPreviewDisplay(mHolder);
+            c.startPreview();
 
             mCameraHelper.setAutoFocus();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Stop preview
+     */
+    public void stopPreview() {
+        Camera c = mCameraHelper.getCamera();
+        if (c == null)
+            return;
+        try {
+            c.stopPreview();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
