@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Observer;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -185,9 +186,6 @@ public class VideoCapture extends Activity {
 
         // Stop recording sensor data
         stopPersistingSensorData();
-        
-        // send kill signal to server
-        new Handler().post(new StopTransmission());
     }
 
 	/**
@@ -338,6 +336,9 @@ public class VideoCapture extends Activity {
             sensorController.disconnectSensors(mRemoteDataPusher);
             mRemoteDataPusher.finish();
             mRemoteDataPusher = null;
+
+            // send kill signal to server
+            new Handler().post(new StopTransmission());
         }
 
         if (mLocalStorageWriter != null) {
