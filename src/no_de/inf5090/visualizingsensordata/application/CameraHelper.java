@@ -8,7 +8,6 @@ import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.util.Log;
 import android.widget.Toast;
 
 public class CameraHelper {

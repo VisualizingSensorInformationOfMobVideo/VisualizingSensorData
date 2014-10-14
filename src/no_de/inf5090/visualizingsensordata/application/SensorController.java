@@ -39,8 +39,7 @@ public class SensorController {
         sensors.add(sensor);
 
         // snapshot sensor
-        // TODO: the video object should be injected into the observer
-        sensor = new SnapshotObserver();
+        sensor = new SnapshotObserver(VideoCapture.getSelf().getCameraHelper());
         sensors.add(sensor);
 
         // start listening to sensors

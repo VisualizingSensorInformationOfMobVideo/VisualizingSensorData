@@ -12,14 +12,11 @@ import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.SnapshotObserver;
 import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 import no_de.inf5090.visualizingsensordata.persistency.RemoteDataPusher;
-import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
 import no_de.inf5090.visualizingsensordata.transmission.StopTransmission;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -41,12 +38,6 @@ public class VideoCapture extends Activity {
 
     private Context mContext;
     private Button mRecordButton;
-
-    // TODO: refactor snapshot stuff into SnapshotObserver and CameraHelper
-    private volatile boolean takingSnapshot; // Used by snapshot feature
-    private static int snapshotCounter = 0; // Used by snapshot feature
-    private int numOfSnapshots = 2;
-    private static int delay =  2000;
 
     /**
      * The sensor controller
@@ -161,18 +152,12 @@ public class VideoCapture extends Activity {
 
         // Start recording sensor data
         startPersistingSensorData();
-
-        // TODO: refactor snapshot stuff into SnapshotObserver and CameraHelper
-        startSnapshot();
-        mCameraHelper.getCamera().takePicture(null, null, jpegCallback);
     }
 
     /**
      * Stop recording (i.e. movie session)
      */
     private void stopRecording() {
-        stopSnapshot();
-
         mCameraHelper.stopRecording();
         mRecordButton.setText("Record");
 
@@ -271,46 +256,6 @@ public class VideoCapture extends Activity {
         mRecordButton.setEnabled(true);
     }
 
-
-    // TODO: refactor snapshot stuff into SnapshotObserver and CameraHelper
-
-    private void stopSnapshot() { takingSnapshot = false; }
-    private void startSnapshot() { takingSnapshot = true; }
-
-    PictureCallback jpegCallback = new PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera) {
-
-            if (!takingSnapshot) {
-                // The user has stopped recording
-                return;
-            }
-
-            // TODO: is this really needed?
-            mCameraHelper.getCamera().startPreview(); // to avoid preview freezing after taking a pic
-
-            new SnapshotWriter((Observer) sensorController.getSensor(SnapshotObserver.NAME)).execute(data);
-            Log.d("snap", "onPictureTaken - jpeg");
-            
-            snapshotCounter++;
-            if (snapshotCounter <= numOfSnapshots) {
-                Thread thread = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            sleep(delay);
-                            mCameraHelper.getCamera().takePicture(null, null, jpegCallback);
-                        }
-                        catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                thread.start();
-            }
-            else return;
-        }
-    };
-
     /**
      * Starts recording of sensor data
      */
@@ -329,6 +274,9 @@ public class VideoCapture extends Activity {
         sensorController.connectSensors(mRemoteDataPusher);
         mLocalStorageWriter.startRecording();
         mRemoteDataPusher.startRecording();
+
+        // TODO: should there be some events that the SnapshotObserver can listen to?
+        ((SnapshotObserver)sensorController.getSensor("Snapshot")).startSnapshot();
     }
 
     /**
@@ -342,6 +290,9 @@ public class VideoCapture extends Activity {
         mRemoteDataPusher = null;
         mLocalStorageWriter.stopRecording();
         mLocalStorageWriter.writeXml(appDir.getPath() + "/" + correspondingFileName + "-sensor.xml");
+
+        // TODO: should there be some events that the SnapshotObserver can listen to?
+        ((SnapshotObserver)sensorController.getSensor("Snapshot")).stopSnapshot();
     }
 
     /**
@@ -349,5 +300,12 @@ public class VideoCapture extends Activity {
      */
     public void connectSensors(Observer observer) {
         sensorController.connectSensors(observer);
+    }
+
+    /**
+     * Get the current camera helper
+     */
+    public CameraHelper getCameraHelper() {
+        return mCameraHelper;
     }
 }
