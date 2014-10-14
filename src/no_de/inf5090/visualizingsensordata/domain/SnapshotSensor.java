@@ -67,18 +67,13 @@ public class SnapshotSensor extends Observable {
 
     /**
      * Callback-object to handle generated pictures and run another snapshot after some delay
-     *
-     * TODO: refactor this somewhere else and maybe merge with SnapshotWriter?
      */
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
     	public void onPictureTaken(byte[] data, Camera camera) {
-    		Log.d("snap", "onPictureTaken before execute");
+    		// To avoid preview from freezing after taking a snapshot
+    		mCameraHelper.getCamera().startPreview();
 
-    		// TODO: is this really needed?
-    		mCameraHelper.getCamera().startPreview(); // to avoid preview freezing after taking a pic
-
-    		new SnapshotProcesser(mSnapshotObserver).execute(data);
-    		Log.d("snap", "onPictureTaken after execute");
+    		new SnapshotProcesser(mSnapshotObserver).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, data);
     	}
     };
 
@@ -112,9 +107,8 @@ public class SnapshotSensor extends Observable {
 		}
 
 		protected void onPostExecute(String encodedImage) {
-			hasChanged();
+			setChanged();
 			notifyObservers(encodedImage);
-			//snapshotObserver.update(null, encodedImage);
 			/*
             Log.d("snap", "onPictureTaken - org: " + encodedImageTest.length() + 
            		 " enc: " + encodedImage.length() + 
