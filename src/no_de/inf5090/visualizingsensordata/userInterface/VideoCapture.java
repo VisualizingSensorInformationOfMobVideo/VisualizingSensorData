@@ -13,6 +13,9 @@ import no_de.inf5090.visualizingsensordata.domain.SnapshotObserver;
 import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 import no_de.inf5090.visualizingsensordata.persistency.RemoteDataPusher;
 import no_de.inf5090.visualizingsensordata.persistency.SnapshotWriter;
+import no_de.inf5090.visualizingsensordata.transmission.BaseTransmission;
+import no_de.inf5090.visualizingsensordata.transmission.StopTransmission;
+import no_de.inf5090.visualizingsensordata.transmission.XmlTransmission;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -23,6 +26,7 @@ import android.hardware.Camera.ShutterCallback;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -167,7 +171,7 @@ public class VideoCapture extends Activity {
     }
 
     /**
-     * Stop recording
+     * Stop recording (i.e. movie session)
      */
     private void stopRecording() {
         stopSnapshot();
@@ -177,9 +181,12 @@ public class VideoCapture extends Activity {
 
         // Stop recording sensor data
         stopPersistingSensorData();
+        
+        // send kill signal to server
+        new Handler().post(new StopTransmission());
     }
 
-    /**
+	/**
      * Handle the record button
      */
     @SuppressLint("NewApi")
