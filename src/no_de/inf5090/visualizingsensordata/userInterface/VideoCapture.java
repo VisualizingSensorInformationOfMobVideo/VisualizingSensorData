@@ -6,33 +6,34 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
-import android.content.Intent;
-import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuItem;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 import no_de.inf5090.visualizingsensordata.application.SensorController;
 import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.SnapshotObserver;
 import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 import no_de.inf5090.visualizingsensordata.persistency.RemoteDataPusher;
+import no_de.inf5090.visualizingsensordata.transmission.BaseTransmission;
 import no_de.inf5090.visualizingsensordata.transmission.StopTransmission;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import no_de.inf5090.visualizingsensordata.transmission.BaseTransmission;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
@@ -88,6 +89,17 @@ public class VideoCapture extends Activity {
      */
     public static File appDir;
 
+    /**
+     * battery consumption
+     */
+    
+    public void printBatteryLevel(String mString) {
+        Intent batteryIntent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        float level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        float scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        float batteryPct = ((float)level / (float)scale) * 100.0f;
+        Log.i(mString, " " + batteryPct);
+    }
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
