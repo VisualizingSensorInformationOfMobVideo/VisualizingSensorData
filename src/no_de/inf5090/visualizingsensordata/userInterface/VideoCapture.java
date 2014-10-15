@@ -1,6 +1,8 @@
 package no_de.inf5090.visualizingsensordata.userInterface;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Observable;
@@ -98,14 +100,25 @@ public class VideoCapture extends Activity {
         float level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         float scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         float batteryPct = ((float)level / (float)scale) * 100.0f;
+        
+        try {
+            FileWriter out = new FileWriter(new File(appDir, mString + ".txt"));
+            out.write(String.valueOf(batteryPct));
+            out.close();
+        } catch (IOException e) {
+        }
         Log.i(mString, " " + batteryPct);
     }
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d("VideoCapture", "onCreate");
         super.onCreate(savedInstanceState);
 
+        
+        
+        
         // set as singleton
         setSelf(this);
 
@@ -181,6 +194,7 @@ public class VideoCapture extends Activity {
      * Start recording
      */
     private void startRecording() {
+        printBatteryLevel("VideoCapture_startRecording_beginning");
         // create a new name for this recording
         refreshOutputFileName();
 
@@ -200,6 +214,7 @@ public class VideoCapture extends Activity {
 
         // Stop recording sensor data
         stopPersistingSensorData();
+        printBatteryLevel("VideoCapture_stopRecording_end");
     }
 
 	/**
