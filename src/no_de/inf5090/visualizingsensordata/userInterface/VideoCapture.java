@@ -263,9 +263,6 @@ public class VideoCapture extends Activity {
 
         mCameraHelper.onPause();
         sensorController.pauseSensors();
-        
-        // send StopTransmission to server
-        new Handler().post(new StopTransmission());
     }
 
     public Context getContext() {
@@ -338,6 +335,9 @@ public class VideoCapture extends Activity {
             sensorController.disconnectSensors(mRemoteDataPusher);
             mRemoteDataPusher.finish();
             mRemoteDataPusher = null;
+
+            // send StopTransmission to server
+            new Handler().post(new StopTransmission());
         }
 
         if (mLocalStorageWriter != null) {
