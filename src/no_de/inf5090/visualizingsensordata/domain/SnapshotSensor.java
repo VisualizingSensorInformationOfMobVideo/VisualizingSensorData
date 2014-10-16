@@ -102,15 +102,16 @@ public class SnapshotSensor extends Observable {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			image.compress(Bitmap.CompressFormat.JPEG, 90, out);
 
-			// Send it to all observers
-			notifyObservers(Base64.encodeToString(out.toByteArray(), Base64.DEFAULT));
-			
 			return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
 		}
 
 		protected void onPostExecute(String encodedImage) {
+			// Set this observable as changed
 			setChanged();
+
+			// Send the encoded image to all observers
 			notifyObservers(encodedImage);
+			
 			/*
             Log.d("snap", "onPictureTaken - org: " + encodedImageTest.length() + 
            		 " enc: " + encodedImage.length() + 
