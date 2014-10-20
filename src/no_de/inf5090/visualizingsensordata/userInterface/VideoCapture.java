@@ -10,7 +10,7 @@ import java.util.Observer;
 
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
-import no_de.inf5090.visualizingsensordata.application.SensorController;
+import no_de.inf5090.visualizingsensordata.application.DomainObserverManager;
 import no_de.inf5090.visualizingsensordata.domain.LocationObserver;
 import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 import no_de.inf5090.visualizingsensordata.persistency.RemoteDataPusher;
@@ -66,7 +66,7 @@ public class VideoCapture extends Activity {
     /**
      * The sensor controller
      */
-    private SensorController sensorController;
+    private DomainObserverManager domainObserverManager;
 
     /**
      * The Camera helper
@@ -132,8 +132,8 @@ public class VideoCapture extends Activity {
         initCameraStuff();
 
         // set up sensors
-        sensorController = new SensorController();
-        sensorController.initSensors();
+        domainObserverManager = new DomainObserverManager();
+        domainObserverManager.initSensors();
 
         // set up the record button
         mRecordButton = (Button) findViewById(R.id.mybutton);
@@ -273,7 +273,7 @@ public class VideoCapture extends Activity {
         super.onResume();
         mCameraHelper.onResume();
         mCameraPreview.startPreview();
-        sensorController.resumeSensors();
+        domainObserverManager.resumeSensors();
     }
 
     /**
@@ -289,7 +289,7 @@ public class VideoCapture extends Activity {
         }
 
         mCameraHelper.onPause();
-        sensorController.pauseSensors();
+        domainObserverManager.pauseSensors();
     }
 
     public Context getContext() {
@@ -340,7 +340,7 @@ public class VideoCapture extends Activity {
                 mLocalStorageWriter = new LocalStorageWriter();
                 mLocalStorageWriter.setCameraHelper(mCameraHelper);
             }
-            sensorController.connectSensors(mLocalStorageWriter);
+            domainObserverManager.connectSensors(mLocalStorageWriter);
             mLocalStorageWriter.startRecording();
         }
 
@@ -349,7 +349,7 @@ public class VideoCapture extends Activity {
                 mRemoteDataPusher = new RemoteDataPusher();
                 mRemoteDataPusher.setCameraHelper(mCameraHelper);
             }
-            sensorController.connectSensors(mRemoteDataPusher);
+            domainObserverManager.connectSensors(mRemoteDataPusher);
             mRemoteDataPusher.startRecording();
         }
     }
@@ -359,7 +359,7 @@ public class VideoCapture extends Activity {
      */
     public void stopPersistingSensorData() {
         if (mRemoteDataPusher != null) {
-            sensorController.disconnectSensors(mRemoteDataPusher);
+            domainObserverManager.disconnectSensors(mRemoteDataPusher);
             mRemoteDataPusher.finish();
             mRemoteDataPusher = null;
 
@@ -369,7 +369,7 @@ public class VideoCapture extends Activity {
 
         if (mLocalStorageWriter != null) {
             String correspondingFileName = getOutputFileName();
-            sensorController.disconnectSensors(mLocalStorageWriter);
+            domainObserverManager.disconnectSensors(mLocalStorageWriter);
             mLocalStorageWriter.stopRecording();
             mLocalStorageWriter.writeXml(appDir.getPath() + "/" + correspondingFileName + "-sensor.xml");
         }
@@ -379,7 +379,7 @@ public class VideoCapture extends Activity {
      * Let other parts of the application listen to logical sensors
      */
     public void connectSensors(Observer observer) {
-        sensorController.connectSensors(observer);
+        domainObserverManager.connectSensors(observer);
     }
 
     /**

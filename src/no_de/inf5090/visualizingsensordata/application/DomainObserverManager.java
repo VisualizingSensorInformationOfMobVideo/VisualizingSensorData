@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Observer;
 
 /**
- * Our own sensor controller/manager
+ * Object for controlling/managing the observers in the domain package
  */
-public class SensorController {
+public class DomainObserverManager {
     /** Sensor list */
     private ArrayList<AbstractDomainObservable> sensors = new ArrayList<AbstractDomainObservable>();
 
