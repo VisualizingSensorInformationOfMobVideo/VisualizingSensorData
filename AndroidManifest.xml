@@ -39,6 +39,8 @@
             android:label="@string/settings_activity_label"
             android:screenOrientation="portrait">
         </activity>
+
+        <service android:name="net.majorkernelpanic.streaming.rtsp.RtspServer" />
     </application>
 
 </manifest>

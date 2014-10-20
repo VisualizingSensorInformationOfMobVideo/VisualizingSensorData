@@ -8,6 +8,19 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.CamcorderProfile;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
+import net.majorkernelpanic.streaming.MediaStream;
+import net.majorkernelpanic.streaming.SessionBuilder;
+import net.majorkernelpanic.streaming.audio.AudioQuality;
+import net.majorkernelpanic.streaming.rtsp.RtspClient;
+import net.majorkernelpanic.streaming.rtsp.RtspServer;
+import net.majorkernelpanic.streaming.video.VideoQuality;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 import no_de.inf5090.visualizingsensordata.application.DomainObserverManager;
@@ -37,9 +50,11 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import net.majorkernelpanic.streaming.Session;
+
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
-public class VideoCapture extends Activity {
+public class VideoCapture extends Activity implements Session.Callback, RtspClient.Callback {
 
     // Persistence instance
     private LocalStorageWriter mLocalStorageWriter;
@@ -86,6 +101,9 @@ public class VideoCapture extends Activity {
     // singleton
     private static VideoCapture self;
 
+    public Session mSession;
+    public RtspClient mClient;
+
     /**
      * Application directory
      */
@@ -129,7 +147,48 @@ public class VideoCapture extends Activity {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // do the camera magic
-        initCameraStuff();
+        //initCameraStuff();
+
+        // create a camera surface for the preview and add to the view
+        mCameraPreview = new CameraPreview(this, mCameraHelper);
+        FrameLayout frame = (FrameLayout) findViewById(R.id.videoview);
+        frame.addView(mCameraPreview);
+
+        //CamcorderProfile p = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+
+        //SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        //editor.putString(RtspServer.KEY_PORT, String.valueOf(1935));
+        //editor.commit();
+
+        mSession = SessionBuilder.getInstance()
+                .setContext(this)
+                .setAudioEncoder(SessionBuilder.AUDIO_AAC)
+                //.setAudioQuality(new AudioQuality(8000, 16000))
+                .setAudioQuality(new AudioQuality(48000, 128000))
+                .setVideoEncoder(SessionBuilder.VIDEO_H264)
+                //.setVideoQuality(new VideoQuality(640, 360))
+                // default video: 176x144
+                //.setVideoQuality(new VideoQuality(640, 480, 30, 1000000))
+                .setVideoQuality(new VideoQuality(1280, 720, 30, 4000000)) // test 720 movie: 5 mbit
+                //.setVideoQuality(new VideoQuality(1920, 1080, 1, 3000000)) // test 1080 movie: 8 mbit
+                .setSurfaceView(mCameraPreview)
+                .setPreviewOrientation(0)
+                .setCallback(this)
+                //.setDestination("37.191.203.206")
+                //.setDestination("37.191.193.98")
+                .setDestination("37.191.195.33")
+                .build();
+        //mSession.getVideoTrack().setStreamingMethod(MediaStream.MODE_MEDIARECORDER_API);
+
+        //this.startService(new Intent(this, RtspServer.class));
+
+        /*mClient = new RtspClient();
+        mClient.setSession(mSession);
+        mClient.setCallback(this);
+        mClient.setCredentials("inf5090", "vsd");
+        mClient.setServerAddress("dev1.hsw.no", 1935);
+        mClient.setStreamPath("/live/test1");*/
+
 
         // set up sensors
         domainObserverManager = new DomainObserverManager();
@@ -224,6 +283,8 @@ public class VideoCapture extends Activity {
     Button.OnClickListener myButtonOnClickListener = new Button.OnClickListener() {
         @SuppressLint("NewApi")
         public void onClick(View v) {
+            mSession.start();
+            /*
             if (mCameraHelper.isRecording()) {
                 stopRecording();
             } else {
@@ -232,7 +293,7 @@ public class VideoCapture extends Activity {
                 } else {
                     startRecording();
                 }
-            }
+            }*/
         }
     };
 
@@ -240,7 +301,7 @@ public class VideoCapture extends Activity {
     protected void onDestroy() {
         Log.d("VideoCapture", "onDestroy");
         super.onDestroy();
-        mCameraHelper.onDestroy();
+        //mCameraHelper.onDestroy();
     }
 
     @Override
@@ -271,8 +332,8 @@ public class VideoCapture extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        mCameraHelper.onResume();
-        mCameraPreview.startPreview();
+        //mCameraHelper.onResume();
+        //mCameraPreview.startPreview();
         domainObserverManager.resumeSensors();
     }
 
@@ -284,11 +345,11 @@ public class VideoCapture extends Activity {
         super.onPause();
 
         // stop any recording
-        if (mCameraHelper.isRecording()) {
+        /*if (mCameraHelper.isRecording()) {
             stopRecording();
-        }
+        }*/
 
-        mCameraHelper.onPause();
+        //mCameraHelper.onPause();
         domainObserverManager.pauseSensors();
     }
 
@@ -392,4 +453,42 @@ public class VideoCapture extends Activity {
 	public Observable getSnapshotObservable() {
 		return mCameraHelper.getSnapshotSensor();
 	}
+
+    @Override
+    public void onBitrateUpdate(long bitrate) {
+        // Informs you of the bandwidth consumption of the streams
+        Log.d("VideoCapture", "Bitrate: "+bitrate);
+    }
+
+    @Override
+    public void onSessionError(int reason, int streamType, Exception e) {
+
+    }
+
+    @Override
+    public void onPreviewStarted() {
+        //mClient.startStream();
+    }
+
+    @Override
+    public void onSessionConfigured() {
+        Log.d("VideoCapture", mSession.getSessionDescription());
+        //mSession.start();
+    }
+
+    @Override
+    public void onSessionStarted() {
+        Log.d("VideoCapture", "Streaming session started.");
+
+    }
+
+    @Override
+    public void onSessionStopped() {
+        Log.d("VideoCapture", "Streaming session stopped.");
+    }
+
+    @Override
+    public void onRtspUpdate(int message, Exception exception) {
+
+    }
 }
