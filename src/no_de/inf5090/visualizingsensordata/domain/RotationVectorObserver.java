@@ -11,7 +11,7 @@ import org.w3c.dom.Element;
 /**
  * Listen to the ROTATION_VECTOR-sensor for providing orientation data
  */
-public class RotationVectorObserver extends LogicalSensorObservable implements SensorEventListener {
+public class RotationVectorObserver extends AbstractDomainObservable implements SensorEventListener {
     private static final String TAG = "RotationVectorObserver";
 
     SensorManager sensorManager;
@@ -111,7 +111,7 @@ public class RotationVectorObserver extends LogicalSensorObservable implements S
 
         // inform observers
         setChanged();
-        notifyObservers(new LogicalSensorData(this));
+        notifyObservers(new DomainData(this));
     }
 
     @Override
@@ -172,12 +172,12 @@ public class RotationVectorObserver extends LogicalSensorObservable implements S
     /**
      * Sensor observer data
      */
-    public class LogicalSensorData extends AbstractLogicalSensorData {
+    public class DomainData extends AbstractDomainData {
         private double mAzimuth;
         private double mPitch;
         private double mRoll;
 
-        public LogicalSensorData(RotationVectorObserver sensor) {
+        public DomainData(RotationVectorObserver sensor) {
             super(sensor);
             this.mAzimuth = sensor.getAzimuth();
             this.mPitch = sensor.getPitch();

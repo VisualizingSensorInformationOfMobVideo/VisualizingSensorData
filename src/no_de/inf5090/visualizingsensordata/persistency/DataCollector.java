@@ -3,7 +3,7 @@ package no_de.inf5090.visualizingsensordata.persistency;
 import android.util.Log;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 import no_de.inf5090.visualizingsensordata.application.Utils;
-import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
+import no_de.inf5090.visualizingsensordata.domain.AbstractDomainData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,7 +26,7 @@ public abstract class DataCollector implements Observer {
     /**
      * List for sensor data from observed logical sensors
      */
-    List<AbstractLogicalSensorData> mSensorData = new ArrayList<AbstractLogicalSensorData>();
+    List<AbstractDomainData> mSensorData = new ArrayList<AbstractDomainData>();
 
     /**
      * We need access to camera object to fetch things like resolution
@@ -49,8 +49,8 @@ public abstract class DataCollector implements Observer {
      */
     public void update(Observable observable, Object data) {
         synchronized(this) {
-            if (!(data instanceof AbstractLogicalSensorData) || !mIsRecording) return;
-            mSensorData.add((AbstractLogicalSensorData) data);
+            if (!(data instanceof AbstractDomainData) || !mIsRecording) return;
+            mSensorData.add((AbstractDomainData) data);
         }
     }
 
@@ -117,7 +117,7 @@ public abstract class DataCollector implements Observer {
         rootElement.appendChild(elm); 
 
         // sensor data
-        for (AbstractLogicalSensorData logItem : mSensorData) {
+        for (AbstractDomainData logItem : mSensorData) {
         	rootElement.appendChild(logItem.getXml(doc));
         }
 
@@ -170,7 +170,7 @@ public abstract class DataCollector implements Observer {
      * Empty list of sensor data (e.g. after XML is generated)
      */
     protected void emptyData() {
-        mSensorData = new ArrayList<AbstractLogicalSensorData>();
+        mSensorData = new ArrayList<AbstractDomainData>();
     }
 
     /**

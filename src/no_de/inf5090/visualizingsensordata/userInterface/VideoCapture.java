@@ -11,7 +11,7 @@ import java.util.Observer;
 import no_de.inf5090.visualizingsensordata.R;
 import no_de.inf5090.visualizingsensordata.application.CameraHelper;
 import no_de.inf5090.visualizingsensordata.application.SensorController;
-import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.LocationObserver;
 import no_de.inf5090.visualizingsensordata.persistency.LocalStorageWriter;
 import no_de.inf5090.visualizingsensordata.persistency.RemoteDataPusher;
 import no_de.inf5090.visualizingsensordata.transmission.BaseTransmission;
@@ -146,8 +146,8 @@ public class VideoCapture extends Activity {
         appDir.mkdirs();
 
         // show GPS-dialog if disabled
-        if (!LocationSensorObserver.isGpsEnabled(this)) {
-            LocationSensorObserver.showSettingsDialog(this);
+        if (!LocationObserver.isGpsEnabled(this)) {
+            LocationObserver.showSettingsDialog(this);
         }
     }
 
@@ -325,7 +325,7 @@ public class VideoCapture extends Activity {
     /**
      * Listen to location updates from GPS-sensor
      */
-    public void locationUpdate(LocationSensorObserver sensor) {
+    public void locationUpdate(LocationObserver sensor) {
         // on location change we can start record
         // TODO: our project really don't need a location, so we don't really need this
         mRecordButton.setEnabled(true);

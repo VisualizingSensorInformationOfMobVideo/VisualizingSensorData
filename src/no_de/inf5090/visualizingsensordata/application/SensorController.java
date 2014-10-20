@@ -13,17 +13,17 @@ import java.util.Observer;
  */
 public class SensorController {
     /** Sensor list */
-    private ArrayList<LogicalSensorObservable> sensors = new ArrayList<LogicalSensorObservable>();
+    private ArrayList<AbstractDomainObservable> sensors = new ArrayList<AbstractDomainObservable>();
 
     /**
      * Initialize sensors
      */
     public void initSensors() {
-        LogicalSensorObservable sensor;
+        AbstractDomainObservable sensor;
         SensorManager manager = (SensorManager) VideoCapture.getSelf().getSystemService(Activity.SENSOR_SERVICE);
 
         // acceleration sensor
-        sensor = new AccelerationSensorObserver(manager);
+        sensor = new AccelerationObserver(manager);
         sensors.add(sensor);
 
         // orientation sensor
@@ -31,11 +31,11 @@ public class SensorController {
         sensors.add(sensor);
 
         // movement sensor
-        sensor = new LocationSensorObserver(VideoCapture.getSelf().getContext());
+        sensor = new LocationObserver(VideoCapture.getSelf().getContext());
         sensors.add(sensor);
 
         // brightness sensor
-        sensor = new BrightnessSensorObserver(manager);
+        sensor = new BrightnessObserver(manager);
         sensors.add(sensor);
 
         // snapshot sensor
@@ -50,7 +50,7 @@ public class SensorController {
      * Connect sensors to observers
      */
     public void connectSensors(Observer observer) {
-        for (LogicalSensorObservable sensor: sensors) {
+        for (AbstractDomainObservable sensor: sensors) {
         	sensor.addObserver(observer);
         }
     }
@@ -59,7 +59,7 @@ public class SensorController {
      * Disconnect sensors from observers
      */
     public void disconnectSensors(Observer observer) {
-        for (LogicalSensorObservable sensor: sensors) {
+        for (AbstractDomainObservable sensor: sensors) {
         	sensor.deleteObserver(observer);
         }
     }
@@ -68,7 +68,7 @@ public class SensorController {
      * Pause sensors (e.g. the application is paused)
      */
     public void pauseSensors() {
-        for (LogicalSensorObservable sensor: sensors) {
+        for (AbstractDomainObservable sensor: sensors) {
             sensor.onPause();
         }
     }
@@ -77,7 +77,7 @@ public class SensorController {
      * Pause sensors (e.g. the application is paused)
      */
     public void resumeSensors() {
-        for (LogicalSensorObservable sensor: sensors) {
+        for (AbstractDomainObservable sensor: sensors) {
             sensor.onResume();
         }
     }
@@ -88,8 +88,8 @@ public class SensorController {
      * @param sensorName name of the wanted sensor
      * @return the sensor that match the given name, and null if no sensor is found
      */
-    public LogicalSensorObservable getSensor(String sensorName) {
-    	for (LogicalSensorObservable s : sensors) {
+    public AbstractDomainObservable getSensor(String sensorName) {
+    	for (AbstractDomainObservable s : sensors) {
     		if (s.getName().equals(sensorName)) {
     			return s;
     		}

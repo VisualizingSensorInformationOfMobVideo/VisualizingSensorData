@@ -4,8 +4,9 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
-import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
-import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.AbstractDomainData;
+import no_de.inf5090.visualizingsensordata.domain.AccelerationObserver;
+import no_de.inf5090.visualizingsensordata.domain.LocationObserver;
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -14,8 +15,6 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import no_de.inf5090.visualizingsensordata.R;
-import no_de.inf5090.visualizingsensordata.application.Utils;
-import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
 import android.annotation.TargetApi;
 import android.app.Fragment;
@@ -120,27 +119,27 @@ public class SensorDataGraphFragment extends Fragment implements Observer {
     }
 
     public void update(Observable observable, Object data) {
-        if(!(data instanceof AbstractLogicalSensorData))
+        if(!(data instanceof AbstractDomainData))
             return;
 
-        AbstractLogicalSensorData sensorData = (AbstractLogicalSensorData) data;
+        AbstractDomainData sensorData = (AbstractDomainData) data;
 
         // rotation?
         if (observable instanceof RotationVectorObserver) {
-            RotationVectorObserver.LogicalSensorData logData = (RotationVectorObserver.LogicalSensorData) sensorData;
+            RotationVectorObserver.DomainData logData = (RotationVectorObserver.DomainData) sensorData;
             mAzimuthSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), logData.getAzimuth() / Math.PI);
             mPitchSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), logData.getPitch() / Math.PI);
             mRollSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), logData.getRoll() / Math.PI);
         }
 
         // acceleration?
-        else if (observable instanceof AccelerationSensorObserver) {
-            mShakeSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), ((AccelerationSensorObserver.LogicalSensorData)sensorData).getAcceleration()/10);
+        else if (observable instanceof AccelerationObserver) {
+            mShakeSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), ((AccelerationObserver.DomainData)sensorData).getAcceleration()/10);
         }
 
         // speed?
-        else if (observable instanceof LocationSensorObserver) {
-            mSpeedSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), ((LocationSensorObserver.LogicalSensorData)sensorData).getSpeed());
+        else if (observable instanceof LocationObserver) {
+            mSpeedSeries.add(sensorData.getTimestamp().getTime() - graphStartDate.getTime(), ((LocationObserver.DomainData)sensorData).getSpeed());
         }
 
         // Set new range - last 2 seconds

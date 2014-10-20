@@ -14,14 +14,14 @@ import java.util.Date;
  * class should provide a standard generation for XML-output
  * that will not be implementation-dependant
  */
-public abstract class AbstractLogicalSensorData {
+public abstract class AbstractDomainData {
 	/** Name of the XML element that contains data */
 	public final static String xmlDataEntryName = "entry"; 
 	
     /**
      * The sensor that generated this data
      */
-    protected LogicalSensorObservable sensor;
+    protected AbstractDomainObservable sensor;
 
     /**
      * Timestamp for sensor data
@@ -31,7 +31,7 @@ public abstract class AbstractLogicalSensorData {
     /**
      * Constructor
      */
-    protected AbstractLogicalSensorData(LogicalSensorObservable sensor) {
+    protected AbstractDomainData(AbstractDomainObservable sensor) {
         this.sensor = sensor;
         this.timestamp = new Date();
     }
@@ -39,7 +39,7 @@ public abstract class AbstractLogicalSensorData {
     /**
      * Get sensor
      */
-    public LogicalSensorObservable getSensor() {
+    public AbstractDomainObservable getSensor() {
         return sensor;
     }
 

@@ -6,7 +6,7 @@ import java.util.Observer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class SnapshotObserver extends LogicalSensorObservable implements Observer {
+public class SnapshotObserver extends AbstractDomainObservable implements Observer {
     private String encodedImage;
     private Observable mSnapshotSensor;
 
@@ -24,7 +24,7 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
         encodedImage = (String) data;
         
         setChanged();
-        notifyObservers(new LogicalSensorData(this));
+        notifyObservers(new DomainData(this));
     }
 
     @Override
@@ -54,10 +54,10 @@ public class SnapshotObserver extends LogicalSensorObservable implements Observe
     /**
      * Sensor observer data
      */
-    public class LogicalSensorData extends AbstractLogicalSensorData {
+    public class DomainData extends AbstractDomainData {
     	private String encodedImage;
     	
-        protected LogicalSensorData(SnapshotObserver sensor) {
+        protected DomainData(SnapshotObserver sensor) {
             super(sensor);
             this.encodedImage = sensor.encodedImage;
         }

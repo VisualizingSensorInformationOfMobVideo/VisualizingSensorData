@@ -15,7 +15,7 @@ import android.hardware.SensorManager;
  * At least on some phones, it will measure from the front side of the
  * phone (where the screen is)
  */
-public class BrightnessSensorObserver extends LogicalSensorObservable implements SensorEventListener {
+public class BrightnessObserver extends AbstractDomainObservable implements SensorEventListener {
     private final SensorManager mSensorManager;
     private float mLux = 0.0f;
 
@@ -34,7 +34,7 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
      */
     private static final long MINIMUM_DELAY = 150;
 
-    public BrightnessSensorObserver (SensorManager sensorManager){
+    public BrightnessObserver(SensorManager sensorManager){
         mSensorManager = sensorManager;
     }
 
@@ -50,7 +50,7 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
         mLux = event.values[0];
 
         setChanged();
-        notifyObservers(new LogicalSensorData(this));
+        notifyObservers(new DomainData(this));
     }
 
     @Override
@@ -81,10 +81,10 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
     /**
      * Sensor observer data
      */
-    public class LogicalSensorData extends AbstractLogicalSensorData {
+    public class DomainData extends AbstractDomainData {
     	private float mLux;
     	
-        protected LogicalSensorData(BrightnessSensorObserver sensor) {
+        protected DomainData(BrightnessObserver sensor) {
             super(sensor);
             mLux = sensor.getLux();
         }

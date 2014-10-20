@@ -20,7 +20,7 @@ import org.w3c.dom.Element;
  * @author Jens Naber et al.
  * Analyzes the GPS data to find out if the user is walking to fast to film a good video
  */
-public class LocationSensorObserver extends LogicalSensorObservable implements LocationListener {
+public class LocationObserver extends AbstractDomainObservable implements LocationListener {
     public final static String TAG = "LocationSensorObserver";
 
     /**
@@ -61,7 +61,7 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
     /**
      * Constructor gets an location manager
      */
-    public LocationSensorObserver(Context context){
+    public LocationObserver(Context context){
         this.mContext = context;
         mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
     }
@@ -89,7 +89,7 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
         mLocation = location;
 
         setChanged();
-        notifyObservers(new LogicalSensorData(this));
+        notifyObservers(new DomainData(this));
     }
 
     public void onProviderDisabled(String provider) {
@@ -154,11 +154,11 @@ public class LocationSensorObserver extends LogicalSensorObservable implements L
     /**
      * Sensor observer data
      */
-    public class LogicalSensorData extends AbstractLogicalSensorData {
+    public class DomainData extends AbstractDomainData {
         private Location mLocation;
         private double mSpeed;
 
-        public LogicalSensorData(LocationSensorObserver sensor) {
+        public DomainData(LocationObserver sensor) {
             super(sensor);
             mSpeed = sensor.getSpeed();
             mLocation = sensor.getLocation();

@@ -4,9 +4,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import no_de.inf5090.visualizingsensordata.R;
-import no_de.inf5090.visualizingsensordata.domain.AbstractLogicalSensorData;
-import no_de.inf5090.visualizingsensordata.domain.AccelerationSensorObserver;
-import no_de.inf5090.visualizingsensordata.domain.LocationSensorObserver;
+import no_de.inf5090.visualizingsensordata.domain.AccelerationObserver;
+import no_de.inf5090.visualizingsensordata.domain.LocationObserver;
 import no_de.inf5090.visualizingsensordata.domain.RotationVectorObserver;
 import android.annotation.TargetApi;
 import android.app.Fragment;
@@ -65,18 +64,18 @@ public class SensorListFragment extends Fragment implements Observer {
      */
     public void update(Observable observable, Object data) {
         // check for acceleration
-        if (observable instanceof AccelerationSensorObserver) {
-            handleShakeEvent((AccelerationSensorObserver.LogicalSensorData)data);
+        if (observable instanceof AccelerationObserver) {
+            handleShakeEvent((AccelerationObserver.DomainData)data);
         }
 
         // check for speed
-        else if (observable instanceof LocationSensorObserver) {
-            handleSpeedEvent((LocationSensorObserver.LogicalSensorData)data);
+        else if (observable instanceof LocationObserver) {
+            handleSpeedEvent((LocationObserver.DomainData)data);
         }
 
         // check for orientation
         else if (observable instanceof RotationVectorObserver) {
-            handleOrientionVectorObserverChanged((RotationVectorObserver.LogicalSensorData)data);
+            handleOrientionVectorObserverChanged((RotationVectorObserver.DomainData)data);
         }
     }
 
@@ -115,7 +114,7 @@ public class SensorListFragment extends Fragment implements Observer {
     /**
      * This method handles shake events and updates the progress bar to show if shaking is too bad.
      */
-    private void handleShakeEvent(AccelerationSensorObserver.LogicalSensorData data) {
+    private void handleShakeEvent(AccelerationObserver.DomainData data) {
         ProgressBar bar = (ProgressBar) fragmentView.findViewById(R.id.shakeBar);
         int shakeValue = (int) (Math.abs(data.getAcceleration()/10) * 100);
 
@@ -133,7 +132,7 @@ public class SensorListFragment extends Fragment implements Observer {
     /*
      * Visually presents the orientation of the device
      */
-    private void handleOrientionVectorObserverChanged(RotationVectorObserver.LogicalSensorData data) {
+    private void handleOrientionVectorObserverChanged(RotationVectorObserver.DomainData data) {
         ProgressBar bar;
         int val;
 
@@ -166,7 +165,7 @@ public class SensorListFragment extends Fragment implements Observer {
     /**
      * This method handles speed events and updates the progress bar to show if speed is to high.
      */
-    private void handleSpeedEvent(LocationSensorObserver.LogicalSensorData data) {
+    private void handleSpeedEvent(LocationObserver.DomainData data) {
         ProgressBar bar = (ProgressBar) fragmentView.findViewById(R.id.speedBar);
         int speedValue = (int) (data.getSpeed() * 100);
 

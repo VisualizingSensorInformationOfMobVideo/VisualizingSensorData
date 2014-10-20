@@ -13,7 +13,7 @@ import org.w3c.dom.Element;
  * detect shaking without being too influenced by gravity and the normal movement of the
  * person holding the phone.
  */
-public class AccelerationSensorObserver extends LogicalSensorObservable implements SensorEventListener {
+public class AccelerationObserver extends AbstractDomainObservable implements SensorEventListener {
     private final SensorManager mSensorManager;
     private float mShake = 0.0f;                                 // Acceleration (without gravity, after filter).
     private float mAcceleration = SensorManager.GRAVITY_EARTH;   // The previous acceleration value (with gravity).
@@ -41,7 +41,7 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
     /**
      * Constructor method that initializes values.
      */
-    public AccelerationSensorObserver(SensorManager sensorManager) {
+    public AccelerationObserver(SensorManager sensorManager) {
         mSensorManager = sensorManager;
     }
 
@@ -68,7 +68,7 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
         mShake = mShake * (1-FILTER_SMOOTHING) + delta * FILTER_SMOOTHING;
 
         setChanged();
-        notifyObservers(new LogicalSensorData(this));
+        notifyObservers(new DomainData(this));
     }
 
     @Override
@@ -101,10 +101,10 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
     /**
      * Sensor observer data
      */
-    public class LogicalSensorData extends AbstractLogicalSensorData {
+    public class DomainData extends AbstractDomainData {
         private float acceleration;
 
-        public LogicalSensorData(AccelerationSensorObserver sensor) {
+        public DomainData(AccelerationObserver sensor) {
             super(sensor);
             this.acceleration = sensor.getShake();
         }

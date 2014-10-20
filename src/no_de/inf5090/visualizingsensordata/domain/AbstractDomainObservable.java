@@ -7,7 +7,7 @@ import java.util.Observable;
  *
  * The name should probably be refactored
  */
-public abstract class LogicalSensorObservable extends Observable {
+public abstract class AbstractDomainObservable extends Observable {
     /**
      * Free resources when pausing/not using sensor
      */
