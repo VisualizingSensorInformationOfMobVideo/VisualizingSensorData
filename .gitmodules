@@ -1,0 +1,3 @@
+[submodule "libs/libstreaming"]
+	path = libs/libstreaming
+	url = https://github.com/fyhertz/libstreaming.git
