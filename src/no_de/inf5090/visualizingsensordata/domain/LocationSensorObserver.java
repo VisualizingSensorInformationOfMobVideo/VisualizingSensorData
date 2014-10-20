@@ -12,7 +12,6 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import no_de.inf5090.visualizingsensordata.application.Utils;
 import no_de.inf5090.visualizingsensordata.userInterface.VideoCapture;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -1,15 +1,12 @@
 package no_de.inf5090.visualizingsensordata.domain;
 
-import java.util.Observable;
-import java.util.Observer;
-
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-
-import no_de.inf5090.visualizingsensordata.application.Utils;
 
 /**
  * Measures brightness in the lux unit. It is not very accurate, and can
@@ -18,9 +15,8 @@ import no_de.inf5090.visualizingsensordata.application.Utils;
  * At least on some phones, it will measure from the front side of the
  * phone (where the screen is)
  */
-public class BrightnessSensorObserver extends LogicalSensorObservable implements Observer {
+public class BrightnessSensorObserver extends LogicalSensorObservable implements SensorEventListener {
     private final SensorManager mSensorManager;
-    private final RawSensorObservable mObservableBrightness;
     private float mLux = 0.0f;
 
     /**
@@ -40,19 +36,18 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
 
     public BrightnessSensorObserver (SensorManager sensorManager){
         mSensorManager = sensorManager;
-        mObservableBrightness = new RawSensorObservable();
-        mObservableBrightness.addObserver(this);
     }
 
     @Override
-    public void update(Observable observable, Object data) {
+    //public void update(Observable observable, Object data) {
+    public void onSensorChanged(SensorEvent event) {
         // make sure the sensor don't flood; time since last update should be above threshold
         long now = System.currentTimeMillis();
         long elapsed = now - mLastTime;
         mLastTime = now;
         if (elapsed < MINIMUM_DELAY) return;
 
-        mLux = mObservableBrightness.values[0];
+        mLux = event.values[0];
 
         setChanged();
         notifyObservers(new LogicalSensorData(this));
@@ -60,12 +55,17 @@ public class BrightnessSensorObserver extends LogicalSensorObservable implements
 
     @Override
     public void onPause() {
-        mSensorManager.unregisterListener(mObservableBrightness);
+        mSensorManager.unregisterListener(this);
     }
 
     @Override
     public void onResume() {
-        mSensorManager.registerListener(mObservableBrightness, mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // do nothing
     }
 
     @Override

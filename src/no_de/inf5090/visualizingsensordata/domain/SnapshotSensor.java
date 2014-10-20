@@ -13,7 +13,6 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
-import android.util.Log;
 
 public class SnapshotSensor extends Observable { 
 

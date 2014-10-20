@@ -1,24 +1,25 @@
 package no_de.inf5090.visualizingsensordata.domain;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
-import no_de.inf5090.visualizingsensordata.application.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  * Listen to the ROTATION_VECTOR-sensor for providing orientation data
  */
-public class RotationVectorObserver extends LogicalSensorObservable implements Observer {
+public class RotationVectorObserver extends LogicalSensorObservable implements SensorEventListener {
     private static final String TAG = "RotationVectorObserver";
 
     SensorManager sensorManager;
-    RawSensorObservable mObservableSensor1; // for rotationvector-sensor or accelerometer in fallback
-    RawSensorObservable mObservableSensor2; // for magneticfield-sensor in fallback
+    protected float[] mSensorValues1; // for rotationvector-sensor or accelerometer in fallback
+    protected float[] mSensorValues2; // for magneticfield-sensor in fallback
+
+    protected Sensor mSensor1;
+    protected Sensor mSensor2;
 
     private float mAzimuth; // rotation around the Z axis
     private float mPitch;   // rotation around the X axis
@@ -49,14 +50,9 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
      * Note: need to call acquire resources to start listening for sensor changes!
      */
     public RotationVectorObserver(SensorManager sensorManager) {
-        mObservableSensor1 = new RawSensorObservable();
-        mObservableSensor1.addObserver(this);
-
         // check if we don't have ROTATION_VECTOR-sensor available
         if (sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == null) {
             Log.d(TAG, "Fallback to accelerometer and magnetic field sensors");
-            mObservableSensor2 = new RawSensorObservable();
-            mObservableSensor2.addObserver(this);
             mIsFallback = true;
         }
 
@@ -66,7 +62,7 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
     /**
      * Handle update from observable
      */
-    public void update(Observable observable, Object data) {
+    public void onSensorChanged(SensorEvent event) {
         // make sure the sensor don't flood; time since last update should be above threshold
         long now = System.currentTimeMillis();
         long elapsed = now - mLastTime;
@@ -76,19 +72,25 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
         }
         mLastTime = now;
 
+        // store the values for later use
+        if (event.sensor == mSensor1)
+            mSensorValues1 = event.values;
+        else
+            mSensorValues2 = event.values;
+
         // fallback?
         if (mIsFallback) {
             // require data from both sensors
-            if (mObservableSensor1.values == null || mObservableSensor2.values == null) return;
+            if (mSensorValues1 == null || mSensorValues2 == null) return;
 
             // get rotation matrix from sensors
-            if (!SensorManager.getRotationMatrix(mRotationMatrix, null, mObservableSensor1.values, mObservableSensor2.values)) {
+            if (!SensorManager.getRotationMatrix(mRotationMatrix, null, mSensorValues1, mSensorValues2)) {
                 Log.e(TAG, "getRotationMatrix failed");
                 return;
             }
         } else {
             // transform rotation vector to rotation matrix
-            SensorManager.getRotationMatrixFromVector(mRotationMatrix, mObservableSensor1.values);
+            SensorManager.getRotationMatrixFromVector(mRotationMatrix, mSensorValues1);
         }
 
         // transform coordinate system
@@ -114,18 +116,31 @@ public class RotationVectorObserver extends LogicalSensorObservable implements O
 
     @Override
     public void onPause() {
-        sensorManager.unregisterListener(mObservableSensor1);
-        if (mIsFallback) sensorManager.unregisterListener(mObservableSensor2);
+        sensorManager.unregisterListener(this);
     }
 
     @Override
     public void onResume() {
         if (mIsFallback) {
-            sensorManager.registerListener(mObservableSensor1, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-            sensorManager.registerListener(mObservableSensor2, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
+            if (mSensor1 == null) {
+                mSensor1 = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                mSensor2 = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+            }
+
+            sensorManager.registerListener(this, mSensor1, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(this, mSensor2, SensorManager.SENSOR_DELAY_NORMAL);
         } else {
-            sensorManager.registerListener(mObservableSensor1,  sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_NORMAL);
+            if (mSensor1 == null) {
+                mSensor1 = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            }
+
+            sensorManager.registerListener(this,  mSensor1, SensorManager.SENSOR_DELAY_NORMAL);
         }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // do nothing
     }
 
     /**

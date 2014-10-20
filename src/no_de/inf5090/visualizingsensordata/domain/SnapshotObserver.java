@@ -6,8 +6,6 @@ import java.util.Observer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import android.util.Log;
-
 public class SnapshotObserver extends LogicalSensorObservable implements Observer {
     private String encodedImage;
     private Observable mSnapshotSensor;

@@ -1,11 +1,9 @@
 package no_de.inf5090.visualizingsensordata.domain;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import no_de.inf5090.visualizingsensordata.application.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -15,9 +13,8 @@ import org.w3c.dom.Element;
  * detect shaking without being too influenced by gravity and the normal movement of the
  * person holding the phone.
  */
-public class AccelerationSensorObserver extends LogicalSensorObservable implements Observer {
+public class AccelerationSensorObserver extends LogicalSensorObservable implements SensorEventListener {
     private final SensorManager mSensorManager;
-    private final RawSensorObservable mObservableAccelerometer;
     private float mShake = 0.0f;                                 // Acceleration (without gravity, after filter).
     private float mAcceleration = SensorManager.GRAVITY_EARTH;   // The previous acceleration value (with gravity).
 
@@ -25,7 +22,7 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
      * The name for this sensor observer
      */
     public final static String NAME = "Acceleration";
-    
+
     /**
      * Time of last shake update
      */
@@ -46,23 +43,21 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
      */
     public AccelerationSensorObserver(SensorManager sensorManager) {
         mSensorManager = sensorManager;
-        mObservableAccelerometer = new RawSensorObservable();
-        mObservableAccelerometer.addObserver(this);
     }
 
     /**
      * This method is executed on every sensor event update, but only does work if there's been some time since the last update.
      */
-    public void update(Observable observable, Object data) {
+    public void onSensorChanged(SensorEvent event) {
         // make sure the sensor don't flood; time since last update should be above threshold
         long now = System.currentTimeMillis();
         long elapsed = now - lastTime;
         lastTime = now;
         if (elapsed < MINIMUM_DELAY) return;
 
-        float x = mObservableAccelerometer.values[0];
-        float y = mObservableAccelerometer.values[1];
-        float z = mObservableAccelerometer.values[2];
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
 
         float newAcceleration = (float) Math.sqrt((x * x) + (y * y) + (z * z));   // Find "magnitude" vector of current acceleration.
         float delta = newAcceleration - mAcceleration;                             // Get difference in acceleration, removing gravity.
@@ -78,12 +73,17 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
 
     @Override
     public void onResume() {
-        mSensorManager.registerListener(mObservableAccelerometer, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void onPause() {
-        mSensorManager.unregisterListener(mObservableAccelerometer);
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // do nothing
     }
 
     /**
@@ -97,7 +97,7 @@ public class AccelerationSensorObserver extends LogicalSensorObservable implemen
 	public String getName() {
 		return NAME;
 	}
-    
+
     /**
      * Sensor observer data
      */
