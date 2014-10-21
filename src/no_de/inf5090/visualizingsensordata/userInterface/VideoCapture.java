@@ -1,8 +1,6 @@
 package no_de.inf5090.visualizingsensordata.userInterface;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Observable;
@@ -21,8 +19,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -90,25 +86,6 @@ public class VideoCapture extends Activity {
      * Application directory
      */
     public static File appDir;
-
-    /**
-     * battery consumption
-     */
-    
-    public void printBatteryLevel(String mString) {
-        Intent batteryIntent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        float level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        float scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        float batteryPct = ((float)level / (float)scale) * 100.0f;
-        
-        try {
-            FileWriter out = new FileWriter(new File(appDir, mString + ".txt"));
-            out.write(String.valueOf(batteryPct));
-            out.close();
-        } catch (IOException e) {
-        }
-        Log.i(mString, " " + batteryPct);
-    }
     
     /** Called when the activity is first created. */
     @Override
@@ -116,9 +93,6 @@ public class VideoCapture extends Activity {
         Log.d("VideoCapture", "onCreate");
         super.onCreate(savedInstanceState);
 
-        
-        
-        
         // set as singleton
         setSelf(this);
 
@@ -194,7 +168,6 @@ public class VideoCapture extends Activity {
      * Start recording
      */
     private void startRecording() {
-        printBatteryLevel("VideoCapture_startRecording_beginning");
         // create a new name for this recording
         refreshOutputFileName();
 
@@ -214,7 +187,6 @@ public class VideoCapture extends Activity {
 
         // Stop recording sensor data
         stopPersistingSensorData();
-        printBatteryLevel("VideoCapture_stopRecording_end");
     }
 
 	/**
