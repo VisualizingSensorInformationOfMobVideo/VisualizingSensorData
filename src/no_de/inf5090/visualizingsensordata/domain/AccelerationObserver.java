@@ -34,11 +34,6 @@ public class AccelerationObserver extends AbstractDomainObservable implements Se
     private static final long MINIMUM_DELAY = 150;
 
     /**
-     * Smoothening-constant for the low-pass filter
-     */
-    private static final float FILTER_SMOOTHING = .9f;
-
-    /**
      * Constructor method that initializes values.
      */
     public AccelerationObserver(SensorManager sensorManager) {
@@ -60,12 +55,8 @@ public class AccelerationObserver extends AbstractDomainObservable implements Se
         float z = event.values[2];
 
         float newAcceleration = (float) Math.sqrt((x * x) + (y * y) + (z * z));   // Find "magnitude" vector of current acceleration.
-        float delta = newAcceleration - mAcceleration;                             // Get difference in acceleration, removing gravity.
+        mShake = newAcceleration - mAcceleration;                           // Get difference in acceleration, removing gravity.
         mAcceleration = newAcceleration;
-
-        // low-pass filter
-        // TODO: is this filter really necessary when having time delay?
-        mShake = mShake * (1-FILTER_SMOOTHING) + delta * FILTER_SMOOTHING;
 
         setChanged();
         notifyObservers(new DomainData(this));
