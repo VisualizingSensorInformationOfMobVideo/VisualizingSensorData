@@ -75,7 +75,7 @@ public class SnapshotSensor extends Observable {
 			YuvImage im = new YuvImage(data[0], ImageFormat.NV21, mSize.width, mSize.height, null);
 			Rect r = new Rect(0, 0,mSize.width, mSize.height);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			im.compressToJpeg(r, jpegQuality, baos);
+			im.compressToJpeg(r, 100, baos);
 			
 			// Convert JPEG to Bitmap
 			byte[] jpegImage = baos.toByteArray();
@@ -87,7 +87,7 @@ public class SnapshotSensor extends Observable {
 
             // Convert it back to JPEG 
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			image.compress(Bitmap.CompressFormat.JPEG, 90, out);
+			image.compress(Bitmap.CompressFormat.JPEG, 70, out);
 
 			return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
 		}
