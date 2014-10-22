@@ -59,7 +59,14 @@ public class SnapshotSensor extends Observable {
 		private int photoHeight = 200;
 		
 		/** Original size of frame */
-    	private Camera.Size mSize = mCameraHelper.getCamera().getParameters().getPreviewSize();
+    	private Camera.Size mSize;
+
+        /**
+         * @param size is the size of a preview frame
+         */
+    	public SnapshotProcessor(Camera.Size size) {
+    		this.mSize = size;
+    	}
 
     	/**
     	 * Gets a frame as input, and converts this to a JPEG and then to a Bitmap, because it 
@@ -75,11 +82,11 @@ public class SnapshotSensor extends Observable {
 			Rect r = new Rect(0, 0,mSize.width, mSize.height);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			im.compressToJpeg(r, 100, baos);
-			
+
 			// Convert JPEG to Bitmap
 			byte[] jpegImage = baos.toByteArray();
 			Bitmap image = BitmapFactory.decodeByteArray(jpegImage, 0, jpegImage.length);
-			
+
 			// Scale Bitmap
 			int ratio = image.getHeight() / photoHeight;
             image = Bitmap.createScaledBitmap(image, image.getWidth() / ratio, image.getHeight() / ratio, true);
@@ -130,14 +137,19 @@ public class SnapshotSensor extends Observable {
 
     					@Override
     					public void run() {
-    						mCameraHelper.getCamera().setOneShotPreviewCallback(new Camera.PreviewCallback() {
+    						Camera c = mCameraHelper.getCamera();
 
-    							@Override
-    							public void onPreviewFrame(byte[] data, Camera camera) {
-    								// Do converting and scaling in a background thread
-                                    new SnapshotProcessor().execute(data);
-    							}
-    						});
+    						// Check if someone has stopped the camera
+    						if (c != null) {
+    							c.setOneShotPreviewCallback(new Camera.PreviewCallback() {
+
+    								@Override
+    								public void onPreviewFrame(byte[] data, Camera camera) {
+    									// Do converting and scaling in a background thread
+    									new SnapshotProcessor(camera.getParameters().getPreviewSize()).execute(data);
+    								}
+    							});
+    						}
     					}
     				});
     			}
