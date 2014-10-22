@@ -55,9 +55,8 @@ public class SnapshotSensor extends Observable {
     }
 
 	class SnapshotProcessor extends AsyncTask<byte[], Void, String>{
-		private int jpegQuality = 75;
-		private int photoWidth = 256;
-		private int photoHeight = 144;
+		private int jpegQuality = 70;
+		private int photoHeight = 200;
 		
 		/** Original size of frame */
     	private Camera.Size mSize = mCameraHelper.getCamera().getParameters().getPreviewSize();
@@ -87,7 +86,7 @@ public class SnapshotSensor extends Observable {
 
             // Convert it back to JPEG 
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			image.compress(Bitmap.CompressFormat.JPEG, 70, out);
+			image.compress(Bitmap.CompressFormat.JPEG, jpegQuality, out);
 
 			return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
 		}
